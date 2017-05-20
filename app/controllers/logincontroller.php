@@ -20,7 +20,7 @@ class LoginController extends Controller
 
     public function getIndex()
     {
-        $this->render("login", App\Lang::get("login_title"));
+        $this->render("login", "login.title", ["testMSgToView" => "default login name"]);
     }
 
     public function postIndex()

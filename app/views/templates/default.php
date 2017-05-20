@@ -1,25 +1,17 @@
-<?php
-
-namespace App;
-
-?>
 <!DOCTYPE html>
 <html>
 <head>
 
-    <title>{title}</title>
+    <title><?php echo $pageTitle ?></title>
     <meta charset="utf-8">
 
 <?php
 $robots = "noindex,nofollow";
-/*if (isset($currentPage["published"]) && $currentPage["published"] === 1) {
-    $robots = "index,follow";
-}*/
 ?>
     <meta name="robots" content="<?php echo $robots; ?>">
 
-    <link rel="stylesheet" type="text/css" href="{App::$siteDirectory}common.css">
-    <link rel="stylesheet" type="text/css" href="{App::$siteDirectory}frontend.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo \App\App::$directory; ?>common.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo \App\App::$directory; ?>frontend.css">
 </head>
 <body>
 
@@ -27,7 +19,6 @@ $robots = "noindex,nofollow";
         menu
     </nav>
 
-    content :
     <?php echo $content; ?>
 
 </body>

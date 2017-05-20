@@ -29,22 +29,8 @@ function redirect($controller = "", $action = null, $params = [])
     exit;
 }
 
-
-function loadView($bodyView, $pageTitle, $vars = [])
-{
-    global $user;
-    $headView = "";
-    foreach ($vars as $varName => $value) {
-        ${$varName} = $value;
-    }
-
-    require_once "../views/layout.php";
-}
-
-
 function isLoggedIn()
 {
     global $user;
     return ($user !== false);
 }
-

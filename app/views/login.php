@@ -1,12 +1,9 @@
-<?php
-if (isset($loginName) === false) $loginName = "";
-?>
 <h1>{pageTitle}</h1>
 
 <?php
 include "messages.php";
 
-$form = new App\Form("login", ["login_name" => $loginName]);
+$form = new App\Form("login", ["login_name" => "default login name2"]);
 
 $form->open("?c=login");
 
