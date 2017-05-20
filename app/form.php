@@ -4,27 +4,39 @@ namespace App;
 
 class Form
 {
+    private $name;
     private $data;
 
-    public function __construct($data = [])
+    public function __construct($name, $data = [])
     {
+        $this->name = $name;
         $this->data = $data;
     }
 
 
     public function open($target, $method = "POST")
     {
-        echo '<form action="'.$target.'" method="'.$method.'">';
+        echo '<form action="'.$target.'" method="'.$method.'">
+        ';
     }
 
-    public function close()
+    public function close($addCSRFProtection = true)
     {
-        echo '</form>';
+        if ($addCSRFProtection) {
+            // $this->hidden($this->name."_csrf_token");
+        }
+
+        echo '</form>
+        ';
     }
 
 
-    public function input($type, $name, $attributes = [])
+    public function input($type, $name, $attributes = null)
     {
+        if (! isset($attributes)) {
+            $attributes = [];
+        }
+
         $label = "";
         if (is_string($attributes)) {
             $label = $attributes;
@@ -39,18 +51,31 @@ class Form
         $content = "";
 
         if ($label !== "") {
-            $content .= "<label> $label";
+            $content .= "<label> $label
+            ";
         }
 
         $content .= '<input type="'.$type.'" name="'.$name.'"';
 
-        if (isset($this->data[$name])) {
-            $value = htmlspecialchars($this->data[$name]);
-            $content .= ' value="'.$value.'">';
+        // value
+        $value = null;
+        if (isset($attributes["value"])) {
+            $value = $attributes["value"];
+            unset($attributes["value"]);
+        }
+        elseif (isset($this->data[$name])) {
+            $value = $this->data[$name];
         }
 
+        if (isset($value)) {
+            $content .= ' value="'.htmlspecialchars($value).'"';
+        }
+
+        // other attributes
+        $noValueAttrs = ["checked", "selected", "required"];
+
         foreach ($attributes as $attr => $value) {
-            if ($attr === "checked") {
+            if (in_array($attr, $noValueAttrs)) {
                 $content .= ' '.$attr;
             }
             else {
@@ -58,11 +83,15 @@ class Form
             }
         }
 
-        $content .= ">";
+        $content .= ">
+        ";
 
         if ($label !== "") {
-            $content .="</label>";
+            $content .="</label>
+            ";
         }
+
+        echo $content;
     }
 
     public function text($name, $attributes = null)
@@ -98,8 +127,12 @@ class Form
     }
 
 
-    public function checkbox($name, $isChecked = false, $attributes = [])
+    public function checkbox($name, $isChecked = false, $attributes = null)
     {
+        if (!isset($attributes)) {
+            $attributes = [];
+        }
+
         if ($isChecked) {
             $attributes["checked"] = "";
         }
@@ -108,5 +141,13 @@ class Form
         }
 
         $this->input("checkbox", $name, $attributes);
+    }
+
+    public function br($count = 1)
+    {
+        while ($count--) {
+            echo "<br>
+            ";
+        }
     }
 }
