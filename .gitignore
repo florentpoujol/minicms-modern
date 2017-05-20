@@ -1,2 +1,3 @@
 .phpintel/
 gitignore/
+config/config.json

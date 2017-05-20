@@ -6,17 +6,17 @@ class Config
 {
     // pth to the configuration file
     // set from the index file
-    public static $configPath = "";
+    public static $configFolder = __DIR__."/../config/";
 
     private static $config = [];
 
     // read the config file (JSON) then populate the $config array
     public static function load()
     {
-        $jsonConfig = file_get_contents(self::$configPath);
+        $jsonConfig = file_get_contents(self::$configFolder."config.json");
 
         if (is_string($jsonConfig)) {
-            $config = json_decode($jsonConfig, true);
+            self::$config = json_decode($jsonConfig, true);
             return true;
         }
 
@@ -28,7 +28,7 @@ class Config
     public static function save()
     {
         $jsonConfig = json_encode(self::$config);
-        return (file_put_contents(self::$configPath, $jsonConfig));
+        return (file_put_contents(self::$configFolder."config.json", $jsonConfig));
     }
 
 

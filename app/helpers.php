@@ -47,3 +47,4 @@ function isLoggedIn()
     global $user;
     return ($user !== false);
 }
+

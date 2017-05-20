@@ -29,8 +29,11 @@ if (isset($sessionUserId)) {
     }
 }
 
-require_once "../phpmailer/class.smtp.php";
-require_once "../phpmailer/class.phpmailer.php";
+require_once "../vendor/phpmailer/class.smtp.php";
+require_once "../vendor/phpmailer/class.phpmailer.php";
+
+// --------------------------------------------------
+// routing
 
 $controllerName = isset($_GET["c"]) ? $_GET["c"] : "";
 $controllerName .= "Controller";
@@ -44,8 +47,7 @@ if ($controllerName !== "") {
     if ($controllerName === "logoutController") {
         logout();
     }
-
-    require_once "../controllers/$controllerName.php";
+    $controllerName = "\App\Controllers\\$controllerName";
     $controller = new $controllerName;
     $controller->{App::$requestMethod.$action}();
 }

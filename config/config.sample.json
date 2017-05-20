@@ -1,0 +1,19 @@
+{
+    "db_host": "localhost",
+    "db_name": "",
+    "db_user": "",
+    "db_password": "",
+
+    "mailer_from_address": "",
+    "mailer_from_name": "MiniCMS MVC Mailer",
+    "smtp_host": "",
+    "smtp_user": "",
+    "smtp_password": "",
+    "smtp_port": 587,
+
+    "site_title": "My Site title",
+    "recaptcha_secret": "",
+    "use_nice_url": false,
+    "allow_comments": true,
+    "allow_registration": true
+}

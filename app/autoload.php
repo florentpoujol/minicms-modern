@@ -2,27 +2,19 @@
 
 function __autoload($className)
 {
-    // $className = lcfirst($className).".php";
-    // $folders = ["", "app", "controllers", "models"];
-/*
-    foreach ($folders as $folder) {
-        $path = dirname(__FILE__)."/$folder/$className";
-        var_dump($path);
-        if (file_exists($path)) {
-            var_dump($path);
-            require_once($path);
-        }
-    }
-    var_dump("----------");*/
-
     $className = str_replace("App\\", "", $className);
-    $className = str_replace("\\", "/", $className);
 
-    $path = __DIR__."/$className.php";
-    var_dump($path);
+    $otherSeparator = "\\";
+    if (DIRECTORY_SEPARATOR === "\\") {
+        $otherSeparator = "/";
+    }
+
+    $className = str_replace($otherSeparator, DIRECTORY_SEPARATOR, $className);
+
+    $path = __DIR__.DIRECTORY_SEPARATOR.strtolower($className).".php";
+    // var_dump($path);
     if (file_exists($path)) {
-        var_dump($path);
+        // var_dump("loaded");
         require_once($path);
     }
-    var_dump("----------");
 }

@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Controllers;
+
+use App;
+
 class LoginController extends Controller
 {
 
