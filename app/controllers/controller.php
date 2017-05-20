@@ -19,7 +19,7 @@ class Controller
         $this->render("main", "site index");
     }
 
-    public function render($view, $pageTitle, $data = [])
+    public function render($view, $pageTitle = null, $data = [])
     {      
         foreach ($data as $varName => $value) {
             ${$varName} = $value;
@@ -33,6 +33,11 @@ class Controller
         require_once "../app/views/templates/".$this->template.".php";
         $content = ob_get_clean();
 
+
+        if (! isset($pageTitle)) {
+            $pageTitle = str_replace("/", ".", $view);
+        }
+        
         $data["pageTitle"] = \App\Lang::get($pageTitle);
         foreach ($data as $key => $value) {
             $content = str_replace('{'.$key.'}', htmlspecialchars($value), $content);    
