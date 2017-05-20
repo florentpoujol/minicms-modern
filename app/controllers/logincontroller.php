@@ -11,7 +11,7 @@ class LoginController extends Controller
     {
         parent::__construct();
         if (isLoggedIn() === true) {
-            Messages::addError("You are already logged In");
+            Messages::addError("user.alreadyloggedin");
             redirect();
         }
     }
@@ -20,7 +20,7 @@ class LoginController extends Controller
 
     public function getIndex()
     {
-        loadView("login", lang("login_title"));
+        $this->render("login", App\Lang::get("login_title"));
     }
 
     public function postIndex()

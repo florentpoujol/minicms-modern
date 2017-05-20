@@ -1,15 +1,22 @@
 <?php
 if (isset($loginName) === false) $loginName = "";
 ?>
-<h1><?php echo $pageTitle; ?></h1>
+<h1>{pageTitle}</h1>
 
-<?php include "messages.php"; ?>
+<?php
+include "messages.php";
 
-<form action="?c=login" method="POST">
-    <label>Name : <input type="text" name="login_name" value="<?php echo $loginName; ?>" required></label> <br>
-    <label>Password : <input type="password" name="login_password" required></label> <br>
+$form = new App\Form("login", ["login_name" => $loginName]);
 
-    <input type="submit" name="login" value="Login">
-</form>
+$form->open("?c=login");
+
+$form->text("login_name", "Name:");
+$form->br();
+$form->password("login_password", "Password:");
+$form->br(2);
+$form->submit("", "Login");
+
+$form->close();
+?>
 
 <a href="?c=login&a=lostpassword">Forgot Password ?</a>

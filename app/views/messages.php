@@ -1,5 +1,5 @@
 <?php
-$successes = Messages::getSuccesses();
+$successes = \App\Messages::getSuccesses();
 if (count($successes) > 0):
 ?>
 <div class="success-msg">
@@ -12,7 +12,7 @@ if (count($successes) > 0):
 <?php
 endif;
 
-$errors = Messages::getErrors();
+$errors = \App\Messages::getErrors();
 if (count($errors) > 0):
 ?>
 <div class="error-msg">
