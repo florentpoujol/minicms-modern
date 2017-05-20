@@ -23,7 +23,7 @@ class Form
     public function close($addCSRFProtection = true)
     {
         if ($addCSRFProtection) {
-            // $this->hidden($this->name."_csrf_token");
+            $this->hidden($this->name."_csrf_token", Security::createCSRFTokens($this->name));
         }
 
         echo '</form>
@@ -59,7 +59,7 @@ class Form
             $value = $attributes["value"];
             unset($attributes["value"]);
         }
-        elseif (isset($this->data[$name])) {
+        elseif ($type !== "password" && isset($this->data[$name])) {
             $value = $this->data[$name];
         }
 
@@ -79,7 +79,7 @@ class Form
             }
         }
 
-        $content .= ">
+        $content .= "> <br>
         ";
 
         if ($label !== "") {

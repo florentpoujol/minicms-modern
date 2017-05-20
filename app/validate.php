@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Session;
+
 class Validate
 {
     // check the data agains the patterns
@@ -14,7 +16,7 @@ class Validate
         }
 
         foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $subject) !== 1) {
+            if (preg_match($pattern, $data) !== 1) {
                 return false;
             }
         }
@@ -47,10 +49,10 @@ class Validate
         return self::validate($data, $pattern);
     }
 
-    public static function password($data, $confirm)
+    public static function password($data, $confirm = null)
     {
         $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
-        $formatOK = self::validate($data, $pattern);
+        $formatOK = self::validate($data, $patterns);
 
         if (isset($confirm)) {
             return ($formatOK && $data === $confirm);
@@ -60,14 +62,27 @@ class Validate
     }
 
 
-    public static function csrf($request, $token, $timeLimit = 900)
+    public static function csrf($request, $token = null, $timeLimit = 900)
     {
+        $tokenName = $request."_csrf_token";
+
+        if (! isset($token)) {
+            if (isset($_POST[$tokenName])) {
+                $token = $_POST[$tokenName];
+            }
+            else {
+                var_dump($_POST);
+                \App\Messages::addError("csrf.notoken");
+                return false;
+            }
+        }
+
         // 900 sec = 15 min
         if (
-            Session::get($request."_csrf_token") === $token &&
+            Session::get($tokenName) === $token &&
             time() < Session::get($request."_csrf_time", 0) + $timeLimit
         ) {
-            Session::destroy($request."_csrf_token");
+            Session::destroy($tokenName);
             Session::destroy($request."_csrf_time");
             return true;
         }

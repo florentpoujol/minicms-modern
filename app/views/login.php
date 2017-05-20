@@ -3,16 +3,12 @@
 <?php
 include "messages.php";
 
-$form = new App\Form("login", ["login_name" => "default login name2"]);
+$form = new App\Form("login", $post);
 
 $form->open("?c=login");
-
-$form->text("login_name", "Name:");
-$form->br();
-$form->password("login_password", "Password:");
-$form->br(2);
-$form->submit("", "Login");
-
+    $form->text("login_name", "Name:");
+    $form->password("login_password", "Password:");
+    $form->submit("", "Login");
 $form->close();
 ?>
 

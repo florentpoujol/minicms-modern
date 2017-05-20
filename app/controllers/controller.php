@@ -40,7 +40,9 @@ class Controller
         
         $data["pageTitle"] = \App\Lang::get($pageTitle);
         foreach ($data as $key => $value) {
-            $content = str_replace('{'.$key.'}', htmlspecialchars($value), $content);    
+            if (! is_array($value) && ! is_object($value)) {
+                $content = str_replace('{'.$key.'}', htmlspecialchars($value), $content);
+            }
         }
         
         echo $content;

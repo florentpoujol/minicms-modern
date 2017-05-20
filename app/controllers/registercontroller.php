@@ -30,7 +30,7 @@ class RegisterController extends Controller
             "password_confirm" => $_POST["register_password_confirm"]
         ];
 
-        if (Validator::newUser($newUser) === true) {
+        if (Validate::newUser($newUser) === true) {
             unset($newUser["password_confirm"]);
             $lastInsertId = Users::insert($newUser);
 
@@ -96,7 +96,7 @@ class RegisterController extends Controller
     {
         $email = $_POST["confirm_email"];
 
-        if (Validator::email($email)) {
+        if (Validate::email($email)) {
             $user = Users::get(["email" => $email]);
 
             if (is_object($user)) {

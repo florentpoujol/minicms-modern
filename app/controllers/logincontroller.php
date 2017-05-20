@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
-use App;
+use App\Messages;
+use App\Validate;
+use App\Models\Users;
 
 class LoginController extends Controller
 {
@@ -25,78 +27,103 @@ class LoginController extends Controller
 
     public function postIndex()
     {
-        $loginName = $_POST["login_name"];
-        $password = $_POST["login_password"];
-        // $recaptcha_response = $_POST["g-recaptcha-response"];
+        $schema = [
+            "login_name" => "string",
+            "login_password" => "string",
+            "login_csrf_token" => "string"
+        ];
+        $post = Validate::sanitizePost($schema);
 
-        if (strlen($loginName) === 0 || strlen($password) === 0) {
-            Messages::addError("The name or password is empty !");
-        }
+        if (Validate::csrf("login")) {
+            $formatOK = true;
 
-        // elseif (verifyRecaptcha($recaptcha_response) === true) {
-        else {
-            $_user = Users::get(["name" => $loginName]);
+            if(! Validate::name($post["login_name"])) {
+                $formatOK = false;
+                Messages::addError("fieldvalidation.name");
+            }
 
-            if (is_object($_user)) {
-                if ($_user->email_token === "") {
-                    if (password_verify($password, $_user->password_hash) === true) {
-                        global $user;
-                        $user = $_user;
-                        $this->user = $user;
-                        $_SESSION["minicms_mvc_auth"] = $this->user->id;
-                        Messages::addSuccess("you are logged in !");
-                        redirect("admin");
+            if(! Validate::password($post["login_password"])) {
+                $formatOK = false;
+                Messages::addError("fieldvalidation.password");
+            }
+
+            if ($formatOK) {
+                $_user = Users::get(["name" => $post["login_name"]]);
+
+                if (is_object($_user)) {
+                    if ($_user->email_token === "") {
+                        if (password_verify($password, $_user->password_hash)) {
+                            global $user;
+                            $user = $_user;
+                            $this->user = $user;
+                            Session::set("minicms_mvc_auth", $this->user->id);
+                            Messages::addSuccess("loggedin");
+                            redirect("admin");
+                        }
+                        else {
+                            Messages::addError("loginwrongpassword");
+                        }
                     }
                     else {
-                        Messages::addError("Wrong password !");
+                        Messages::addError("usernotactivated");
+                        redirect("register", "resendconfirmemail");
                     }
                 }
                 else {
-                    Messages::addError("This user is not activated yet. You need to click the link in the email that has been sent just after registration. You can send this email again from this page.");
-                    redirect("register", "resendconfirmemail");
+                    Messages::addError("unknowuser");
                 }
             }
-            else {
-                Messages::addError("No user by that name !");
-            }
+        }
+        else {
+            Messages::addError("csrffail");
         }
 
-        loadView("login", lang("login_title"));
+        $this->render("login", "login.title", ["post" => $post]);
     }
 
     // --------------------------------------------------
 
     public function getLostPassword()
     {
-        loadView("lostpassword", lang("lostpassword"));
+        $this->render("lostpassword");
     }
 
     public function postLostPassword()
     {
-        $email = $_POST["forgot_password_email"];
+        $post = Validate::sanitizePost([
+            "lostpassword_email" => "string",
+            "lostpassword_csrf_token" => "string"
+        ]);
 
-        if (Validator::email($email) === true) {
-            $user = Users::get(["email" => $email]);
+        $email = $post["lostpassword_email"];
 
-            if ($user !== false) {
-                $token = md5(microtime(true)+mt_rand());
-                $success = Users::updatePasswordToken($user->id, $token);
+        if (Validate::csrf("lostpassword")) {
+            if (Validate::email($email)) {
+                $user = Users::get(["email" => $email]);
 
-                if ($success === true) {
-                    $user->password_token = $token;
-                    Emails::sendChangePassword($user);
-                    Messages::addSuccess("An email has been sent to this address. Click the link within 48 hours.");
+                if (is_object($user)) {
+                    $token = \App\Security::getUniqueToken();
+                    $success = Users::updatePasswordToken($user->id, $token);
+
+                    if ($success) {
+                        $user->password_token = $token;
+                        \App\Emails::sendChangePassword($user);
+                        Messages::addSuccess("email.changepassword");
+                    }
+                }
+                else {
+                    Messages::addError("unknowuser");
                 }
             }
             else {
-                Messages::addError("No users has that email.");
+                Messages::addError("fieldvalidation.email");
             }
         }
         else {
-            Messages::addError("Wrong email format.");
+            Messages::addError("csrffail");
         }
 
-        loadView("lostpassword", lang("lostpassword"));
+        $this->render("lostpassword", null, ["post" => $post]);
     }
 
     // --------------------------------------------------
@@ -109,12 +136,14 @@ class LoginController extends Controller
             "password_token" => $token
         ]);
 
-        if ($token !== "" && $user !== false &&
-            time() < $user->password_change_time + (3600 * 48)) {
-            loadView("resetpassword", "Reset your password", ["userName" => $user->name]);
+        if (
+            $token !== "" && $user !== false &&
+            time() < $user->password_change_time + (3600 * 48)
+        ) {
+            $this->render("resetpassword", null, ["userName" => $user->name]);
         }
         else {
-            Messages::addError("Can't accces that page.");
+            Messages::addError("unauthorized");
             redirect();
         }
     }
@@ -127,27 +156,35 @@ class LoginController extends Controller
             "password_token" => $token
         ]);
 
-        if ($token !== "" && $user !== false &&
-            time() < $user->password_change_time + (3600 * 48)) {
-            $password = $_POST["reset_password"];
-            $passwordOK = Validator::password($password, $_POST["reset_password_confirm"]);
+        $post = Validate::sanitizePost([
+            "resetpassword_" => "string",
+            "resetpassword_confirm" => "string"
+        ]);
 
-            if ($passwordOK === true) {
-                $success = Users::updatePassword($user->id, $password);
+        if (
+            $token !== "" && $user !== false &&
+            time() < $user->password_change_time + (3600 * 48) &&
+            Validate::csrf("resetpassword")
+        ) {
+            if (Validate::password($post["resetpassword"], $post["resetpassword_confirm"])) {
+                $success = Users::updatePassword($user->id, $post["resetpassword"]);
 
-                if ($success === true) {
-                    Messages::addSuccess("password changed successfully");
+                if ($success) {
+                    Messages::addSuccess("passwordchanged");
                     redirect("login");
                 }
                 else {
-                    Messages::addError("error changing password");
+                    Messages::addError("db.resetpassword");
                 }
             }
+            else {
+                Messages::addError("fieldvalidation.passwordformatornotequal");
+            }
 
-            loadView("resetpassword", "Reset your password");
+            $this->render("resetpassword", null, ["userName" => $user->name]);
         }
         else {
-            Messages::addError("Can't accces that page.");
+            Messages::addError("unauthorized");
             redirect();
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+namespace App;
+
 class Emails
 {
     public static function send($to, $subject, $body)
