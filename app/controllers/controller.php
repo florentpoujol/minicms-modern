@@ -33,7 +33,7 @@ class Controller
         require_once "../app/views/templates/".$this->template.".php";
         $content = ob_get_clean();
 
-        $data["pageTitl"] = \App\Lang::get($pageTitle);
+        $data["pageTitle"] = \App\Lang::get($pageTitle);
         foreach ($data as $key => $value) {
             $content = str_replace('{'.$key.'}', htmlspecialchars($value), $content);    
         }

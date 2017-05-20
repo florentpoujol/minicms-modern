@@ -31,12 +31,8 @@ class Form
     }
 
 
-    public function input($type, $name, $attributes = null)
+    public function input($type, $name, $attributes = [])
     {
-        if (! isset($attributes)) {
-            $attributes = [];
-        }
-
         $label = "";
         if (is_string($attributes)) {
             $label = $attributes;
@@ -96,22 +92,22 @@ class Form
 
     public function text($name, $attributes = null)
     {
-        $this->input("text", $name, $attributes = null);
+        $this->input("text", $name, $attributes);
     }
 
     public function number($name, $attributes = null)
     {
-        $this->input("number", $name, $attributes = null);
+        $this->input("number", $name, $attributes);
     }
 
     public function email($name, $attributes = null)
     {
-        $this->input("email", $name, $attributes = null);
+        $this->input("email", $name, $attributes);
     }
 
     public function password($name, $attributes = null)
     {
-        $this->input("password", $name, $attributes = null);
+        $this->input("password", $name, $attributes);
     }
 
 
