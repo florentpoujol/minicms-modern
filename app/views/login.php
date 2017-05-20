@@ -3,6 +3,10 @@
 <?php
 include "messages.php";
 
+if (! isset($post)) {
+    $post = [];
+}
+
 $form = new App\Form("login", $post);
 
 $form->open("?c=login");

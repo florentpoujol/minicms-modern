@@ -24,7 +24,7 @@ class Model
         try {
             self::$db = new \PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, $options);
         }
-        catch (Exception $e) {
+        catch (\Exception $e) {
             echo "error connecting to the database <br>";
             echo $e->getMessage();
             exit();

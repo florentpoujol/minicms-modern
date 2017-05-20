@@ -22,17 +22,16 @@ class LoginController extends Controller
 
     public function getIndex()
     {
-        $this->render("login", "login.title");
+        $this->render("login");
     }
 
     public function postIndex()
     {
-        $schema = [
+        $post = Validate::sanitizePost([
             "login_name" => "string",
             "login_password" => "string",
             "login_csrf_token" => "string"
-        ];
-        $post = Validate::sanitizePost($schema);
+        ]);
 
         if (Validate::csrf("login")) {
             $formatOK = true;
@@ -52,33 +51,29 @@ class LoginController extends Controller
 
                 if (is_object($_user)) {
                     if ($_user->email_token === "") {
-                        if (password_verify($password, $_user->password_hash)) {
+                        if (password_verify($post["login_password"], $_user->password_hash)) {
                             global $user;
                             $user = $_user;
                             $this->user = $user;
-                            Session::set("minicms_mvc_auth", $this->user->id);
-                            Messages::addSuccess("loggedin");
+                            \App\Session::set("minicms_mvc_auth", $this->user->id);
+                            Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
                             redirect("admin");
+                        } else {
+                            Messages::addError("user.wrongpassword");
                         }
-                        else {
-                            Messages::addError("loginwrongpassword");
-                        }
-                    }
-                    else {
-                        Messages::addError("usernotactivated");
+                    } else {
+                        Messages::addError("user.notactivated");
                         redirect("register", "resendconfirmemail");
                     }
-                }
-                else {
-                    Messages::addError("unknowuser");
+                } else {
+                    Messages::addError("user.unknow");
                 }
             }
-        }
-        else {
+        } else {
             Messages::addError("csrffail");
         }
 
-        $this->render("login", "login.title", ["post" => $post]);
+        $this->render("login", null, ["post" => $post]);
     }
 
     // --------------------------------------------------
@@ -110,16 +105,13 @@ class LoginController extends Controller
                         \App\Emails::sendChangePassword($user);
                         Messages::addSuccess("email.changepassword");
                     }
+                } else {
+                    Messages::addError("user.unknow");
                 }
-                else {
-                    Messages::addError("unknowuser");
-                }
-            }
-            else {
+            } else {
                 Messages::addError("fieldvalidation.email");
             }
-        }
-        else {
+        } else {
             Messages::addError("csrffail");
         }
 
@@ -141,9 +133,8 @@ class LoginController extends Controller
             time() < $user->password_change_time + (3600 * 48)
         ) {
             $this->render("resetpassword", null, ["userName" => $user->name]);
-        }
-        else {
-            Messages::addError("unauthorized");
+        } else {
+            Messages::addError("user.unauthorized");
             redirect();
         }
     }
@@ -172,18 +163,15 @@ class LoginController extends Controller
                 if ($success) {
                     Messages::addSuccess("passwordchanged");
                     redirect("login");
-                }
-                else {
+                } else {
                     Messages::addError("db.resetpassword");
                 }
-            }
-            else {
-                Messages::addError("fieldvalidation.passwordformatornotequal");
+            } else {
+                Messages::addError("fieldvalidation.passwordnotequal");
             }
 
             $this->render("resetpassword", null, ["userName" => $user->name]);
-        }
-        else {
+        } else {
             Messages::addError("unauthorized");
             redirect();
         }

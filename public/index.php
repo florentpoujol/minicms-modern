@@ -8,6 +8,8 @@ App::load();
 
 Config::load();
 
+Lang::load(Lang::$defaultLanguage); // let's imagine it has been change based on config value
+
 Models\Model::connect();
 
 Messages::load();

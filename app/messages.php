@@ -8,63 +8,18 @@ class Messages extends Models\Model
     private static $successes = [];
     private static $errors = [];
 
-    // Array that holds correspondance between key strings and the actual success or error message
-    // values beetween brackets can be replaced by other values with getString()
-    private static $messages = [
-        "success" => [
-            "user" => [
-                "loggedin" => "Welcome {userName}, you are now logged in !",
-                "unknow" => "You are now logged in !",
-            ]
-        ],
-        "error" => [],
-    ];
-
-    // get the actual message that match the key(s) provided
-    // ie: "success.user.loggedin"
-    // values beetween brackets can be replaced by other values provided in $params
-    // ie: ["userName" => "John Doe"]
-    private static function getMessage($originalKey, $params = null)
-    {
-        $string = self::$messages;
-        $keys = explode(".", $originalKey);
-
-        foreach ($keys as $key) {
-            if (isset($string[$key])) {
-                $string = $string[$key];
-            }
-            else {
-                break;
-            }
-        }
-
-        if (is_array($string)) {
-            // the key does not lead to a string value, just return the original $key
-            $string = $originalKey;
-        }
-
-        // string is now an actual string, process replacement is $params is set
-        if (isset($params)) {
-            foreach ($params as $key => $value) {
-                $string = str_replace("{$key}", $value, $string);
-            }
-        }
-
-        return $string;
-    }
-
 
     public static function addSuccess($msg, $params = null)
     {
-        $msg = self::getMessage("success.$msg", $params);
-        $msg = trim($msg, "success.");
+        $msg = Lang::get("messages.success.$msg", $params);
+        $msg = trim($msg, "messages.success."); // in case the msg isn't found
         self::$successes[] = $msg;
     }
 
     public static function addError($msg, $params = null)
     {
-        $msg = self::getMessage("error.$msg", $params);
-        $msg = trim($msg, "error.");
+        $msg = Lang::get("messages.error.$msg", $params);
+        $msg = trim($msg, "messages.error.");
         self::$errors[] = $msg;
     }
 

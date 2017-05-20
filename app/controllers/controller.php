@@ -6,7 +6,7 @@ class Controller
 {
     protected $user = false;
 
-    protected $template = "default"; // usually changed in controllers contructor
+    protected $template = "default";
 
     function __construct()
     {
@@ -35,7 +35,7 @@ class Controller
 
 
         if (! isset($pageTitle)) {
-            $pageTitle = str_replace("/", ".", $view);
+            $pageTitle = str_replace("/", ".", $view).".pagetitle";
         }
         
         $data["pageTitle"] = \App\Lang::get($pageTitle);
