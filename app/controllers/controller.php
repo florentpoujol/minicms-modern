@@ -6,6 +6,8 @@ class Controller
 {
     protected $user = false;
 
+    protected $template = "default";
+
     function __construct()
     {
         global $user;
@@ -14,6 +16,15 @@ class Controller
 
     public function getIndex()
     {
-        loadView("main", "site index");
+        $this->render("main", "site index");
+    }
+
+    public function render($view, $data = [])
+    {
+        ob_start();
+        require_once "../app/views/$view.php";
+        $content = ob_get_clean();
+
+        require_once "../app/views/templates/".$this->template.".php";
     }
 }
