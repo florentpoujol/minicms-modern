@@ -1,0 +1,13 @@
+.success-msg {
+    border: 1px solid green;
+    background: rgba(0,255,0,0.3);
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.error-msg {
+    border: 1px solid red;
+    background: rgba(255,0,0,0.3);
+    padding: 5px;
+    margin-bottom: 10px;
+}
