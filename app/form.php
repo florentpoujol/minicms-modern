@@ -47,6 +47,7 @@ class Form
         $content = "";
 
         if ($label !== "") {
+            $label = Lang::get("formlabel.$label");
             $content .= "<label> $label
             ";
         }
