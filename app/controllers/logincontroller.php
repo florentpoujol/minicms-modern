@@ -12,7 +12,7 @@ class LoginController extends Controller
     function __construct()
     {
         parent::__construct();
-        if (isLoggedIn() === true) {
+        if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
             redirect();
         }
@@ -47,14 +47,12 @@ class LoginController extends Controller
             }
 
             if ($formatOK) {
-                $_user = Users::get(["name" => $post["login_name"]]);
+                $dbUser = Users::get(["name" => $post["login_name"]]);
 
-                if (is_object($_user)) {
-                    if ($_user->email_token === "") {
-                        if (password_verify($post["login_password"], $_user->password_hash)) {
-                            global $user;
-                            $user = $_user;
-                            $this->user = $user;
+                if (is_object($dbUser)) {
+                    if ($dbUser->email_token === "") {
+                        if (password_verify($post["login_password"], $dbUser->password_hash)) {
+                            $this->user = new \App\Entities\User($dbUser);
                             \App\Session::set("minicms_mvc_auth", $this->user->id);
                             Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
                             redirect("admin");

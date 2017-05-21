@@ -2,14 +2,19 @@
 
 namespace App\Controllers;
 
+use App\Messages;
+use App\Validate;
+use App\Models\Users;
+use App\Emails;
+
 class RegisterController extends Controller
 {
 
     function __construct()
     {
         parent::__construct();
-        if (isLoggedIn() === true) {
-            Messages::addError("You are already logged In");
+        if (isset($this->user)) {
+            Messages::addError("user.alreadyloggedin");
             redirect();
         }
     }
@@ -18,46 +23,51 @@ class RegisterController extends Controller
 
     public function getIndex()
     {
-        loadView("register", lang("register_title"), ["name" => "", "email" => ""]);
+        $this->render("register", null, ["post" => []]);
     }
 
     public function postIndex()
     {
-        $newUser = [
-            "name" => $_POST["register_name"],
-            "email" => $_POST["register_email"],
-            "password" => $_POST["register_password"],
-            "password_confirm" => $_POST["register_password_confirm"]
-        ];
+        $post = [];
 
-        if (Validate::newUser($newUser) === true) {
-            unset($newUser["password_confirm"]);
-            $lastInsertId = Users::insert($newUser);
+        if (Validate::csrf("register")) {
+            $post = Validate::sanitizePost([
+                "register_name"             => "string",
+                "register_email"            => "string",
+                "register_password"         => "string",
+                "register_password_confirm" => "string"
+            ]);
 
-            if ($lastInsertId !== false) {
-                Messages::addSuccess("new user created.");
-                $user = Users::get(["id" => $lastInsertId]);
+            $user = [
+                "name" => $post["register_name"],
+                "email" => $post["register_email"],
+                "password" => $post["register_password"],
+                "password_confirm" => $post["register_password_confirm"]
+            ];
 
-                if ($user !== false) {
-                    if (Emails::sendConfirmEmail($user) === true) {
-                        Messages::addSuccess("confirmation email sent");
-                        redirect("login");
+            if (Validate::user($user)) {
+                unset($post["password_confirm"]);
+                $lastInsertId = Users::insert($post);
+
+                if (is_int($lastInsertId)) {
+                    Messages::addSuccess("user.created");
+                    $user = Users::get(["id" => $lastInsertId]);
+
+                    if (is_object($user)) {
+                        if (Emails::sendConfirmEmail($user)) {
+                            Messages::addSuccess("email.confirmemail");
+                            redirect("login");
+                        }
+                    } else {
+                        Messages::addError("error");
                     }
-                    else {
-                        Messages::addError("error sending the confirmation email");
-                    }
+                } else {
+                    Messages::addError("db.createuser");
                 }
-                else {
-                    Messages::addError("error retrieving the new user. no email sent");
-                }
-            }
-            else {
-                Messages::addError("error registering new user");
             }
         }
-        // error msgs already set in the Validator class
 
-        loadView("register", lang("register_title"), ["name" => $newUser["name"], "email" => $newUser["email"]]);
+        $this->render("register", null, ["post" => $post]);
     }
 
     // --------------------------------------------------
@@ -71,57 +81,51 @@ class RegisterController extends Controller
         ]);
 
         if ($token !== "" && $user !== false) {
-            $success = Users::updateEmailToken($user->id);
-
-            if ($success === true)  {
-                Messages::addSuccess("email confirmed, please login.");
+            if (Users::updateEmailToken($user->id))  {
+                Messages::addSuccess("user.emailconfirmed");
                 redirect("login");
+            } else {
+                Messages::addError("db.updateemailtoken");
             }
-            else {
-                Messages::addError("error updating email token");
-            }
-        }
-        else {
-            Messages::addError("Can't accces that page.");
+        } else {
+            Messages::addError("user.unauthorized");
             redirect();
         }
     }
 
     public function getResendConfirmEmail()
     {
-        loadView("resendconfirmemail", "Resend Confirmation Email", ["email" => ""]);
+        $this->render("resendconfirmemail", null, ["post" => []]);
     }
 
     public function postResendConfirmEmail()
     {
-        $email = $_POST["confirm_email"];
+        $post = Validate::sanitizePost(["confirm_email" => "string"]);
 
-        if (Validate::email($email)) {
-            $user = Users::get(["email" => $email]);
+        if (Validate::csrf("resendconfirmemail")) {
+            if (Validate::email($post["confirm_email"])) {
+                $user = Users::get(["email" => $post["confirm_email"]]);
 
-            if (is_object($user)) {
-                if ($user->email_token !== "") {
-                    if (Emails::sendConfirmEmail($user) === true) {
-                        Messages::addSuccess("email sent");
+                if (is_object($user)) {
+                    if ($user->email_token !== "") {
+                        if (Emails::sendConfirmEmail($user)) {
+                            Messages::addSuccess("email.confirmemail");
+                            redirect("login");
+                        }
+                    } else {
+                        Messages::addError("user.alreadyactivated");
                         redirect("login");
                     }
-                    else {
-                        Messages::addError("error sending email");
-                    }
+                } else {
+                    Messages::addError("user.unknow");
                 }
-                else {
-                    Messages::addError("this email address is already confirmed. you can login with this user");
-                    redirect("login");
-                }
+            } else {
+                Messages::addError("fieldvalidation.email");
             }
-            else {
-                Messages::addError("no user with that email");
-            }
-        }
-        else {
-            Messages::addError("wrong email format");
+        } else {
+            Messages::addError("csrffail");
         }
 
-        loadView("resendconfirmemail", "Resend Confirmation Email", ["email" => $email]);
+        $this->render("resendconfirmemail", null, $post);
     }
 }

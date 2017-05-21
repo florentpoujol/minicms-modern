@@ -1,9 +1,11 @@
-<h1><?php echo $pageTitle; ?></h1>
+<h1>{pageTitle}</h1>
 
-<?php include "messages.php"; ?>
+<?php
+include "messages.php";
 
-<form action="" method="POST">
-    <label>Email : <input type="email" name="confirm_email" value="<?php echo $email; ?>" required></label> <br>
-
-    <input type="submit" value="Resend email">
-</form>
+$form = new App\Form("resentconfirmemail", $post);
+$form->open("?c=register&a=resentconfirmemail");
+    $form->email("confirm_email", "email");
+    $form->submit("", "Resend email");
+$form->close();
+?>

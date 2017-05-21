@@ -2,15 +2,19 @@
 
 namespace App\Controllers;
 
+use App\App;
+
 class Controller
 {
-    protected $user = false;
+    /*
+     * @var \App\Entities\User
+     */
+    protected $user;
 
     protected $template = "default";
 
-    function __construct()
+    function __construct($user = null)
     {
-        global $user;
         $this->user = $user;
     }
 

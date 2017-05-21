@@ -4,7 +4,9 @@ namespace App\Models;
 
 class Model
 {
-    // holds the PDO instance
+    /**
+     * @var \PDO
+     */
     protected static $db;
 
     // creates the connection to the database

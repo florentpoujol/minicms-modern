@@ -19,16 +19,18 @@ require_once "../app/helpers.php";
 // check if user is logged in
 session_start();
 
-$user = false;
+$user = null;
+$sessionUserId = Session::get("minicms_mvc_auth");
 
-$sessionUserId = Session::get("minicms_poo_auth");
 if (isset($sessionUserId)) {
-    $user = Models\Users::get(["id" => (int)$sessionUserId]);
+    $dbUser = Models\Users::get(["id" => (int)$sessionUserId]);
 
     if ($user === false) {
         logout(); // for some reason the logged in user isn't found in the databse... let's log it out, just in case
         // Route::logout();
     }
+
+    $user = new Entities\User($dbUser);
 }
 
 require_once "../vendor/phpmailer/class.smtp.php";
@@ -50,7 +52,7 @@ if ($controllerName !== "") {
         logout();
     }
     $controllerName = "\App\Controllers\\$controllerName";
-    $controller = new $controllerName;
+    $controller = new $controllerName($user);
     $controller->{App::$requestMethod.$action}();
 }
 

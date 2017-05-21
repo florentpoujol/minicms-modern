@@ -12,7 +12,7 @@ class Users extends Model
             $strQuery .= "$name=:$name $condition ";
         }
 
-        $strQuery = rtrim($strQuery, " $condition ");
+        $strQuery = rtrim($strQuery," $condition ");
 
         $query = self::$db->prepare($strQuery);
         $success = $query->execute($params);
