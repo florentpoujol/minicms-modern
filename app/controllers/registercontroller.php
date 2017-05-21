@@ -4,18 +4,19 @@ namespace App\Controllers;
 
 use App\Messages;
 use App\Validate;
-use App\Models\Users;
+use App\Route;
 use App\Emails;
+use App\Models\Users;
 
 class RegisterController extends Controller
 {
 
-    function __construct()
+    function __construct($user)
     {
-        parent::__construct();
+        parent::__construct($user);
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            redirect();
+            Route::redirect();
         }
     }
 
@@ -56,7 +57,7 @@ class RegisterController extends Controller
                     if (is_object($user)) {
                         if (Emails::sendConfirmEmail($user)) {
                             Messages::addSuccess("email.confirmemail");
-                            redirect("login");
+                            Route::redirect("login");
                         }
                     } else {
                         Messages::addError("error");
@@ -83,13 +84,13 @@ class RegisterController extends Controller
         if ($token !== "" && $user !== false) {
             if (Users::updateEmailToken($user->id))  {
                 Messages::addSuccess("user.emailconfirmed");
-                redirect("login");
+                Route::redirect("login");
             } else {
                 Messages::addError("db.updateemailtoken");
             }
         } else {
             Messages::addError("user.unauthorized");
-            redirect();
+            Route::redirect();
         }
     }
 
@@ -110,11 +111,11 @@ class RegisterController extends Controller
                     if ($user->email_token !== "") {
                         if (Emails::sendConfirmEmail($user)) {
                             Messages::addSuccess("email.confirmemail");
-                            redirect("login");
+                            Route::redirect("login");
                         }
                     } else {
                         Messages::addError("user.alreadyactivated");
-                        redirect("login");
+                        Route::redirect("login");
                     }
                 } else {
                     Messages::addError("user.unknow");

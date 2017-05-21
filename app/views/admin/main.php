@@ -7,6 +7,6 @@
 
 this is the admin index
 <br>
-<a href="?c=logout">Logout</a> <br>
+<a href="?r=logout">Logout</a> <br>
 <br>
 <a href="?">Site index</a>

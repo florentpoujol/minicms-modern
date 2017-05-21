@@ -6,11 +6,11 @@ use App\Route;
 
 class AdminController extends Controller
 {
-    function __construct()
+    function __construct($user)
     {
-        parent::__construct();
+        parent::__construct($user);
         if (! isset($this->user)) {
-            Route::redirect("admin/login");
+            Route::redirect("login");
         }
 
     }

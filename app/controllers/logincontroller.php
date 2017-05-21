@@ -4,17 +4,18 @@ namespace App\Controllers;
 
 use App\Messages;
 use App\Validate;
+use App\Route;
 use App\Models\Users;
 
 class LoginController extends Controller
 {
 
-    function __construct()
+    function __construct($user)
     {
-        parent::__construct();
+        parent::__construct($user);
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            redirect();
+            Route::redirect();
         }
     }
 
@@ -52,16 +53,20 @@ class LoginController extends Controller
                 if (is_object($dbUser)) {
                     if ($dbUser->email_token === "") {
                         if (password_verify($post["login_password"], $dbUser->password_hash)) {
+
                             $this->user = new \App\Entities\User($dbUser);
+
                             \App\Session::set("minicms_mvc_auth", $this->user->id);
                             Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
-                            redirect("admin");
+
+                            Route::redirect("admin");
+
                         } else {
                             Messages::addError("user.wrongpassword");
                         }
                     } else {
                         Messages::addError("user.notactivated");
-                        redirect("register", "resendconfirmemail");
+                        Route::redirect("register/resendconfirmationemail");
                     }
                 } else {
                     Messages::addError("user.unknow");
@@ -131,7 +136,7 @@ class LoginController extends Controller
             $this->render("resetpassword", null, ["userName" => $user->name]);
         } else {
             Messages::addError("user.unauthorized");
-            redirect();
+            Route::redirect();
         }
     }
 
@@ -158,7 +163,7 @@ class LoginController extends Controller
 
                 if ($success) {
                     Messages::addSuccess("passwordchanged");
-                    redirect("login");
+                    Route::redirect("login");
                 } else {
                     Messages::addError("db.resetpassword");
                 }
@@ -169,7 +174,7 @@ class LoginController extends Controller
             $this->render("resetpassword", null, ["userName" => $user->name]);
         } else {
             Messages::addError("unauthorized");
-            redirect();
+            Route::redirect();
         }
     }
 }

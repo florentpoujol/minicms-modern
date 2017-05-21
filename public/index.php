@@ -14,8 +14,6 @@ Models\Model::connect();
 
 Messages::load();
 
-require_once "../app/helpers.php";
-
 // check if user is logged in
 session_start();
 
@@ -27,7 +25,6 @@ if (isset($userId)) {
 
     if ($dbUser === false) {
         Route::logout(); // for some reason the logged in user isn't found in the databse... let's log it out, just in case
-        // Route::logout();
     }
 
     $user = new Entities\User($dbUser);

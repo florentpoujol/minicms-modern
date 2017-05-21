@@ -7,15 +7,13 @@ class Route
     public static function load($routes)
     {
         $r = isset($_GET["r"]) ? $_GET["r"] : "";
-        $token = isset($_GET["token"]) ? $_GET["token"] : "";
-        $p = isset($_GET["p"]) ? (int)$_GET["p"] : 1;
+        // $token = isset($_GET["token"]) ? $_GET["token"] : "";
+        // $p = isset($_GET["p"]) ? (int)$_GET["p"] : 1;
 
         $routeOk = false;
         foreach ($routes as $route) {
             $route = str_replace("/", "\\/", $route);
             if (preg_match('/^'.$route.'$/', $r) === 1) {
-                // keep loose comparison, the function returns 0 when not found or false on error
-                var_dump($route);
                 $routeOk = true;
                 break;
             }
@@ -28,7 +26,11 @@ class Route
         $parts = explode("/", $r);
         $controller = $parts[0];
 
-        $page = "Index"; // page name (when in admin, login, register) or slug or id
+        if ($controller === "logout") {
+            self::logout();
+        }
+
+        $page = "index"; // page name (when in admin, login, register) or slug or id
         if (isset($parts[1])) {
             if (is_numeric($parts[1])) {
                 $parts[1] = (int)$parts[1];
@@ -44,8 +46,10 @@ class Route
         $action = isset($parts[3]) ? $parts[3] : null;
 
         if ($controller === "admin") {
-            $controller = $page;
-            $page = $action;
+            if ($page !== "index") {
+                $controller = $page;
+                $page = $action;
+            }
         }
 
         $controllerName = "\App\Controllers\\".$controller."Controller";
@@ -56,26 +60,26 @@ class Route
         $controller->{$methodName}($id);
     }
 
-    public static function redirect($route = "")
+    public static function uri($route = "", $params = [])
     {
-        /*
-         * if (isset($action) === true) {
-            $params["a"] = $action;
+        $uri = "";
+        if ($route !== "") {
+            $uri = "?r=$route";
         }
 
-        $params["c"] = $controller;
-
-        if ($controller !== "") {
-            $strParams = "?";
-            foreach ($params as $key => $value) {
-                $strParams .= "$key=$value&";
-            }
+        foreach ($params as $key => $value) {
+            $uri .= "&$key=$value";
         }
 
-        Messages::saveForLater();
-        header("Location: index.php".rtrim($strParams, "&"));
+        return $uri;
+    }
+
+    public static function redirect($route = null, $params = null)
+    {
+        Messages::save();
+        $uri = self::uri($route, $params);
+        header("Location: ".App::$url.$uri);
         exit;
-         */
     }
 
     public static function logout()
@@ -83,10 +87,5 @@ class Route
         Session::destroy();
         // TODO destroy cookie
         self::redirect();
-    }
-
-    public static function link($route)
-    {
-
     }
 }
