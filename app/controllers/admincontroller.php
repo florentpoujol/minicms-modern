@@ -2,18 +2,21 @@
 
 namespace App\Controllers;
 
+use App\Route;
+
 class AdminController extends Controller
 {
-
     function __construct()
     {
         parent::__construct();
-        if ($this->user === false) {
-            redirect("login");
+        if (! isset($this->user)) {
+            Route::redirect("admin/login");
         }
 
-        loadView("admin/main", "admin index");
     }
 
-
+    public function getIndex()
+    {
+        $this->render("admin/main", "admin index");
+    }
 }

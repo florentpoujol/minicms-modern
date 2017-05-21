@@ -93,12 +93,12 @@ class RegisterController extends Controller
         }
     }
 
-    public function getResendConfirmEmail()
+    public function getResendConfirmationEmail()
     {
         $this->render("resendconfirmemail", null, ["post" => []]);
     }
 
-    public function postResendConfirmEmail()
+    public function postResendConfirmationEmail()
     {
         $post = Validate::sanitizePost(["confirm_email" => "string"]);
 

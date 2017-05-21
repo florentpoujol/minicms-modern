@@ -28,7 +28,7 @@ class Session
     {
         if (isset($key)) {
             if (isset($_SESSION[$key])) {
-                $_SESSION[$key] = "";
+                $_SESSION[$key] = null;
                 unset($_SESSION[$key]);
             }
         }

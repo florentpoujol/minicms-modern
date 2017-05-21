@@ -74,7 +74,6 @@ class LoginController extends Controller
         $this->render("login", null, ["post" => $post]);
     }
 
-    // --------------------------------------------------
 
     public function getLostPassword()
     {
@@ -116,7 +115,6 @@ class LoginController extends Controller
         $this->render("lostpassword", null, ["post" => $post]);
     }
 
-    // --------------------------------------------------
 
     public function getResetPassword()
     {

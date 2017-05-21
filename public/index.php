@@ -20,13 +20,13 @@ require_once "../app/helpers.php";
 session_start();
 
 $user = null;
-$sessionUserId = Session::get("minicms_mvc_auth");
+$userId = Session::get("minicms_mvc_auth");
 
-if (isset($sessionUserId)) {
-    $dbUser = Models\Users::get(["id" => (int)$sessionUserId]);
+if (isset($userId)) {
+    $dbUser = Models\Users::get(["id" => (int)$userId]);
 
-    if ($user === false) {
-        logout(); // for some reason the logged in user isn't found in the databse... let's log it out, just in case
+    if ($dbUser === false) {
+        Route::logout(); // for some reason the logged in user isn't found in the databse... let's log it out, just in case
         // Route::logout();
     }
 
@@ -36,24 +36,14 @@ if (isset($sessionUserId)) {
 require_once "../vendor/phpmailer/class.smtp.php";
 require_once "../vendor/phpmailer/class.phpmailer.php";
 
-// --------------------------------------------------
-// routing
+// first item is default route
+$routes = [
+    "blog",
+    "(page|post|category)/([a-z0-9]+)",
+    "logout",
+    "login/?(lostpassword|resetpassword)?",
+    "register/?(resendconfirmationemail|confirmemail)?",
+    "admin/?(users|pages|posts|comments|categories|config|medias)?/?([0-9]+)?/?(create|update|delete)?",
+];
 
-$controllerName = isset($_GET["c"]) ? $_GET["c"] : "";
-$controllerName .= "Controller";
-
-// var_dump($_SERVER);
-// var_dump($_GET);
-
-$action = isset($_GET["a"]) ? $_GET["a"] : "index";
-
-if ($controllerName !== "") {
-    if ($controllerName === "logoutController") {
-        logout();
-    }
-    $controllerName = "\App\Controllers\\$controllerName";
-    $controller = new $controllerName($user);
-    $controller->{App::$requestMethod.$action}();
-}
-
-// Message::saveForLater();
+Route::load($routes);
