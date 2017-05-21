@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Session;
-
 class Validate
 {
     // check the data agains the patterns
@@ -40,12 +38,12 @@ class Validate
     public static function slug($data)
     {
         $pattern = "/^[a-z0-9-]{2,}$/";
-        return self::validate(strtolowwer($data), $pattern);
+        return self::validate(strtolower($data), $pattern);
     }
 
     public static function email($data)
     {
-        $pattern = "/^[a-zA-Z0-9_\.+-]{1,}@[a-zA-Z0-9-_\.]{3,}$/";
+        $pattern = "/^[a-zA-Z0-9_\.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.-]+$/";
         return self::validate($data, $pattern);
     }
 
@@ -69,10 +67,7 @@ class Validate
         if (! isset($token)) {
             if (isset($_POST[$tokenName])) {
                 $token = $_POST[$tokenName];
-            }
-            else {
-                var_dump($_POST);
-                \App\Messages::addError("csrf.notoken");
+            } else {
                 return false;
             }
         }
@@ -125,5 +120,41 @@ class Validate
         }
 
         return $sanitizedPost;
+    }
+
+    public static function user($user)
+    {
+        $ok = true;
+
+        if (! self::name($user["name"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.name");
+        }
+
+        if (! self::email($user["email"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.email");
+        }
+
+        if (isset($user["password"]) && $user["password"] !== "") {
+            if (! isset($user["password_confirm"])) {
+                $user["password_confirm"] = null;
+            }
+
+            if (! Validate::password($user["password"], $user["password_confirm"])) {
+                $ok = false;
+                Messages::addError("fieldvalidation.passwordnotequal");
+            }
+        }
+
+        /*if (isset($user["role"])) {
+            $roles = ["admin", "writer", "commenter"];
+            if (! in_array($user["role"], $roles)) {
+                addError("Role must be 'commenter', 'writer' or 'admin'.");
+                $userOK = false;
+            }
+        }*/
+
+        return $ok;
     }
 }
