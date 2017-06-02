@@ -15,8 +15,6 @@ class Security
         return bin2hex($bytes);
     }
 
-    // ----------------------------------------------
-
     public static function createCSRFTokens($request)
     {
         $token = self::getUniqueToken();

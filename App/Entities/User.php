@@ -10,6 +10,7 @@ class User
 {
     /**
      * @var \PDO
+     * PDO instance of the selected user's table row
      */
     private $dbUser;
 
@@ -45,7 +46,7 @@ class User
         $hasRole = ($this->role === $role1);
 
         if (! $hasRole && isset($role2)) {
-            $hasRole = ($hasRole || ($this->role === $role2));
+            $hasRole = ($this->role === $role2);
         }
 
         return $hasRole;

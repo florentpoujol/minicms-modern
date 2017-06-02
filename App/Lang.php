@@ -8,7 +8,7 @@ class Lang
 
     private static $currentLanguage = "en";
 
-    // dictionaries per languages
+    // dictionaries per language
     private static $dictionaries = [];
 
     public static function load($lang)
@@ -25,11 +25,17 @@ class Lang
     }
 
     /**
-     * @param $originalKey
-     * @param null $params
-     * @return mixed
+     * Get a language string.
+     * When the string is nested in "sub folders", the key can use the "dot notation". Ie: "messages.success.user.created".
+     * The first part of the key may be any of the language name, the string will be retrieved in that language.
+     * Otherwise it is retrieved in the current language.
+     * If the key(s) do not lead to a string, the keys string is returned instead.
+     * A set of keys/values to be replaced in the string can be passed as the replacements argument.
+     * @param string $keys
+     * @param null $replacements
+     * @return string
      */
-    public static function get($keys, $params = null)
+    public static function get($keys, $replacements = null)
     {
         $originalKey = $keys;
         $keys = explode(".", $keys);
@@ -40,7 +46,7 @@ class Lang
         }
 
         if (! isset(self::$dictionaries[$lang])) {
-            // $lang is probably not a language identifier
+            // $lang is not a language identifier
             $lang = self::$currentLanguage;
         }
 
@@ -49,8 +55,8 @@ class Lang
         foreach ($keys as $key) {
             if (isset($value[$key])) {
               $value = $value[$key];
-            } elseif ($lang !== self::$defaultLanguage) {
-              return self::get(self::$defaultLanguage.".".$originalKey, $params);
+            } else if ($lang !== self::$defaultLanguage) {
+              return self::get(self::$defaultLanguage.".".$originalKey, $replacements);
             }
         }
 
@@ -58,8 +64,8 @@ class Lang
             $value = $originalKey;
         }
 
-        if (isset($params)) {
-            foreach ($params as $key => $val) {
+        if (isset($replacements)) {
+            foreach ($replacements as $key => $val) {
                 $value = str_replace("{$key}", $val, $value);
             }
         }

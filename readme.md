@@ -2,7 +2,7 @@
 
 The point of this project is to practice web development, specifically back-end dev with PHP, by creating a basic CMS, using as much OOP as possible (where it makes sens) and notably the MVC design pattern, but without using any frameworks or non-native libraries.
 
-Exceptions for OOP/non-native libraries: Markdown, PHP Mailer
+Exceptions for non-native libraries: Markdown, PHP Mailer
 
 ## General features
 
@@ -56,9 +56,8 @@ Exceptions for OOP/non-native libraries: Markdown, PHP Mailer
 - must work with PHP7/5.6 MySQL5.6+ not use any deprecated stuff
 - works with or without URL rewriting, with .htaccess provided
 - works as a subfolder or the root of a domain name
-- the name of the "admin folder" can be changed
-- links to pages, posts, categories and medias can be added via shortcodes
+- links to pages, posts, categories and medias can be added in the pages or posts content via shortcodes
 - works with or without SSL. All internals links adapt automatically to the protocol used (+ url rewrite or not).
-- optionnal use of recaptcha on all public forms (set via the secret keey in config)
+- optionnal use of recaptcha on all public forms (set via the secret key in config)
 - Once completed a backup of the database must be supplied with structure and some actual content
 - easy install via a script once put up on an FTP

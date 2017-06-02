@@ -11,7 +11,7 @@ function __autoload($className)
 
     $className = str_replace($otherSeparator, DIRECTORY_SEPARATOR, $className);
 
-    $path = __DIR__.DIRECTORY_SEPARATOR.strtolower($className).".php";
+    $path = __DIR__.DIRECTORY_SEPARATOR.$className.".php";
     // var_dump($path);
     if (file_exists($path)) {
         // var_dump("loaded");

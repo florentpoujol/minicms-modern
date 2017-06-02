@@ -4,6 +4,12 @@ namespace App;
 
 class Route
 {
+    /**
+     * Check the current request URI against the provided possible routes
+     * Called from the index script
+     * @param $routes array An array of regexes (string) representing potential routes
+     * @return void
+     **/
     public static function load($routes)
     {
         $r = isset($_GET["r"]) ? $_GET["r"] : "";
@@ -20,7 +26,7 @@ class Route
         }
 
         if (! $routeOk) {
-            $r = $routes[0];
+            $r = $routes[0]; // TODO: send to 404 instead of sending to default route
         }
 
         $parts = explode("/", $r);
@@ -30,7 +36,7 @@ class Route
             self::logout();
         }
 
-        $page = "index"; // page name (when in admin, login, register) or slug or id
+        $page = "index"; // page name (when in admin, login, register) or slug or id (when viewing page or posts)
         if (isset($parts[1])) {
             if (is_numeric($parts[1])) {
                 $parts[1] = (int)$parts[1];
@@ -40,6 +46,7 @@ class Route
 
         $id = null;
         if (isset($parts[2])) {
+            // only exists when in admin section
             $id = (int)$parts[1];
         }
 

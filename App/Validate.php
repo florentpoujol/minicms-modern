@@ -38,7 +38,7 @@ class Validate
     public static function slug($data)
     {
         $pattern = "/^[a-z0-9-]{2,}$/";
-        return self::validate(strtolower($data), $pattern);
+        return self::validate($data, $pattern);
     }
 
     public static function email($data)
@@ -122,6 +122,7 @@ class Validate
         return $sanitizedPost;
     }
 
+    // check for all the user data (name, email, password if any, etc...)
     public static function user($user)
     {
         $ok = true;

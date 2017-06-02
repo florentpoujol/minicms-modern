@@ -30,11 +30,11 @@ class Controller
         }
 
         ob_start();
-        require_once "../app/views/$view.php";
+        require_once "../App/views/$view.php";
         $content = ob_get_clean();
 
         ob_start();
-        require_once "../app/views/templates/".$this->template.".php";
+        require_once "../App/views/templates/".$this->template.".php";
         $content = ob_get_clean();
 
 

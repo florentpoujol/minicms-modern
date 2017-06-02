@@ -1,35 +1,35 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.4
--- https://www.phpmyadmin.net/
+-- version 4.5.4.1deb2ubuntu2
+-- http://www.phpmyadmin.net
 --
--- Client :  127.0.0.1
--- Généré le :  Sam 20 Mai 2017 à 09:06
--- Version du serveur :  5.7.14
--- Version de PHP :  5.6.25
+-- Host: localhost
+-- Generation Time: Jun 02, 2017 at 03:19 PM
+-- Server version: 5.7.18-0ubuntu0.16.04.1
+-- PHP Version: 7.0.18-0ubuntu0.16.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 --
--- Base de données :  `minicms_mvc`
+-- Database: `minicms_mvc`
 --
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `categories`
+-- Table structure for table `categories`
 --
 
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL,
   `slug` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL
+  `title` varchar(255) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `comments`
+-- Table structure for table `comments`
 --
 
 CREATE TABLE `comments` (
@@ -37,27 +37,40 @@ CREATE TABLE `comments` (
   `page_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `text` text NOT NULL,
-  `creation_time` int(11) NOT NULL
+  `creation_datetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `medias`
+-- Table structure for table `medias`
 --
 
 CREATE TABLE `medias` (
   `id` int(10) UNSIGNED NOT NULL,
   `slug` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
-  `creation_date` date NOT NULL,
+  `creation_datetime` datetime NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `messages`
+-- Table structure for table `menus`
+--
+
+CREATE TABLE `menus` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `in_use` tinyint(4) NOT NULL,
+  `structure` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
 --
 
 CREATE TABLE `messages` (
@@ -70,7 +83,7 @@ CREATE TABLE `messages` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `pages`
+-- Table structure for table `pages`
 --
 
 CREATE TABLE `pages` (
@@ -80,15 +93,15 @@ CREATE TABLE `pages` (
   `content` text NOT NULL,
   `parent_page_id` int(10) UNSIGNED DEFAULT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
-  `creation_date` date NOT NULL,
+  `creation_datetime` datetime NOT NULL,
   `published` tinyint(4) NOT NULL,
-  `allow_comments` int(10) UNSIGNED NOT NULL
+  `allow_comments` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `posts`
+-- Table structure for table `posts`
 --
 
 CREATE TABLE `posts` (
@@ -98,7 +111,7 @@ CREATE TABLE `posts` (
   `content` text NOT NULL,
   `category_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `creation_time` int(11) NOT NULL,
+  `creation_datetime` datetime NOT NULL,
   `published` tinyint(4) NOT NULL,
   `allow_comments` tinyint(4) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
@@ -106,7 +119,7 @@ CREATE TABLE `posts` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -118,91 +131,91 @@ CREATE TABLE `users` (
   `password_token` varchar(255) DEFAULT NULL,
   `password_change_time` int(11) UNSIGNED DEFAULT NULL,
   `role` varchar(255) NOT NULL,
-  `creation_date` date NOT NULL
+  `creation_datetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Index pour les tables exportées
+-- Indexes for dumped tables
 --
 
 --
--- Index pour la table `categories`
+-- Indexes for table `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `comments`
+-- Indexes for table `comments`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `medias`
+-- Indexes for table `medias`
 --
 ALTER TABLE `medias`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `messages`
+-- Indexes for table `messages`
 --
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `pages`
+-- Indexes for table `pages`
 --
 ALTER TABLE `pages`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `posts`
+-- Indexes for table `posts`
 --
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT pour les tables exportées
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT pour la table `categories`
+-- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `comments`
+-- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `medias`
+-- AUTO_INCREMENT for table `medias`
 --
 ALTER TABLE `medias`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `messages`
+-- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `pages`
+-- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `posts`
+-- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT pour la table `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;

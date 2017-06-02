@@ -4,7 +4,7 @@ namespace App;
 
 class Config
 {
-    // pth to the configuration file
+    // path to the configuration file
     // set from the index file
     public static $configFolder = __DIR__."/../config/";
 
@@ -24,7 +24,7 @@ class Config
     }
 
     // write the content of the $config array as JSON in a file
-    /// returns true on success, false otherwise
+    // returns true on success, false otherwise
     public static function save()
     {
         $jsonConfig = json_encode(self::$config);
