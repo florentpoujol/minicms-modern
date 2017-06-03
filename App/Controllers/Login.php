@@ -7,21 +7,20 @@ use App\Validate;
 use App\Route;
 use App\Models\Users;
 
-class LoginController extends Controller
+class Login extends BaseController
 {
 
     function __construct($user)
     {
         parent::__construct($user);
+
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
             Route::redirect();
         }
     }
 
-    // --------------------------------------------------
-
-    public function getIndex()
+    public function getIndex($idOrSlug = null)
     {
         $this->render("login");
     }

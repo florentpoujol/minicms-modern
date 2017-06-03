@@ -11,12 +11,7 @@ class Session
 
     public static function get($key, $defaultValue = null)
     {
-        if (isset($_SESSION[$key])) {
-            return $_SESSION[$key];
-        }
-        else {
-            return $defaultValue;
-        }
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue;
     }
 
     public static function set($key, $value)
@@ -31,8 +26,7 @@ class Session
                 $_SESSION[$key] = null;
                 unset($_SESSION[$key]);
             }
-        }
-        else {
+        } else {
             $_SESSION = [];
             unset($_SESSION);
             session_destroy();

@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\App;
 
-class Controller
+class BaseController
 {
     /*
      * @var \App\Entities\User
@@ -18,7 +18,7 @@ class Controller
         $this->user = $user;
     }
 
-    public function getIndex()
+    public function getIndex($idOrSlug = null)
     {
         $this->render("main", "site index");
     }

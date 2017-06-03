@@ -4,13 +4,13 @@ namespace App;
 
 class Config
 {
-    // path to the configuration file
-    // set from the index file
     public static $configFolder = __DIR__."/../config/";
 
     private static $config = [];
 
-    // read the config file (JSON) then populate the $config array
+    /**
+     * read the config file (JSON) then populate the $config array
+     */
     public static function load()
     {
         $jsonConfig = file_get_contents(self::$configFolder."config.json");
@@ -23,14 +23,15 @@ class Config
         return false;
     }
 
-    // write the content of the $config array as JSON in a file
-    // returns true on success, false otherwise
+    /**
+     * write the content of the $config array as JSON in a file
+     * @return true on success, false otherwise
+     */
     public static function save()
     {
-        $jsonConfig = json_encode(self::$config);
+        $jsonConfig = json_encode(self::$config, JSON_PRETTY_PRINT);
         return (file_put_contents(self::$configFolder."config.json", $jsonConfig));
     }
-
 
     public static function get($key, $defaultValue = null)
     {

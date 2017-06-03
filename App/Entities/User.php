@@ -2,15 +2,16 @@
 
 namespace App\Entities;
 
-
 /**
- *
+ * Class User
+ * Instances represents the logged in user.
+ * @package App\Entities
  */
 class User
 {
     /**
-     * @var \PDO
-     * PDO instance of the selected user's table row
+     * @var \PDOStatement
+     * PDOStatement instance of the selected user's table row
      */
     private $dbUser;
 

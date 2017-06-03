@@ -2,15 +2,28 @@
 
 namespace App;
 
+/**
+ * Class Lang
+ * Provide localization capabilities, but also allow to store strings in dictionaries instead of the App's code (ie: messages, form labels, ..).
+ * Dictionaries are found in their own file in the languages folder. The file must be name after the language identifier (en, fr, de, ...).
+ * The file must return an associative array of (potentially) nested string keys and values.
+ * @package App
+ */
 class Lang
 {
     public static $defaultLanguage = "en";
 
-    private static $currentLanguage = "en";
+    public static $currentLanguage = "en";
 
-    // dictionaries per language
+    /**
+     * dictionaries per language
+     */
     private static $dictionaries = [];
 
+    /**
+     * @param string $lang The language identifier ie: en, fr, de, ...
+     * @return bool Returns true when the language has been loaded during this function call, false otherwise.
+     */
     public static function load($lang)
     {
         if (! isset(self::$dictionaries[$lang])) {
@@ -19,9 +32,9 @@ class Lang
                 self::$dictionaries[$lang] = require $path;
                 return true;
             }
-
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -32,7 +45,7 @@ class Lang
      * If the key(s) do not lead to a string, the keys string is returned instead.
      * A set of keys/values to be replaced in the string can be passed as the replacements argument.
      * @param string $keys
-     * @param null $replacements
+     * @param array $replacements
      * @return string
      */
     public static function get($keys, $replacements = null)

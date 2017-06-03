@@ -7,24 +7,8 @@ class Users extends Model
 
     public static function get($params, $condition = "AND")
     {
-        $strQuery = "SELECT * FROM users WHERE ";
-        foreach ($params as $name => $value) {
-            $strQuery .= "$name=:$name $condition ";
-        }
-
-        $strQuery = rtrim($strQuery," $condition ");
-
-        $query = self::$db->prepare($strQuery);
-        $success = $query->execute($params);
-
-        if ($success === true) {
-            return $query->fetch();
-        }
-
-        return false;
+        return parent::getFromTable("users", $params, $condition);
     }
-
-    // --------------------------------------------------
 
     public static function insert($newUser)
     {
@@ -46,7 +30,7 @@ class Users extends Model
         unset($newUser["password"]);
         $newUser["creation_date"] = date("Y-m-d");
 
-        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, role, creation_date)
+        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, role, creation_datetime)
             VALUES(:name, :email, :email_token, :password_hash, :role, :creation_date)");
         $success = $query->execute($newUser);
 
@@ -56,8 +40,6 @@ class Users extends Model
 
         return false;
     }
-
-    // --------------------------------------------------
 
     public static function updatePasswordToken($userId, $token)
     {

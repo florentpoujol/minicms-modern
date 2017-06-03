@@ -1,9 +1,6 @@
-<?php
+<h1>{pageTitle}</h1>
 
-?>
-<h1><?php echo $pageTitle; ?></h1>
-
-<?php include "../views/messages.php"; ?>
+<?php include "../messages.php"; ?>
 
 this is the admin index
 <br>

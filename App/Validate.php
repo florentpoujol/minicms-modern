@@ -4,9 +4,12 @@ namespace App;
 
 class Validate
 {
-    // check the data agains the patterns
-    // returns true if all pattern(s) are found in the data, false otherwise
-    // patterns can be string or array of strings
+    /**
+     * check the data against the patterns
+     * @param mixed $data
+     * @param string|array $patterns can be string or array of strings
+     * @return bool true if all pattern(s) are found in the data, false otherwise
+     */
     public static function validate($data, $patterns)
     {
         if (! is_array($patterns)) {
@@ -37,6 +40,7 @@ class Validate
 
     public static function slug($data)
     {
+        // todo: prevent to begin by number and to contain only number
         $pattern = "/^[a-z0-9-]{2,}$/";
         return self::validate($data, $pattern);
     }
@@ -59,7 +63,13 @@ class Validate
         return $formatOK;
     }
 
-
+    /**
+     * Validate the CSRF token found in session with the one provided with the request
+     * @param string $request The name of the request
+     * @param string $token The token provided with the request. If null, if will be found in $_POST based on the request name
+     * @param int $timeLimit Default 900 sec = 15 min
+     * @return bool
+     */
     public static function csrf($request, $token = null, $timeLimit = 900)
     {
         $tokenName = $request."_csrf_token";
@@ -72,7 +82,6 @@ class Validate
             }
         }
 
-        // 900 sec = 15 min
         if (
             Session::get($tokenName) === $token &&
             time() < Session::get($request."_csrf_time", 0) + $timeLimit
@@ -85,7 +94,11 @@ class Validate
         return false;
     }
 
-    // return an array on only the specified keys from $_POST, casted to their desired types
+    /**
+     * Returns an array of only the specified keys from $_POST, casted to their desired types
+     * @param array $schema Assoc array containing the desired key and their wanted type
+     * @return array
+     */
     public static function sanitizePost($schema)
     {
         $sanitizedPost = [];
@@ -122,7 +135,11 @@ class Validate
         return $sanitizedPost;
     }
 
-    // check for all the user data (name, email, password if any, etc...)
+    /**
+     * Check for all the user data (name, email, password if any, etc...)
+     * @param array $user
+     * @return bool
+     */
     public static function user($user)
     {
         $ok = true;

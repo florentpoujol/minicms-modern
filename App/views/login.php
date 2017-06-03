@@ -9,7 +9,7 @@ if (! isset($post)) {
 
 $form = new App\Form("login", $post);
 
-$form->open(App\Route::uri("login"));
+$form->open(App\Route::buildQueryString("login"));
     $form->text("login_name", "Name:");
     $form->password("login_password", "Password:");
     $form->submit("", "Login");

@@ -8,21 +8,20 @@ use App\Route;
 use App\Emails;
 use App\Models\Users;
 
-class RegisterController extends Controller
+class Register extends BaseController
 {
 
     function __construct($user)
     {
         parent::__construct($user);
+
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
             Route::redirect();
         }
     }
 
-    // --------------------------------------------------
-
-    public function getIndex()
+    public function getIndex($idOrSlug = null)
     {
         $this->render("register", null, ["post" => []]);
     }
@@ -70,8 +69,6 @@ class RegisterController extends Controller
 
         $this->render("register", null, ["post" => $post]);
     }
-
-    // --------------------------------------------------
 
     public function getConfirmEmail()
     {

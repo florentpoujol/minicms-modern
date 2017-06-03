@@ -4,7 +4,14 @@ namespace App;
 
 class Form
 {
+    /**
+     * @var string The name of the form, mostly used as prefix for CSRF protection
+     */
     private $name;
+
+    /**
+     * @var array Assoc array used to prefill the inputs default values
+     */
     private $data;
 
     public function __construct($name, $data = [])
@@ -30,7 +37,13 @@ class Form
         ';
     }
 
-
+    /**
+     * @param string $type The input type (text, number, ...)
+     * @param string $name The value for the name attribute
+     * @param array $attributes Assoc array containing additional attributes.
+     * May contains a "value" key, which override the value that may be found in the form's data.
+     * May contains a "label" key, which may be a language keys (automatically prefixed with "formlabel").
+     */
     public function input($type, $name, $attributes = [])
     {
         $label = "";
@@ -47,7 +60,16 @@ class Form
         $content = "";
 
         if ($label !== "") {
-            $label = Lang::get("formlabel.$label");
+            $tmpLabel = Lang::get("formlabel.$label");
+            if ($tmpLabel !== "formlabel.$label") {
+                $label = $tmpLabel;
+            } else {
+                $tmpLabel = Lang::get($label);
+                if ($tmpLabel !== $label) {
+                    $label = $tmpLabel;
+                }
+            }
+
             $content .= "<label> $label
             ";
         }
@@ -72,11 +94,10 @@ class Form
         $noValueAttrs = ["checked", "selected", "required"];
 
         foreach ($attributes as $attr => $value) {
-            if (in_array($attr, $noValueAttrs)) {
-                $content .= ' '.$attr;
-            }
-            else {
-                $content .= ' '.$attr.'="'.$value.'"';
+            $content .= ' '.$attr;
+
+            if (! in_array($attr, $noValueAttrs)) {
+                $content .= '="'.$value.'"';
             }
         }
 

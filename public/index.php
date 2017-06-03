@@ -10,19 +10,20 @@ Config::load();
 
 Models\Model::connect();
 
-Lang::load(Lang::$defaultLanguage); // let's imagine it has been change based on config value
+Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been changed based on config value
 
 Messages::load();
 
+require_once "../vendor/phpmailer/class.smtp.php"; // no need for autoloading with such a minimal installation
+require_once "../vendor/phpmailer/class.phpmailer.php";
 
 // check if user is logged in
 session_start();
+$user = null; // is App\Entities\User when user is logged in ; null when user is guest
+$userId = Session::get("minicms_mvc_auth");
 
-$user = null;
-$userId = (int)Session::get("minicms_mvc_auth");
-
-if (isset($userId)) {
-    $dbUser = Models\Users::get(["id" => $userId]);
+if ($userId !== null) {
+    $dbUser = Models\Users::get(["id" => (int)$userId]);
 
     if ($dbUser === false) {
         Route::logout();
@@ -31,19 +32,4 @@ if (isset($userId)) {
     $user = new Entities\User($dbUser);
 }
 
-
-require_once "../vendor/phpmailer/class.smtp.php";
-require_once "../vendor/phpmailer/class.phpmailer.php";
-
-
-// first item is default route
-$routes = [
-    "blog",
-    "(page|post|category)/([a-z0-9]+)",
-    "logout",
-    "login/?(lostpassword|resetpassword)?",
-    "register/?(resendconfirmationemail|confirmemail)?",
-    "admin/?(users|pages|posts|comments|categories|config|medias|menus)?/?([0-9]+)?/?(create|update|delete)?",
-];
-
-Route::load($routes);
+Route::load($user);

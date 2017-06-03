@@ -8,11 +8,15 @@ class App
 
     public static $host = "localhost";
 
-    // path, if any from the host to the index's directory
-    // ends with a trailing slash
+    /**
+     * Path, if any from the host to the index's directory.
+     * Ends with a trailing slash.
+     */
     public static $directory = "/";
 
-    // current full site URL
+    /**
+     * Current full site URL without query string.
+     */
     public static $url = "";
 
     public static $requestMethod = "get";
