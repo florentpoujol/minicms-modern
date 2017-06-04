@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App;
 
-use App\Config;
-
-class Model
+class Database
 {
     /**
      * @var \PDO
@@ -35,16 +33,16 @@ class Model
         }
     }
 
-
     /**
      * @param string $tableName The table name
      * @param array $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
      * @param string $condition Should be AND or OR
-     * @return bool|\PDOStatement Object that represent the selected user's row in database.
+     * @return \App\Entities\Entity|bool Entity populated from DB data or false on error
      */
-    public static function getFromTable($tableName, $params, $condition = "AND")
+    public static function getFromTable($tableName, $className, $params, $condition = "AND")
     {
         $strQuery = "SELECT * FROM $tableName WHERE ";
+
         foreach ($params as $name => $value) {
             $strQuery .= "$name=:$name $condition ";
         }
@@ -52,6 +50,7 @@ class Model
         $strQuery = rtrim($strQuery," $condition ");
 
         $query = self::$db->prepare($strQuery);
+        $query->setFetchMode(\PDO::FETCH_CLASS, "App\Entities\\$className");
         $success = $query->execute($params);
 
         if ($success === true) {

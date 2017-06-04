@@ -6,7 +6,7 @@ use App\Messages;
 use App\Validate;
 use App\Route;
 use App\Emails;
-use App\Models\Users;
+use App\Entities\User;
 
 class Register extends BaseController
 {
@@ -47,19 +47,14 @@ class Register extends BaseController
 
             if (Validate::user($user)) {
                 unset($post["password_confirm"]);
-                $lastInsertId = Users::insert($post);
+                $user = User::insert($post);
 
-                if (is_int($lastInsertId)) {
+                if (is_object($user)) {
                     Messages::addSuccess("user.created");
-                    $user = Users::get(["id" => $lastInsertId]);
 
-                    if (is_object($user)) {
-                        if (Emails::sendConfirmEmail($user)) {
-                            Messages::addSuccess("email.confirmemail");
-                            Route::redirect("login");
-                        }
-                    } else {
-                        Messages::addError("error");
+                    if (Emails::sendConfirmEmail($user)) {
+                        Messages::addSuccess("email.confirmemail");
+                        Route::redirect("login");
                     }
                 } else {
                     Messages::addError("db.createuser");
@@ -72,13 +67,13 @@ class Register extends BaseController
 
     public function getConfirmEmail($userId, $emailToken)
     {
-        $user = Users::get([
+        $user = User::get([
             "id" => $userId,
             "email_token" => $emailToken
         ]);
 
         if ($emailToken !== "" && $user !== false) {
-            if (Users::updateEmailToken($user->id))  {
+            if ($user->updateEmailToken(""))  {
                 Messages::addSuccess("user.emailconfirmed");
                 Route::redirect("login");
             } else {
@@ -101,7 +96,7 @@ class Register extends BaseController
 
         if (Validate::csrf("resendconfirmemail")) {
             if (Validate::email($post["confirm_email"])) {
-                $user = Users::get(["email" => $post["confirm_email"]]);
+                $user = User::get(["email" => $post["confirm_email"]]);
 
                 if (is_object($user)) {
                     if ($user->email_token !== "") {

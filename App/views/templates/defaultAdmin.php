@@ -12,7 +12,12 @@
 <body>
 
 <nav id="main-menu">
-    admin menu
+    <ul>
+        <li><a href="{queryString admin/categories}">{lang categories.pagetitle}</a></li>
+        <li><a href="{queryString admin/posts}">{lang posts.pagetitle}</a></li>
+        <li><a href="{queryString admin/pages}">{lang pages.pagetitle}</a></li>
+        <li><a href="{queryString admin/users}">{lang users.pagetitle}</a></li>
+    </ul>
 </nav>
 
 <?php echo $content; ?>

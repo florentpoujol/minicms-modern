@@ -8,7 +8,7 @@ App::load();
 
 Config::load();
 
-Models\Model::connect();
+Database::connect();
 
 Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been changed based on config value
 
@@ -23,13 +23,11 @@ $user = null; // is App\Entities\User when user is logged in ; null when user is
 $userId = Session::get("minicms_mvc_auth");
 
 if ($userId !== null) {
-    $dbUser = Models\Users::get(["id" => (int)$userId]);
+    $user = Entities\User::get(["id" => (int)$userId]);
 
-    if ($dbUser === false) {
+    if ($user === false) {
         Route::logout();
     }
-
-    $user = new Entities\User($dbUser);
 }
 
 Route::load($user);

@@ -6,6 +6,7 @@ use App\Messages;
 use App\Validate;
 use App\Route;
 use App\Models\Users;
+use App\Entities\User;
 
 class Login extends BaseController
 {
@@ -47,13 +48,13 @@ class Login extends BaseController
             }
 
             if ($formatOK) {
-                $dbUser = Users::get(["name" => $post["login_name"]]);
+                $user = User::get(["name" => $post["login_name"]]);
 
-                if (is_object($dbUser)) {
-                    if ($dbUser->email_token === "") {
-                        if (password_verify($post["login_password"], $dbUser->password_hash)) {
+                if (is_object($user)) {
+                    if ($user->email_token === "") {
+                        if (password_verify($post["login_password"], $user->password_hash)) {
 
-                            $this->user = new \App\Entities\User($dbUser);
+                            $this->user = $user;
 
                             \App\Session::set("minicms_mvc_auth", $this->user->id);
                             Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
@@ -95,14 +96,13 @@ class Login extends BaseController
 
         if (Validate::csrf("lostpassword")) {
             if (Validate::email($email)) {
-                $user = Users::get(["email" => $email]);
+                $user = User::get(["email" => $email]);
 
                 if (is_object($user)) {
                     $token = \App\Security::getUniqueToken();
-                    $success = Users::updatePasswordToken($user->id, $token);
+                    $success = $user->updatePasswordToken($token);
 
                     if ($success) {
-                        $user->password_token = $token;
                         \App\Emails::sendChangePassword($user);
                         Messages::addSuccess("email.changepassword");
                     }
@@ -122,7 +122,7 @@ class Login extends BaseController
 
     public function getResetPassword($userId, $passwordToken)
     {
-        $user = Users::get([
+        $user = User::get([
             "id" => $userId,
             "password_token" => $passwordToken
         ]);
@@ -140,7 +140,7 @@ class Login extends BaseController
 
     public function postResetPassword($userId, $passwordToken)
     {
-        $user = Users::get([
+        $user = User::get([
             "id" => $userId,
             "password_token" => $passwordToken
         ]);
@@ -156,7 +156,7 @@ class Login extends BaseController
             Validate::csrf("resetpassword")
         ) {
             if (Validate::password($post["resetpassword"], $post["resetpassword_confirm"])) {
-                $success = Users::updatePassword($user->id, $post["resetpassword"]);
+                $success = $user->updatePassword($post["resetpassword"]);
 
                 if ($success) {
                     Messages::addSuccess("passwordchanged");

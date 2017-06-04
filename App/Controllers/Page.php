@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use \App\Models\Pages;
+use \App\Entities\Page as PageEntity;
 
 class Page extends BaseController
 {
@@ -15,7 +15,7 @@ class Page extends BaseController
     public function getIndex($idOrSlug = null)
     {
 
-        $page = Pages::get(["id" => $idOrSlug, "slug" => $idOrSlug], "OR");
+        $page = PageEntity::get(["id" => $idOrSlug, "slug" => $idOrSlug], "OR");
         $data = [
             $pageContent = $page
         ];

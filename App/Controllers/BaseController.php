@@ -28,7 +28,8 @@ class BaseController
         if ($pageTitle === null) {
             $pageTitle = str_replace("/", ".", $view).".pagetitle";
         }
-        $data["pageTitle"] = \App\Lang::get($pageTitle);
+        $pageTitle = \App\Lang::get($pageTitle);
+        $data["pageTitle"] = $pageTitle;
 
         extract($data);
         /*foreach ($data as $varName => $value) {
@@ -52,7 +53,22 @@ class BaseController
                 $content = str_replace('{'.$varName.'}', htmlspecialchars($value), $content);
             }
         }
-        
+
+        $methods = [
+            "queryString" => ["\App\Route", "buildQueryString"],
+            "lang" => ["\App\Lang", "get"],
+        ];
+
+        foreach ($methods as $name => $funcData) {
+            $matches = [];
+            preg_match_all("/{".$name." ([^}]+)}/", $content, $matches, PREG_SET_ORDER);
+            // var_dump($matches);
+            foreach ($matches as $match) {
+                $value = call_user_func($funcData, $match[1]);
+                $content = str_replace($match[0], $value, $content);
+            }
+        }
+
         echo $content;
     }
 }

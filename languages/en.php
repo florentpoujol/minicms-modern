@@ -15,8 +15,8 @@ return [
         "pagetitle" => "Rensend confirmation email"
     ],
 
-    "user" => [
-        ""
+    "users" => [
+        "pagetitle" => "Users"
     ],
 
     "formlabel" => [
