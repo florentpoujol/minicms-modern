@@ -3,10 +3,6 @@
 <?php
 include "messages.php";
 
-if (! isset($post)) {
-    $post = [];
-}
-
 $form = new App\Form("login", $post);
 
 $form->open(App\Route::buildQueryString("login"));
@@ -16,4 +12,4 @@ $form->open(App\Route::buildQueryString("login"));
 $form->close();
 ?>
 
-<a href="?c=login&a=lostpassword">Forgot Password ?</a>
+<a href="<?php echo App\Route::buildQueryString("login/lostpassword"); ?>">Forgot Password ?</a>

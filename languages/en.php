@@ -31,11 +31,11 @@ return [
     "email" => [
         "confirmemail" => [
             "subject" => "Confirm your email address",
-            "body" => "You have registered or changed your email address on the site. <br> Please click the link below to verify the email adress. <br><br>"
+            "body" => "You have registered or changed your email address on the site. <br> Please click the link below to verify the email adress. <br><br> <a href='{url}'>{url}</a>"
         ],
         "changepassword" => [
             "subject" => "Change your password",
-            "body" => "You have requested to change your password. <br> Click the link below within 48 hours to access the form.<br>"
+            "body" => "You have requested to change your password. <br> Click the link below within 48 hours to access the form.<br><br> <a href='{url}'>{url}</a>"
         ],
     ],
 

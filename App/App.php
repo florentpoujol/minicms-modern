@@ -16,6 +16,7 @@ class App
 
     /**
      * Current full site URL without query string.
+     * Ends with a trailing slash.
      */
     public static $url = "";
 

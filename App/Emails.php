@@ -51,20 +51,16 @@ class Emails
     public static function sendConfirmEmail($user)
     {
         $subject = Lang::get("email.confirmemail.subject");
-        $body = Lang::get("email.confirmemail.body");
-        $link = App::$url."index.php?c=register&a=confirmemail&id=".$user->id."&token=".$user->email_token;
-        $body .= "<a href='$link'>$link</a>";
-
+        $url = App::$url."index.php?c=register&a=confirmemail&id=".$user->id."&token=".$user->email_token;
+        $body = Lang::get("email.confirmemail.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
     }
 
     public static function sendChangePassword($user)
     {
         $subject = Lang::get("email.changepassword.subject");
-        $body = Lang::get("email.changepassword.subject");
-        $link = App::$url."index.php?c=login&a=resetpassword&id=".$user->id."&token=".$user->password_token;
-        $body .= "<a href='$link'>$link</a>";
-
+        $url = Route::getURL("login/resetpassword/".$user->id, ["token" => $user->password_token]);
+        $body = Lang::get("email.changepassword.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
     }
 }

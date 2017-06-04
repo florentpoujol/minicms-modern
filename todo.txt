@@ -1,2 +1,4 @@
 
 check why "unknonw user" error message on login form is displayed as "unknow u";
+
+replace models by entities, using PDO class thing

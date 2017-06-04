@@ -17,13 +17,13 @@ class Register extends BaseController
 
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            Route::redirect();
+            Route::redirect("admin");
         }
     }
 
     public function getIndex($idOrSlug = null)
     {
-        $this->render("register", null, ["post" => []]);
+        $this->render("register");
     }
 
     public function postIndex()
@@ -70,15 +70,14 @@ class Register extends BaseController
         $this->render("register", null, ["post" => $post]);
     }
 
-    public function getConfirmEmail()
+    public function getConfirmEmail($userId, $emailToken)
     {
-        $token = trim($_GET["token"]);
         $user = Users::get([
-            "id" => $_GET["id"],
-            "email_token" => $token
+            "id" => $userId,
+            "email_token" => $emailToken
         ]);
 
-        if ($token !== "" && $user !== false) {
+        if ($emailToken !== "" && $user !== false) {
             if (Users::updateEmailToken($user->id))  {
                 Messages::addSuccess("user.emailconfirmed");
                 Route::redirect("login");
@@ -93,7 +92,7 @@ class Register extends BaseController
 
     public function getResendConfirmationEmail()
     {
-        $this->render("resendconfirmemail", null, ["post" => []]);
+        $this->render("resendconfirmemail");
     }
 
     public function postResendConfirmationEmail()

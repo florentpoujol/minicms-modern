@@ -16,7 +16,7 @@ class Login extends BaseController
 
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            Route::redirect();
+            Route::redirect("admin");
         }
     }
 
@@ -120,40 +120,38 @@ class Login extends BaseController
     }
 
 
-    public function getResetPassword()
+    public function getResetPassword($userId, $passwordToken)
     {
-        $token = trim($_GET["token"]);
         $user = Users::get([
-            "id" => $_GET["id"],
-            "password_token" => $token
+            "id" => $userId,
+            "password_token" => $passwordToken
         ]);
 
         if (
-            $token !== "" && $user !== false &&
+            $passwordToken !== "" && $user !== false &&
             time() < $user->password_change_time + (3600 * 48)
         ) {
             $this->render("resetpassword", null, ["userName" => $user->name]);
         } else {
             Messages::addError("user.unauthorized");
-            Route::redirect();
+            Route::redirect(); // todo: properly redirect to 301 page, same for places
         }
     }
 
-    public function postResetPassword()
+    public function postResetPassword($userId, $passwordToken)
     {
-        $token = trim($_GET["token"]);
         $user = Users::get([
-            "id" => $_GET["id"],
-            "password_token" => $token
+            "id" => $userId,
+            "password_token" => $passwordToken
         ]);
 
         $post = Validate::sanitizePost([
-            "resetpassword_" => "string",
+            "resetpassword" => "string",
             "resetpassword_confirm" => "string"
         ]);
 
         if (
-            $token !== "" && $user !== false &&
+            $passwordToken !== "" && $user !== false &&
             time() < $user->password_change_time + (3600 * 48) &&
             Validate::csrf("resetpassword")
         ) {

@@ -16,113 +16,143 @@ class Route
      * First item is default route.
      */
     private static $routes = [
-        "blog",
-        "(page|post|category)/([a-z0-9]+)",
-        "logout",
-        "login/?(lostpassword|resetpassword)?",
-        "register/?(resendconfirmationemail|confirmemail)?",
-        "admin/?(users|pages|posts|comments|categories|config|medias|menus)?/?([0-9]+)?/?(create|update|delete)?",
+        "blog" => "blog/?([0-9]+)?",
+        "page" => "page/([a-z0-9]+)",
+        "post" => "post/([a-z0-9]+)",
+        "category" => "category/([a-z0-9]+)/?([0-9]+)?",
+        "logout" => "logout",
+
+        "login" => "login",
+        "lostpassword" => "login/lostpassword",
+        "resetpassword" => "login/resetpassword/([0-9]+)/([a-zA-Z0-9]+)",
+
+        "register" => "register",
+        "resendconfirmationemail" => "register/resendconfirmationemail",
+        "confirmemail" => "register/confirmemail/([0-9]+)/([a-zA-Z0-9]+)",
+
+        "admin_config" => "admin/config",
+        "admin" => "admin/?(users|pages|posts|comments|categories|medias|menus)?/?(create|read|update|delete)?/?([0-9]+)?",
+        // a URI like this one might be confusing :  admin/users/read/2
+        // it show the page 2 of the users list, it does not display the user with id 2
+        // there is no "profile" page where data is just displayed, non admin immediately access their edit page
     ];
+
 
     /**
      * Check the current request URI against the possible routes.
      * Then extract the data from the route (controller, method, resource id or slug, action)
      * @param Entities\User $user The user, to pass to the controller. Null when user is guest
      * @return void
-     **/
+     */
     public static function load($user = null)
     {
-        $r = isset($_GET["r"]) ? $_GET["r"] : "";
-        // $token = isset($_GET["token"]) ? $_GET["token"] : "";
-        // $p = isset($_GET["p"]) ? (int)$_GET["p"] : 1;
+        $r = isset($_GET["r"]) ? $_GET["r"] : "blog";
 
-        $routeOk = false;
-        foreach (self::$routes as $route) {
+        $routeName = "";
+        $controllerArgs = [];
+        foreach (self::$routes as $name => $route) {
             $route = str_replace("/", "\\/", $route);
-            if (preg_match('/^'.$route.'$/', $r) === 1) {
-                $routeOk = true;
+
+            if (preg_match('/^'.$route.'$/', $r, $controllerArgs) === 1) {
+                array_shift($controllerArgs); // index 0 is the whole match
+                $routeName = $name;
                 break;
             }
         }
 
-        if (! $routeOk) {
-            // when the request URI do not match any of the routes
-            $r = self::$routes[0]; // TODO: send to 404 page instead of default route
+        if ($routeName === "") {
+            // todo: properly redirect to 404
+            echo "404";
+            exit;
         }
 
+        $cb = function ($arg) { return is_numeric($arg) ? (int)$arg : $arg; };
+        $controllerArgs = array_map($cb, $controllerArgs);
 
-        $parts = explode("/", $r);
-        $controller = $parts[0];
+        $controllerName = $routeName;
+        $methodName = "Index";
 
-        if ($controller === "logout") {
-            self::logout();
+        switch ($routeName) {
+            case "logout":
+                self::logout();
+                break;
+
+            case "lostpassword":
+            case "resetpassword":
+                $controllerName = "Login";
+                $methodName = $routeName;
+                break;
+
+            case "resendconfirmationemail":
+            case "confirmemail":
+                $controllerName = "Register";
+                $methodName = $routeName;
+                break;
+
+            case "admin_config":
+                $controllerName = "Admin\Config";
+                $methodName = "Update";
+                break;
+
+            case "admin":
+                $controllerName = "Admin\\Users";
+                if (isset($controllerArgs[0])) {
+                    $controllerName = "Admin\\".$controllerArgs[0];
+                    array_shift($controllerArgs);
+                }
+
+                $methodName = "Read";
+                if (isset($controllerArgs[0])) {
+                    $methodName = $controllerArgs[0];
+                    array_shift($controllerArgs);
+                }
+                break;
         }
 
-        // controller method when in login, register controllers
-        // controller name when in admin section
-        // or slug or id when viewing a page, post or category
-        $page = "index";
-        if (isset($parts[1])) {
-            if (is_numeric($parts[1])) {
-                // todo: slugs must not begin by a number
-                $parts[1] = (int)$parts[1];
-            }
-            $page = $parts[1];
-        }
-
-        // is passed to the controller's method
-        $idOrSlug = null;
-        $resourceControllers = ["page", "post", "category"];
-
-        if (isset($parts[2])) {
-            // that's only when controller is admin
-            $idOrSlug = (int)$parts[1]; // always id
-        } else if (in_array($controller, $resourceControllers)) {
-            $idOrSlug = $page;
-            $page = "Index";
-        }
-
-        // CRUD. method name for the admin controllers
-        $action = isset($parts[3]) ? $parts[3] : "Read";
-
-        if ($controller === "admin") {
-            if ($page === "index") {
-                // no specific parts of the admin section is asked for
-                // - call AdminBaseController::getRead() and let it do whatever it wants (show admin dashboard maybe)
-                // - or call a default admin section page (done here)
-                $page = "Users";
-            }
-
-            $controller = "Admin\\".ucfirst($page);
-            $page = $action;
-        }
-
-        $controllerName = "\App\Controllers\\".ucfirst($controller);
+        $controllerName = "\App\Controllers\\".ucfirst($controllerName);
         $controller = new $controllerName($user);
 
-        $methodName = App::$requestMethod.$page;
-        $controller->{$methodName}($idOrSlug);
+        $methodName = App::$requestMethod.$methodName;
+        $controller->{$methodName}(...$controllerArgs);
     }
 
-    public static function buildQueryString($route = "", $params = [])
+    public static function buildQueryString($route = "", ...$additionnalArgs)
     {
-        $uri = "";
-        if ($route !== "") {
-            $uri = "?r=$route";
+        /*if (isset(self::$routes[$route])) {
+            $route = self::$routes[$route];
         }
 
-        foreach ($params as $key => $value) {
-            $uri .= "&$key=$value";
+        $parts = explode("/", $route);
+        $id = 0;
+        foreach ($parts as $part) {
+            if (preg_match("/^(.+)$/", $part) === 1) {
+                $id++;
+                $replace = "";
+                if (isset($additionnalArgs[$id])) {
+                    $replace = $additionnalArgs[$id];
+                }
+                $route = str_replace($part, $replace, $route);
+            }
         }
 
-        return $uri;
+        $route = trim($route, "/");*/
+
+        if (Config::get("use_nice_url") !== true && $route !== "") {
+            $route = "?r=$route";
+        }
+
+        return $route;
     }
 
-    public static function redirect($route = null, $params = null)
+    public static function getURL($route = "")
+    {
+        return App::$url.self::buildQueryString($route);
+    }
+
+    public static function redirect($route = "")
     {
         Messages::save();
-        $uri = self::buildQueryString($route, $params);
-        header("Location: ".App::$url.$uri);
+        header("Location: ".self::getURL($route));
         exit;
     }
 

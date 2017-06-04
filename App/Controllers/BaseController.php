@@ -24,9 +24,19 @@ class BaseController
     }
 
     public function render($view, $pageTitle = null, $data = [])
-    {      
-        foreach ($data as $varName => $value) {
+    {
+        if ($pageTitle === null) {
+            $pageTitle = str_replace("/", ".", $view).".pagetitle";
+        }
+        $data["pageTitle"] = \App\Lang::get($pageTitle);
+
+        extract($data);
+        /*foreach ($data as $varName => $value) {
             ${$varName} = $value;
+        }*/
+
+        if (! isset($post)) {
+            $post = [];
         }
 
         ob_start();
@@ -37,15 +47,9 @@ class BaseController
         require_once "../App/views/templates/".$this->template.".php";
         $content = ob_get_clean();
 
-
-        if (! isset($pageTitle)) {
-            $pageTitle = str_replace("/", ".", $view).".pagetitle";
-        }
-        
-        $data["pageTitle"] = \App\Lang::get($pageTitle);
-        foreach ($data as $key => $value) {
+        foreach ($data as $varName => $value) {
             if (! is_array($value) && ! is_object($value)) {
-                $content = str_replace('{'.$key.'}', htmlspecialchars($value), $content);
+                $content = str_replace('{'.$varName.'}', htmlspecialchars($value), $content);
             }
         }
         
