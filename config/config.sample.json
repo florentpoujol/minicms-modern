@@ -15,5 +15,7 @@
     "recaptcha_secret": "",
     "use_nice_url": false,
     "allow_comments": true,
-    "allow_registration": true
+    "allow_registration": true,
+
+    "items_per_page": 2
 }

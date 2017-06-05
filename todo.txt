@@ -2,3 +2,6 @@
 check why "unknonw user" error message on login form is displayed as "unknow u";
 
 replace models by entities, using PDO class thing
+
+don't let user on a default page (ie: admin or admin/users)
+always redirect him to the correct url (admin/users/read/1)

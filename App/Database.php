@@ -2,10 +2,12 @@
 
 namespace App;
 
+use \PDO;
+
 class Database
 {
     /**
-     * @var \PDO
+     * @var PDO
      * The PDO instance
      */
     protected static $db;
@@ -18,13 +20,13 @@ class Database
         $password = Config::get("db_password");
 
         $options = [
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_OBJ,
-            \PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+            PDO::ATTR_EMULATE_PREPARES   => false,
         ];
 
         try {
-            self::$db = new \PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, $options);
+            self::$db = new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, $options);
         }
         catch (\Exception $e) {
             echo "error connecting to the database <br>";
@@ -39,18 +41,18 @@ class Database
      * @param string $condition Should be AND or OR
      * @return \App\Entities\Entity|bool Entity populated from DB data or false on error
      */
-    public static function getFromTable($tableName, $className, $params, $condition = "AND")
+    protected static function getFromTable($tableName, $className, $params, $condition = "AND")
     {
         $strQuery = "SELECT * FROM $tableName WHERE ";
-
         foreach ($params as $name => $value) {
             $strQuery .= "$name=:$name $condition ";
         }
-
         $strQuery = rtrim($strQuery," $condition ");
 
         $query = self::$db->prepare($strQuery);
-        $query->setFetchMode(\PDO::FETCH_CLASS, "App\Entities\\$className");
+
+        $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
+
         $success = $query->execute($params);
 
         if ($success === true) {
@@ -58,5 +60,11 @@ class Database
         }
 
         return false;
+    }
+
+    protected static function getAllFromTable($tableName, $className, $pageNumber = 1)
+    {
+        $query = self::$db->prepare("SELECT * FROM $tableName LIMIT ");
+        return $query->execute();
     }
 }

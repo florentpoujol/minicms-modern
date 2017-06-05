@@ -2,6 +2,8 @@
 
 namespace App\Entities;
 
+use App\Config;
+
 /**
  * Class User
  * Instances represents the logged in user.
@@ -9,6 +11,7 @@ namespace App\Entities;
  */
 class User extends Entity
 {
+    // fields from DB
     public $id;
     public $name;
     public $email;
@@ -59,6 +62,42 @@ class User extends Entity
 
         if ($success === true) {
             return self::get(["id" => self::$db->lastInsertId()]);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $pageNumber
+     * @return array|bool Returns an array of User, or false on error.
+     */
+    public static function getAll($pageNumber = 1)
+    {
+        $pageNumber--;
+        if ($pageNumber < 0) {
+            $pageNumber = 0;
+        }
+        $itemsPerPage = (int)Config::get("items_per_page");
+        $offset = $pageNumber * $itemsPerPage;
+
+        $query = self::$db->prepare("SELECT * FROM users LIMIT $offset, $itemsPerPage");
+        $query->setFetchMode(\PDO::FETCH_CLASS, "App\Entities\User");
+        $success = $query->execute();
+
+        if ($success === true) {
+            return $query->fetchAll();
+        }
+
+        return false;
+    }
+
+    public static function countAll()
+    {
+        $query = self::$db->prepare("SELECT COUNT(*) FROM users");
+        $success = $query->execute();
+
+        if ($success) {
+            return $query->fetch()->{"COUNT(*)"};
         }
 
         return false;

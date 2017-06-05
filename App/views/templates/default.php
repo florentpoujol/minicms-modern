@@ -10,8 +10,7 @@ $robots = "noindex,nofollow";
 ?>
     <meta name="robots" content="<?php echo $robots; ?>">
 
-    <link rel="stylesheet" type="text/css" href="<?php echo \App\App::$directory; ?>common.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo \App\App::$directory; ?>frontend.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo \App\App::$directory; ?>style.css">
 </head>
 <body>
 

@@ -25,50 +25,76 @@ class BaseController
 
     public function render($view, $pageTitle = null, $data = [])
     {
+        $viewContent = file_get_contents("../App/views/$view.php");
+
+        $matches = [];
+        preg_match_all("/{include (.+)}/", $viewContent, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $includeContent = file_get_contents($match[1]);
+            $viewContent = str_replace($match[0], $includeContent, $viewContent);
+        }
+
+        $content = file_get_contents("../App/views/templates/".$this->template.".php");
+        $content = str_replace("{viewContent}", $viewContent, $content);
+
+        // data
         if ($pageTitle === null) {
             $pageTitle = str_replace("/", ".", $view).".pagetitle";
         }
         $pageTitle = \App\Lang::get($pageTitle);
+
         $data["pageTitle"] = $pageTitle;
+        if (! isset($data["post"])) {
+            $data["post"] = [];
+        }
+
+        $data["user"] = $this->user;
 
         extract($data);
-        /*foreach ($data as $varName => $value) {
-            ${$varName} = $value;
+
+        // keywords
+        $keywords = [
+            // search => replacement
+            "(foreach|for|if|elseif) \((.+)\)" => "$1 ($2):",
+            "(else)" => "$1:",
+            "(endforeach|endfor|endif)" => "$1;"
+        ];
+
+        $matches = [];
+        foreach ($keywords as $search => $replacement) {
+            $content = preg_replace('/@'.$search.'/', '<?php '.$replacement.' ?>', $content);
+            /*foreach ($matches as $match) {
+                $content = str_replace($match[0], '<?php echo htmlentities($'.$match[1].'); ?>', $content);
+            }*/
+        }
+
+
+        // variables
+        /*preg_match_all("/{([^} @]+)}/", $content, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $content = str_replace($match[0], '<?php echo htmlentities($'.$match[1].'); ?>', $content);
         }*/
+        $content = preg_replace("/{([^} @]+)}/", '<?php echo htmlentities($$1); ?>', $content);
 
-        if (! isset($post)) {
-            $post = [];
-        }
-
-        ob_start();
-        require_once "../App/views/$view.php";
-        $content = ob_get_clean();
-
-        ob_start();
-        require_once "../App/views/templates/".$this->template.".php";
-        $content = ob_get_clean();
-
-        foreach ($data as $varName => $value) {
-            if (! is_array($value) && ! is_object($value)) {
-                $content = str_replace('{'.$varName.'}', htmlspecialchars($value), $content);
-            }
-        }
-
-        $methods = [
+        // functions
+        $functions = [
             "queryString" => ["\App\Route", "buildQueryString"],
             "lang" => ["\App\Lang", "get"],
         ];
 
-        foreach ($methods as $name => $funcData) {
+        foreach ($functions as $name => $funcData) {
             $matches = [];
-            preg_match_all("/{".$name." ([^}]+)}/", $content, $matches, PREG_SET_ORDER);
-            // var_dump($matches);
+            preg_match_all("/{@".$name." ([^}]+)}/", $content, $matches, PREG_SET_ORDER);
+
             foreach ($matches as $match) {
-                $value = call_user_func($funcData, $match[1]);
-                $content = str_replace($match[0], $value, $content);
+                $content = str_replace(
+                    $match[0],
+                    '<?php echo '.$funcData[0].'::'.$funcData[1].'("'.$match[1].'"); ?>',
+                    $content
+                );
             }
         }
 
-        echo $content;
+        echo eval("?>".$content);
     }
 }

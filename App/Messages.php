@@ -10,7 +10,7 @@ namespace App;
  * @todo Store the creation time as well and flush messages older than 1 day so that leftover messages don't cramp te table
   * @package App
  */
-class Messages extends Models\Model
+class Messages extends Database
 {
     // arrays of strings
     private static $successes = [];
