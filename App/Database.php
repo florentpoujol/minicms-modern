@@ -34,37 +34,4 @@ class Database
             exit();
         }
     }
-
-    /**
-     * @param string $tableName The table name
-     * @param array $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
-     * @param string $condition Should be AND or OR
-     * @return \App\Entities\Entity|bool Entity populated from DB data or false on error
-     */
-    protected static function getFromTable($tableName, $className, $params, $condition = "AND")
-    {
-        $strQuery = "SELECT * FROM $tableName WHERE ";
-        foreach ($params as $name => $value) {
-            $strQuery .= "$name=:$name $condition ";
-        }
-        $strQuery = rtrim($strQuery," $condition ");
-
-        $query = self::$db->prepare($strQuery);
-
-        $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
-
-        $success = $query->execute($params);
-
-        if ($success === true) {
-            return $query->fetch();
-        }
-
-        return false;
-    }
-
-    protected static function getAllFromTable($tableName, $className, $pageNumber = 1)
-    {
-        $query = self::$db->prepare("SELECT * FROM $tableName LIMIT ");
-        return $query->execute();
-    }
 }

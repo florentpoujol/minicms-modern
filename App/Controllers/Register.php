@@ -47,7 +47,7 @@ class Register extends BaseController
 
             if (Validate::user($user)) {
                 unset($post["password_confirm"]);
-                $user = User::insert($post);
+                $user = User::create($post);
 
                 if (is_object($user)) {
                     Messages::addSuccess("user.created");
@@ -73,7 +73,7 @@ class Register extends BaseController
         ]);
 
         if ($emailToken !== "" && $user !== false) {
-            if ($user->updateEmailToken(""))  {
+            if ($user->update(["email_token" => ""]))  {
                 Messages::addSuccess("user.emailconfirmed");
                 Route::redirect("login");
             } else {

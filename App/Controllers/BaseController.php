@@ -2,18 +2,20 @@
 
 namespace App\Controllers;
 
-use App\App;
-
 class BaseController
 {
     /*
-     * @var \App\Entities\User
+     * @var App\Entities\User
      */
     protected $user;
 
     protected $template = "default";
 
-    function __construct($user = null)
+    /**
+     * BaseController constructor.
+     * @param \App\Entities\User $user
+     */
+    public function __construct($user)
     {
         $this->user = $user;
     }

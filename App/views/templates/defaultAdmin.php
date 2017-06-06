@@ -16,6 +16,7 @@
         <li><a href="{@queryString admin/posts}">{@lang posts.pagetitle}</a></li>
         <li><a href="{@queryString admin/pages}">{@lang pages.pagetitle}</a></li>
         <li><a href="{@queryString admin/users}">{@lang users.pagetitle}</a></li>
+        <li><a href="{@queryString logout}">{@lang logout}</a></li>
     </ul>
 </nav>
 

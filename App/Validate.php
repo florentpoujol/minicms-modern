@@ -165,13 +165,13 @@ class Validate
             }
         }
 
-        /*if (isset($user["role"])) {
+        if (isset($user["role"])) {
             $roles = ["admin", "writer", "commenter"];
             if (! in_array($user["role"], $roles)) {
-                addError("Role must be 'commenter', 'writer' or 'admin'.");
                 $userOK = false;
+                Messages::addError("fieldvalidation.role");
             }
-        }*/
+        }
 
         return $ok;
     }

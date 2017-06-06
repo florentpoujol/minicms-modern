@@ -11,6 +11,9 @@ namespace App;
  */
 class Route
 {
+    public static $controllerName = "";
+    public static $methodName = "";
+
     /**
      * List of the expected routes regexes
      * First item is default route.
@@ -110,9 +113,12 @@ class Route
         }
 
         $controllerName = "\App\Controllers\\".ucfirst($controllerName);
-        $controller = new $controllerName($user);
-
         $methodName = App::$requestMethod.$methodName;
+
+        self::$controllerName = $controllerName;
+        self::$methodName = $methodName;
+
+        $controller = new $controllerName($user);
         $controller->{$methodName}(...$controllerArgs);
     }
 

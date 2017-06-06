@@ -55,7 +55,8 @@ return [
             "csrffail" => "CSRF validation has failed",
             "user" => [
                 "alreadyloggedin" => "You are already logged in",
-                "unknow" => "Unknow user",
+                "unknown" => "Unknow user",
+                "unknownwithfield" => "Unknow user with {field} '{value}'",
                 "loggedin" => "Welcome {username}, you are now logged in",
                 "wrongpassword" => "Wrong password",
                 "notactivated" => "This user's email address is not confirmed yet. You can sent the activation email again, blabla",

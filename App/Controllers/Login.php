@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Messages;
 use App\Validate;
 use App\Route;
-use App\Models\Users;
 use App\Entities\User;
 
 class Login extends BaseController

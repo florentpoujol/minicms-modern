@@ -70,7 +70,7 @@ class Form
                 }
             }
 
-            $content .= "<label> $label
+            $content .= "<label for='$name'> $label
             ";
         }
 
@@ -81,13 +81,12 @@ class Form
         if (isset($attributes["value"])) {
             $value = $attributes["value"];
             unset($attributes["value"]);
-        }
-        elseif ($type !== "password" && isset($this->data[$name])) {
+        } else if ($type !== "password" && isset($this->data[$name])) {
             $value = $this->data[$name];
         }
 
-        if (isset($value)) {
-            $content .= ' value="'.htmlspecialchars($value).'"';
+        if ($value !== null) {
+            $content .= ' value="'.htmlentities($value).'"';
         }
 
         // other attributes
@@ -159,6 +158,73 @@ class Form
         }
 
         $this->input("checkbox", $name, $attributes);
+    }
+
+    public function select($name, $options, $attributes = null)
+    {
+        $label = "";
+        if (is_string($attributes)) {
+            $label = $attributes;
+            $attributes = [];
+        }
+
+        if (isset($attributes["label"])) {
+            $label = $attributes["label"];
+            unset($attributes["label"]);
+        }
+
+        $content = "";
+
+        if ($label !== "") {
+            $tmpLabel = Lang::get("formlabel.$label");
+            if ($tmpLabel !== "formlabel.$label") {
+                $label = $tmpLabel;
+            } else {
+                $tmpLabel = Lang::get($label);
+                if ($tmpLabel !== $label) {
+                    $label = $tmpLabel;
+                }
+            }
+
+            $content .= "<label for='$name'> $label
+            ";
+        }
+
+        $content .= '<select name="'.$name.'"';
+
+        // other attributes
+        $noValueAttrs = ["checked", "selected", "required"];
+
+        foreach ($attributes as $attr => $value) {
+            $content .= ' '.$attr;
+
+            if (! in_array($attr, $noValueAttrs)) {
+                $content .= '="'.$value.'"';
+            }
+        }
+
+        $content .= ">
+        ";
+
+        // options
+        foreach ($options as $value => $text) {
+            $selected = "";
+            if (isset($this->data[$name]) && $this->data[$name] === $value) {
+                $selected = "selected";
+            }
+            $content .= '<option value="'.$value.'" '.$selected.'>'.$text.'</option>
+            ';
+        }
+
+        $content .= "</select> <br>
+        ";
+
+        if ($label !== "") {
+            $content .="</label>
+            ";
+        }
+
+        echo $content;
     }
 
     public function br($count = 1)

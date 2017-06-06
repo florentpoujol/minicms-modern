@@ -2,7 +2,7 @@
 
 namespace App\Entities;
 
-use App\Config;
+use App\Security;
 
 /**
  * Class User
@@ -12,7 +12,6 @@ use App\Config;
 class User extends Entity
 {
     // fields from DB
-    public $id;
     public $name;
     public $email;
     public $email_token;
@@ -22,6 +21,12 @@ class User extends Entity
     public $role;
     public $creation_datetime;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->table = "users";
+    }
+
     /**
      * @param array $params
      * @param string $condition
@@ -29,18 +34,57 @@ class User extends Entity
      */
     public static function get($params, $condition = "AND")
     {
-        return parent::getFromTable("users", "User", $params, $condition);
+        return parent::_get($params, $condition, "users", "User");
+    }
+
+    /**
+     * @param array|int $params Can also be the page number
+     * @return array|bool Returns an array of User, or false on error.
+     */
+    public static function getAll($params = null)
+    {
+        return parent::_getAll($params, "users", "User");
+    }
+
+    public static function countAll()
+    {
+        return parent::_countAll("users");
+    }
+
+    /**
+     * Get all the page created by that user
+     * @return array|bool Array of \App\Entities\Page
+     */
+    public function getPages()
+    {
+        return Page::getAll(["user_id" => $this->id]);
+    }
+
+    /**
+     * Get all the posts created by that user
+     * @return array|bool Array of \App\Entities\Post
+     */
+    public function getPosts()
+    {
+        return Post::getAll(["user_id" => $this->id]);
+    }
+
+    /**
+     * Get all the comments created by that user
+     * @return array|bool Array of \App\Entities\Comment
+     */
+    public function getComments()
+    {
+        return Comment::getAll(["user_id" => $this->id]);
     }
 
     /**
      * @param array $newUser
      * @return User|bool
      */
-    public static function insert($newUser)
+    public static function create($newUser)
     {
-        if (isset($newUser["role"]) === false) {
-            $newUser["role"] = "commenter";
-        }
+        unset($newUser["id"]);
 
         $query = self::$db->prepare("SELECT id FROM users");
         $query->execute();
@@ -50,62 +94,81 @@ class User extends Entity
             $newUser["role"] = "admin";
         }
 
-        $newUser["email_token"] = md5(microtime(true)+mt_rand());
+        if (! isset($newUser["role"])) {
+            $newUser["role"] = "commenter";
+        }
+
+        $newUser["email_token"] = Security::getUniqueToken();
+
         $newUser["password_hash"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
-        // $newUser["password_token"] = "";
+        $newUser["password_token"] = "";
+
         unset($newUser["password"]);
+        unset($newUser["password_confirmation"]);
+
         $newUser["creation_datetime"] = date("Y-m-d H:i:s");
 
         $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, role, creation_datetime)
-            VALUES(:name, :email, :email_token, :password_hash, :role, :creation_date)");
+            VALUES(:name, :email, :email_token, :password_hash, :role, :creation_datetime)");
         $success = $query->execute($newUser);
 
-        if ($success === true) {
+        if ($success) {
             return self::get(["id" => self::$db->lastInsertId()]);
         }
 
         return false;
     }
 
+
+    public function updatePasswordToken($token)
+    {
+        $time = 0;
+        if ($token !== "") {
+            $time = time();
+        }
+
+        return $this->update([
+            "password_token" => $token,
+            "password_change_time" => $time
+        ]);
+    }
+
+    public function updatePassword($password)
+    {
+        return $this->update([
+            "password_token" => "",
+            "password_change_time" => 0,
+            "password_hash" => password_hash($password, PASSWORD_DEFAULT)
+        ]);
+    }
+
+    public function updateEmailToken($token)
+    {
+        return $this->update(["email_token" => ""]);
+    }
+
     /**
-     * @param int $pageNumber
-     * @return array|bool Returns an array of User, or false on error.
+     * @param int $adminId The id of the admin user that delete this user
+     * @return bool
      */
-    public static function getAll($pageNumber = 1)
+    public function delete($adminId)
     {
-        $pageNumber--;
-        if ($pageNumber < 0) {
-            $pageNumber = 0;
-        }
-        $itemsPerPage = (int)Config::get("items_per_page");
-        $offset = $pageNumber * $itemsPerPage;
-
-        $query = self::$db->prepare("SELECT * FROM users LIMIT $offset, $itemsPerPage");
-        $query->setFetchMode(\PDO::FETCH_CLASS, "App\Entities\User");
-        $success = $query->execute();
-
-        if ($success === true) {
-            return $query->fetchAll();
+        $rows = $this->getComments();
+        foreach ($rows as $row) {
+            $row->delete();
         }
 
-        return false;
-    }
-
-    public static function countAll()
-    {
-        $query = self::$db->prepare("SELECT COUNT(*) FROM users");
-        $success = $query->execute();
-
-        if ($success) {
-            return $query->fetch()->{"COUNT(*)"};
+        $rows = $this->getPages();
+        foreach ($rows as $row) {
+            $row->update(["user_id" => $adminId]);
         }
 
-        return false;
-    }
+        $rows = $this->getPosts();
+        foreach ($rows as $row) {
+            $row->update(["user_id" => $adminId]);
+        }
 
-    public function __construct()
-    {
-
+        return parent::_delete();
     }
 
     public function isAdmin()
@@ -121,67 +184,5 @@ class User extends Entity
     public function isCommenter()
     {
         return ($this->role === "commenter");
-    }
-
-    // return true is user has one of the roles
-    public function hasRoles($role1, $role2 = null)
-    {
-        $hasRole = ($this->role === $role1);
-
-        if (! $hasRole && isset($role2)) {
-            $hasRole = ($this->role === $role2);
-        }
-
-        return $hasRole;
-    }
-
-    public function updatePasswordToken($token)
-    {
-        $query = self::$db->prepare("UPDATE users SET password_token=:token, password_change_time=:time WHERE id=:id");
-        $params = [
-            "id" => $this->id,
-            "token" => $token,
-            "time" => time()
-        ];
-
-        $success = $query->execute($params);
-        if ($success) {
-            $this->password_token = $token;
-        }
-
-        return $success;
-    }
-
-    public function updatePassword($password)
-    {
-        $query = self::$db->prepare("UPDATE users SET password_token='', password_change_time=0, password_hash=:hash WHERE id=:id");
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $params = [
-            "id" => $this->id,
-            "hash" => $hash
-        ];
-
-        $success = $query->execute($params);
-        if ($success) {
-            $this->password_hash = $hash;
-        }
-
-        return $success;
-    }
-
-    public function updateEmailToken($token)
-    {
-        $query = self::$db->prepare("UPDATE users SET email_token=:token WHERE id=:id");
-        $params = [
-            "id" => $this->id,
-            "token" => $token
-        ];
-
-        $success = $query->execute($params);
-        if ($success) {
-            $this->email_token = $token;
-        }
-
-        return $success;
     }
 }

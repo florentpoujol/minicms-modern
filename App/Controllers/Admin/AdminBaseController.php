@@ -6,6 +6,10 @@ use App\Route;
 
 class AdminBaseController extends \App\Controllers\BaseController
 {
+    /**
+     * AdminBaseController constructor.
+     * @param \App\Entities\User $user
+     */
     function __construct($user)
     {
         parent::__construct($user);

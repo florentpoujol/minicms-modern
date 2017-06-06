@@ -9,7 +9,6 @@ namespace App\Entities;
  */
 class Page extends Entity
 {
-    public $id;
     public $slug;
     public $title;
     public $content;
@@ -26,19 +25,19 @@ class Page extends Entity
      */
     public static function get($params, $condition = "AND")
     {
-        return parent::getFromTable("pages", "Page", $params, $condition);
+        return parent::_get($params, $condition, "pages", "Page");
+    }
+
+    public static function getAll($params)
+    {
+        return parent::_getAll($params, "pages", "Page");
     }
 
     /**
      * @param array $newUser
      * @return Page|bool
      */
-    public static function insert($newPage)
-    {
-
-    }
-
-    public function update()
+    public static function create($newPage)
     {
 
     }

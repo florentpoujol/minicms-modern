@@ -18,7 +18,7 @@ $robots = "noindex,nofollow";
         menu
     </nav>
 
-    <?php echo $content; ?>
+    {viewContent}
 
 </body>
 </html>
