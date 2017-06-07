@@ -7,11 +7,13 @@ use App\Session;
 class Security
 {
 
+    /**
+     * @param int $size The size of the returned string. Sometimes the returned string is 1 character shorter.
+     * @return string
+     */
     public static function getUniqueToken($size = 40)
     {
-        // don't use random_bytes() so that it work on PHP5.6 too
-        $strong = true;
-        $bytes = openssl_random_pseudo_bytes($size / 2, $strong);
+        $bytes = random_bytes($size / 2);
         return bin2hex($bytes);
     }
 

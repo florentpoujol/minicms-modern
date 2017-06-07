@@ -1,4 +1,4 @@
 .idea/
-.phpintel/
+vendor/
 gitignore/
 config/config.json
