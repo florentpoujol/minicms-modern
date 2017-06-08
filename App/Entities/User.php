@@ -38,10 +38,10 @@ class User extends Entity
     }
 
     /**
-     * @param array|int $params Can also be the page number
+     * @param array $params
      * @return array|bool Returns an array of User, or false on error.
      */
-    public static function getAll($params = null)
+    public static function getAll($params)
     {
         return parent::_getAll($params, "users", "User");
     }
@@ -144,7 +144,7 @@ class User extends Entity
 
     public function updateEmailToken($token)
     {
-        return $this->update(["email_token" => ""]);
+        return $this->update(["email_token" => $token]);
     }
 
     /**

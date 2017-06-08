@@ -30,7 +30,7 @@ class Config
     public static function save()
     {
         $jsonConfig = json_encode(self::$config, JSON_PRETTY_PRINT);
-        return (file_put_contents(self::$configFolder."config.json", $jsonConfig));
+        return (bool)file_put_contents(self::$configFolder."config.json", $jsonConfig);
     }
 
     public static function get($key, $defaultValue = null)

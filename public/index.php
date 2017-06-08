@@ -2,7 +2,7 @@
 
 namespace App;
 
-require_once "../App/autoload.php";
+require_once "../autoload.php";
 
 App::load();
 

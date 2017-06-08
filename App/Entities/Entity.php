@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use \PDO;
 
 class Entity extends \App\Database
 {
@@ -42,9 +43,9 @@ class Entity extends \App\Database
     }
 
     /**
-     * @param array|int $params
-     * @param $tableName
-     * @param $className
+     * @param array $params
+     * @param string $tableName
+     * @param string $className
      * @return array|bool
      */
     protected static function _getAll($params = [], $tableName, $className)
@@ -77,7 +78,7 @@ class Entity extends \App\Database
         }
 
         $query = self::$db->prepare($strQuery.$limitQuery);
-        $query->setFetchMode(\PDO::FETCH_CLASS, "App\Entities\\$className");
+        $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
         $success = $query->execute();
 
         if ($success === true) {

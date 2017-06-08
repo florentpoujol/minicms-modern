@@ -21,7 +21,7 @@ class Users extends AdminBaseController
 
     public function getRead($pageNumber = 1)
     {
-        $allRows = User::getAll($pageNumber);
+        $allRows = User::getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
