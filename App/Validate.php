@@ -28,7 +28,7 @@ class Validate
 
     public static function title($data)
     {
-        $pattern = "/^[a-zA-Z0-9_:,?!\.-]{2,}$/";
+        $pattern = "/^[a-zA-Z0-9_:,?!\. -]{2,}$/";
         return self::validate($data, $pattern);
     }
 
@@ -40,8 +40,7 @@ class Validate
 
     public static function slug($data)
     {
-        // todo: prevent to begin by number and to contain only number
-        $pattern = "/^[a-z0-9-]{2,}$/";
+        $pattern = "/^[a-z]{1}[a-z0-9-]{1,}$/";
         return self::validate($data, $pattern);
     }
 
@@ -74,7 +73,7 @@ class Validate
     {
         $tokenName = $request."_csrf_token";
 
-        if (! isset($token)) {
+        if ($token === null) {
             if (isset($_POST[$tokenName])) {
                 $token = $_POST[$tokenName];
             } else {
@@ -82,10 +81,16 @@ class Validate
             }
         }
 
+        $time = time();
+        if ($timeLimit > $time) {
+            $timeLimit = 900;
+        }
+
         if (
             Session::get($tokenName) === $token &&
-            time() < Session::get($request."_csrf_time", 0) + $timeLimit
+            $time < Session::get($request."_csrf_time", -99999) + $timeLimit
         ) {
+            unset($_POST[$tokenName]);
             Session::destroy($tokenName);
             Session::destroy($request."_csrf_time");
             return true;

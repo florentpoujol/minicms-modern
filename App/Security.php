@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Session;
-
 class Security
 {
 

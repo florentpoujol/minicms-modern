@@ -21,15 +21,13 @@ class Session
 
     public static function destroy($key = null)
     {
-        if (isset($key)) {
-            if (isset($_SESSION[$key])) {
-                $_SESSION[$key] = null;
-                unset($_SESSION[$key]);
-            }
-        } else {
+        if ($key === null) {
             $_SESSION = [];
             unset($_SESSION);
             session_destroy();
+        } else if (isset($_SESSION[$key])) {
+            $_SESSION[$key] = null;
+            unset($_SESSION[$key]);
         }
     }
 }
