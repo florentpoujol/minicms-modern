@@ -8,7 +8,7 @@ namespace App;
  * Are stored in database, segregated based on session id, when the page needs to be reloaded before displaying the messages.
  * Integrates with the language system. Actual messages can be stored in the "messages.success" or "messages.error" dictionaries.
  * @todo Store the creation time as well and flush messages older than 1 day so that leftover messages don't cramp te table
-  * @package App
+ * @package App
  */
 class Messages extends Database
 {
@@ -23,17 +23,16 @@ class Messages extends Database
     public static function addSuccess($msg, $params = null)
     {
         $msg = Lang::get("messages.success.$msg", $params);
-        $msg = trim($msg, "messages.success."); // in case the msg isn't found
+        $msg = preg_replace("/^messages\.success\./", "", $msg); // in case the msg isn't found
         self::$successes[] = $msg;
     }
 
     public static function addError($msg, $params = null)
     {
         $msg = Lang::get("messages.error.$msg", $params);
-        $msg = trim($msg, "messages.error.");
+        $msg = preg_replace("/^messages\.error\./", "", $msg);
         self::$errors[] = $msg;
     }
-
 
     public static function getSuccesses()
     {
@@ -49,12 +48,12 @@ class Messages extends Database
         return $temp;
     }
 
-
     // save leftover msg in database for retrival later
     public static function save() {
-        $query = self::$db->prepare("INSERT INTO messages(type, text, session_id) VALUES(:type, :text, :session_id)");
+        $query = self::$db->prepare("INSERT INTO messages(type, text, time, session_id) VALUES(:type, :text, :time, :session_id)");
         $params = [
             "type" => "success",
+            "time" => time(),
             "session_id" => Session::getId()
         ];
 
@@ -69,7 +68,6 @@ class Messages extends Database
             $query->execute($params);
         }
     }
-
 
     // retrieve msg from DB, if any
     public static function load() {

@@ -15,19 +15,21 @@ class Lang
 
     public static $currentLanguage = "en";
 
+    public static $languageFolder = __DIR__."/../languages/";
+
     /**
      * dictionaries per language
      */
-    private static $dictionaries = [];
+    public static $dictionaries = [];
 
     /**
      * @param string $lang The language identifier ie: en, fr, de, ...
      * @return bool Returns true when the language has been loaded during this function call, false otherwise.
      */
-    public static function load($lang)
+    public static function load($lang, $reload = false)
     {
-        if (! isset(self::$dictionaries[$lang])) {
-            $path = __DIR__."/../languages/$lang.php";
+        if ($reload || ! isset(self::$dictionaries[$lang])) {
+            $path = self::$languageFolder."$lang.php";
             if (file_exists($path)) {
                 self::$dictionaries[$lang] = require $path;
                 return true;
@@ -59,27 +61,35 @@ class Lang
         }
 
         if (! isset(self::$dictionaries[$lang])) {
-            // $lang is not a language identifier
+            // $keys[0] (and $lang) are not a language identifier
             $lang = self::$currentLanguage;
+        } else {
+            array_shift($keys); // remove the language identifier from the keys
         }
 
         $value = self::$dictionaries[$lang];
 
         foreach ($keys as $key) {
             if (isset($value[$key])) {
-              $value = $value[$key];
-            } else if ($lang !== self::$defaultLanguage) {
-              return self::get(self::$defaultLanguage.".".$originalKey, $replacements);
+                $value = $value[$key];
+            } else {
+                break;
             }
         }
 
-        if (! is_string($value)) {
-            $value = $originalKey;
-        }
+        if (is_array($value)) { // key do not lead to a string
+            if ($lang !== self::$defaultLanguage) {
+                $defaultLangKey = self::$defaultLanguage.".".preg_replace("/^$lang\./", "", $originalKey);
+                $value = self::get($defaultLangKey, $replacements);
+                if ($value !== $defaultLangKey) { // found in the default language
+                    return $value;
+                }
+            }
 
-        if (isset($replacements)) {
+            $value = $originalKey;
+        } else if (isset($replacements)) {
             foreach ($replacements as $key => $val) {
-                $value = str_replace("{$key}", $val, $value);
+                $value = str_replace('{' . $key . '}', $val, $value);
             }
         }
 

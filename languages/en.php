@@ -47,7 +47,8 @@ return [
             ],
             "user" => [
                 "emailconfirmed" => "Email confirmed, please login",
-                "created" => "user created"
+                "created" => "user created",
+                "loggedin" => "Welcome {username}, you are now logged in",
             ]
         ],
         "error" => [
@@ -57,7 +58,6 @@ return [
                 "alreadyloggedin" => "You are already logged in",
                 "unknown" => "Unknow user",
                 "unknownwithfield" => "Unknow user with {field} '{value}'",
-                "loggedin" => "Welcome {username}, you are now logged in",
                 "wrongpassword" => "Wrong password",
                 "notactivated" => "This user's email address is not confirmed yet. You can sent the activation email again, blabla",
                 "alreaddyactivated" => "this email address is already confirmed. you can login with this user",
