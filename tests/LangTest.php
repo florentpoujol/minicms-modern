@@ -1,15 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Florent Poujol
- * Date: 11/06/2017
- * Time: 16:11
- */
 
 use App\Lang;
 use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
-
 
 class LangTest extends TestCase
 {
@@ -118,6 +111,6 @@ class LangTest extends TestCase
     {
         Lang::$currentLanguage = "en";
         Lang::$languageFolder = __DIR__."/../languages/";
-        Lang::load("en", true);
+        App\Lang::load("en", true);
     }
 }

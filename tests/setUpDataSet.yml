@@ -1,0 +1,6 @@
+messages:
+  -
+    type: "testtype"
+    text: "the old msg"
+    session_id: ""
+    time: 25

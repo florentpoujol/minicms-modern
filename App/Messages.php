@@ -61,12 +61,14 @@ class Messages extends Database
             $params["text"] = $msg;
             $query->execute($params);
         }
+        self::$successes = [];
 
         $params["type"] = "error";
         foreach (self::$errors as $msg) {
             $params["text"] = $msg;
             $query->execute($params);
         }
+        self::$errors = [];
     }
 
     // retrieve msg from DB, if any
@@ -88,5 +90,9 @@ class Messages extends Database
             $query = self::$db->prepare("DELETE FROM messages WHERE session_id=?");
             $query->execute([$sessionId]);
         }
+
+        // delete all leftover messages older than a day
+        $query = self::$db->prepare("DELETE FROM messages WHERE time < ?");
+        $query->execute([time() - (3600*24)]);
     }
 }

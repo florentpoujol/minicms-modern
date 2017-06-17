@@ -1,0 +1,13 @@
+messages:
+  -
+    id: 1
+    type: "testtype"
+    text: "the old msg"
+  -
+    id: 2
+    type: "success"
+    text: "the success message"
+  -
+    id: 3
+    type: "error"
+    text: "the error message"

@@ -5,14 +5,6 @@ use PHPUnit\Framework\TestCase;
 
 class SessionTest extends TestCase
 {
-    public function __construct()
-    {
-        parent::__construct();
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-    }
-
     public function testId()
     {
         self::assertInternalType("string", Session::getId());
@@ -41,7 +33,7 @@ class SessionTest extends TestCase
     }
 
     /**
-     * @depends testGet
+     * @depends testSet
      */
     public function testDestroy()
     {

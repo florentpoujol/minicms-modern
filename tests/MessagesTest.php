@@ -1,16 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Florent Poujol
- * Date: 11/06/2017
- * Time: 15:57
- */
-
 use App\Messages;
-use PHPUnit\Framework\TestCase;
 
-class MessagesTest extends TestCase
+class MessagesTest extends DatabaseTestCase
 {
+    public function getDataSet()
+    {
+        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/setUpDataSet.yml");
+    }
+
     public function testSuccess()
     {
         Messages::addSuccess("the success message");
@@ -55,13 +52,35 @@ class MessagesTest extends TestCase
         }
     }
 
-    public function testLoad()
+    public function save()
     {
-        self::markTestIncomplete();
+        Messages::addSuccess("the success message");
+        Messages::addError("the error message");
+
+        $this->assertEquals(1, $this->getConnection()->getRowCount("messages"));
+        Messages::save();
+        $this->assertEquals(3, $this->getConnection()->getRowCount("messages"));
+
+        $queryTable = $this->getConnection()->createQueryTable("messages", "SELECT id, type, text FROM messages");
+        $dataSet = new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/messagesDataSet.yml");
+        $expectedTable = $dataSet->getTable("messages");
+
+        $this->assertTablesEqual($expectedTable, $queryTable);
     }
 
-    public function testSave()
+    public function testLoad()
     {
-        self::markTestIncomplete();
+        $this->save();
+
+        Messages::load();
+        $this->assertEquals(0, $this->getConnection()->getRowCount("messages"));
+
+        $msgs = Messages::getSuccesses();
+        self::assertCount(1, $msgs);
+        self::assertEquals("the success message", $msgs[0]);
+
+        $msgs = Messages::getErrors();
+        self::assertCount(1, $msgs);
+        self::assertEquals("the error message", $msgs[0]);
     }
 }

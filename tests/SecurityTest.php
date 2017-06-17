@@ -14,7 +14,6 @@ class SecurityTest extends TestCase
 
     public function testCSRFTokensCreation()
     {
-
         $token1 = Security::createCSRFTokens("request1");
         $token2 = Security::createCSRFTokens("request2");
 
