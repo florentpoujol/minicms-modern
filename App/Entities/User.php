@@ -30,7 +30,7 @@ class User extends Entity
     /**
      * @param array $params
      * @param string $condition
-     * @return bool|User
+     * @return User|bool
      */
     public static function get($params, $condition = "AND")
     {
@@ -39,9 +39,9 @@ class User extends Entity
 
     /**
      * @param array $params
-     * @return array|bool Returns an array of User, or false on error.
+     * @return User[]|bool
      */
-    public static function getAll($params)
+    public static function getAll($params = [])
     {
         return parent::_getAll($params, "users", "User");
     }
@@ -52,17 +52,8 @@ class User extends Entity
     }
 
     /**
-     * Get all the page created by that user
-     * @return array|bool Array of \App\Entities\Page
-     */
-    public function getPages()
-    {
-        return Page::getAll(["user_id" => $this->id]);
-    }
-
-    /**
      * Get all the posts created by that user
-     * @return array|bool Array of \App\Entities\Post
+     * @return Post[]|bool
      */
     public function getPosts()
     {
@@ -70,8 +61,17 @@ class User extends Entity
     }
 
     /**
+     * Get all the page created by that user
+     * @return Page[]|bool
+     */
+    public function getPages()
+    {
+        return Page::getAll(["user_id" => $this->id]);
+    }
+
+    /**
      * Get all the comments created by that user
-     * @return array|bool Array of \App\Entities\Comment
+     * @return Comment[]|bool
      */
     public function getComments()
     {
@@ -88,8 +88,7 @@ class User extends Entity
 
         $query = self::$db->prepare("SELECT id FROM users");
         $query->execute();
-        $user = $query->fetch();
-        if ($user === false) {
+        if ($query->fetch() === false) {
             // the first user gets to be admin
             $newUser["role"] = "admin";
         }
@@ -108,17 +107,15 @@ class User extends Entity
 
         $newUser["creation_datetime"] = date("Y-m-d H:i:s");
 
-        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, role, creation_datetime)
-            VALUES(:name, :email, :email_token, :password_hash, :role, :creation_datetime)");
+        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, password_token, role, creation_datetime)
+            VALUES(:name, :email, :email_token, :password_hash, :password_token, :role, :creation_datetime)");
         $success = $query->execute($newUser);
 
         if ($success) {
             return self::get(["id" => self::$db->lastInsertId()]);
         }
-
         return false;
     }
-
 
     public function updatePasswordToken($token)
     {

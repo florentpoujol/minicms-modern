@@ -20,7 +20,6 @@ class Form
         $this->data = $data;
     }
 
-
     public function open($target, $method = "POST")
     {
         echo '<form action="'.$target.'" method="'.$method.'">

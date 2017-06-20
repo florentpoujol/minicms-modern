@@ -57,15 +57,15 @@ class MessagesTest extends DatabaseTestCase
         Messages::addSuccess("the success message");
         Messages::addError("the error message");
 
-        $this->assertEquals(1, $this->getConnection()->getRowCount("messages"));
+        self::assertEquals(1, $this->getConnection()->getRowCount("messages"));
         Messages::save();
-        $this->assertEquals(3, $this->getConnection()->getRowCount("messages"));
+        self::assertEquals(3, $this->getConnection()->getRowCount("messages"));
 
-        $queryTable = $this->getConnection()->createQueryTable("messages", "SELECT id, type, text FROM messages");
+        $queryTable = $this->getConnection()->createQueryTable("messages", "SELECT id, type, content FROM messages");
         $dataSet = new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/messagesDataSet.yml");
         $expectedTable = $dataSet->getTable("messages");
 
-        $this->assertTablesEqual($expectedTable, $queryTable);
+        self::assertTablesEqual($expectedTable, $queryTable);
     }
 
     public function testLoad()
@@ -73,7 +73,7 @@ class MessagesTest extends DatabaseTestCase
         $this->save();
 
         Messages::load();
-        $this->assertEquals(0, $this->getConnection()->getRowCount("messages"));
+        self::assertEquals(0, $this->getConnection()->getRowCount("messages"));
 
         $msgs = Messages::getSuccesses();
         self::assertCount(1, $msgs);

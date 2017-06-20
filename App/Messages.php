@@ -50,7 +50,7 @@ class Messages extends Database
 
     // save leftover msg in database for retrival later
     public static function save() {
-        $query = self::$db->prepare("INSERT INTO messages(type, text, time, session_id) VALUES(:type, :text, :time, :session_id)");
+        $query = self::$db->prepare("INSERT INTO messages(type, content, time, session_id) VALUES(:type, :content, :time, :session_id)");
         $params = [
             "type" => "success",
             "time" => time(),
@@ -58,14 +58,14 @@ class Messages extends Database
         ];
 
         foreach (self::$successes as $msg) {
-            $params["text"] = $msg;
+            $params["content"] = $msg;
             $query->execute($params);
         }
         self::$successes = [];
 
         $params["type"] = "error";
         foreach (self::$errors as $msg) {
-            $params["text"] = $msg;
+            $params["content"] = $msg;
             $query->execute($params);
         }
         self::$errors = [];
@@ -80,10 +80,9 @@ class Messages extends Database
         if ($success) {
             while ($msg = $query->fetch()) {
                 if ($msg->type === "success") {
-                    self::$successes[] = $msg->text;
-                }
-                else if ($msg->type === "error") {
-                    self::$errors[] = $msg->text;
+                    self::$successes[] = $msg->content;
+                } else if ($msg->type === "error") {
+                    self::$errors[] = $msg->content;
                 }
             }
 

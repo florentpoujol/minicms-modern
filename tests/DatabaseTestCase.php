@@ -30,6 +30,4 @@ abstract class DatabaseTestCase extends TestCase
         App\Database::connect(self::$pdo);
         return $this->conn;
     }
-
-
 }

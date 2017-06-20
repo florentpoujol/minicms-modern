@@ -99,7 +99,7 @@ class Users extends AdminBaseController
         $this->render("users.update", "users.updateuser", $data);
     }
 
-    public function postUpdate($id)
+    public function postUpdate()
     {
         $post = [];
         if (Validate::csrf("userupdate")) {

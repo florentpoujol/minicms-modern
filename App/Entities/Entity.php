@@ -35,10 +35,9 @@ class Entity extends \App\Database
         $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
         $success = $query->execute($params);
 
-        if ($success === true) {
+        if ($success) {
             return $query->fetch();
         }
-
         return false;
     }
 
@@ -71,6 +70,7 @@ class Entity extends \App\Database
 
         $strQuery = "SELECT * FROM $tableName";
         if (count(array_keys($params)) >= 1) {
+            $strQuery .= " WHERE ";
             foreach ($params as $name => $value) {
                 $strQuery .= "$name=:$name AND ";
             }
@@ -79,24 +79,25 @@ class Entity extends \App\Database
 
         $query = self::$db->prepare($strQuery.$limitQuery);
         $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
-        $success = $query->execute();
+        $success = $query->execute($params);
 
-        if ($success === true) {
+        if ($success) {
             return $query->fetchAll();
         }
-
         return false;
     }
 
-    protected static function _countAll($table)
+    /**
+     * @param string $tableName
+     * @return int|bool
+     */
+    protected static function _countAll($tableName)
     {
-        $query = self::$db->prepare("SELECT COUNT(*) FROM $table");
+        $query = self::$db->prepare("SELECT COUNT(*) FROM $tableName");
         $success = $query->execute();
-
         if ($success) {
-            return $query->fetch()->{"COUNT(*)"};
+            return (int)$query->fetch()->{"COUNT(*)"};
         }
-
         return false;
     }
 
@@ -120,7 +121,6 @@ class Entity extends \App\Database
             }
             return true;
         }
-
         return false;
     }
 

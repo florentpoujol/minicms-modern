@@ -1,0 +1,102 @@
+users:
+  -
+    id: 1
+    name: Admin
+    email: admin@email.fr
+    email_token: ""
+    password_hash: ""
+    password_token: ""
+    role: admin
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 2
+    name: Writer
+    email: writer@email.fr
+    email_token: ""
+    password_hash: ""
+    password_token: ""
+    role: writer
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 3
+    name: Commenter
+    email: commenter@email.fr
+    email_token: ""
+    password_hash: ""
+    password_token: ""
+    role: commenter
+    creation_datetime: "2017-01-01 00:00:00"
+
+categories:
+  -
+    id: 1
+    slug: category-1
+    name: Category 1
+  -
+    id: 2
+    slug: category-2
+    name: Category 2
+
+posts:
+  -
+    id: 1
+    slug: first-post
+    title: the first post
+    content: the content of first post
+    user_id: 1
+    category_id: 1
+    published: 1
+    allow_comments: 1
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 2
+    slug: second-post
+    title: the second post
+    content: the content of secondpost
+    user_id: 1
+    category_id: 2
+    published: 1
+    allow_comments: 1
+    creation_datetime: "2017-01-01 00:00:00"
+
+pages:
+  -
+    id: 1
+    slug: page1
+    title: the page
+    content: the content of the page
+    user_id: 2
+    parent_page_id:
+    published: 1
+    allow_comments: 1
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 2
+    slug: otherpage
+    title: the other page
+    content: the content of other page
+    user_id: 2
+    parent_page_id: 1
+    published: 1
+    allow_comments: 1
+    creation_datetime: "2017-01-01 00:00:00"
+
+comments:
+  -
+    id: 1
+    post_id: 1
+    user_id: 3
+    content: the comment on first post
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 2
+    page_id: 1
+    user_id: 3
+    content: the comment on first page
+    creation_datetime: "2017-01-01 00:00:00"
+  -
+    id: 3
+    post_id: 1
+    user_id: 2
+    content: the other comment on first post
+    creation_datetime: "2017-01-01 00:00:00"

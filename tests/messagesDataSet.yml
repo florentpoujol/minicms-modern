@@ -2,12 +2,12 @@ messages:
   -
     id: 1
     type: "testtype"
-    text: "the old msg"
+    content: "the old msg"
   -
     id: 2
     type: "success"
-    text: "the success message"
+    content: "the success message"
   -
     id: 3
     type: "error"
-    text: "the error message"
+    content: "the error message"
