@@ -19,7 +19,7 @@ class User extends Entity
     public $password_token;
     public $password_change_time;
     public $role;
-    public $creation_datetime;
+    public $is_blocked;
 
     public function __construct()
     {
@@ -106,9 +106,10 @@ class User extends Entity
         unset($newUser["password_confirmation"]);
 
         $newUser["creation_datetime"] = date("Y-m-d H:i:s");
+        $newUser["is_blocked"] = 0;
 
-        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, password_token, role, creation_datetime)
-            VALUES(:name, :email, :email_token, :password_hash, :password_token, :role, :creation_datetime)");
+        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, password_token, role, is_blocked, creation_datetime)
+            VALUES(:name, :email, :email_token, :password_hash, :password_token, :role, :is_blocked, :creation_datetime)");
         $success = $query->execute($newUser);
 
         if ($success) {
@@ -142,6 +143,11 @@ class User extends Entity
     public function updateEmailToken($token)
     {
         return $this->update(["email_token" => $token]);
+    }
+
+    public function block($block = true)
+    {
+        return $this->update(["is_blocked" => ($block ? 1 : 0)]);
     }
 
     /**
@@ -181,5 +187,10 @@ class User extends Entity
     public function isCommenter()
     {
         return ($this->role === "commenter");
+    }
+
+    public function isBlocked()
+    {
+        return ($this->is_blocked === 1);
     }
 }

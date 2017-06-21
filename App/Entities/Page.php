@@ -28,9 +28,26 @@ class Page extends Entity
         return parent::_get($params, $condition, "pages", "Page");
     }
 
+    /**
+     * @param $params
+     * @return Page[]|bool
+     */
     public static function getAll($params)
     {
         return parent::_getAll($params, "pages", "Page");
+    }
+
+    public static function countAll()
+    {
+        return parent::_countAll("users");
+    }
+
+    /**
+     * @return Comment[]|bool
+     */
+    public function getComments()
+    {
+        return Comment::getAll(["page_id" => $this->id]);
     }
 
     /**

@@ -22,7 +22,7 @@ class Entity extends \App\Database
      * @param string $tableName The table name
      * @param array $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
      * @param string $condition Should be AND or OR
-     * @return \App\Entities\Entity|bool Entity populated from DB data or false on error
+     * @return Entity|bool Entity populated from DB data, or false on error or if nothing is found
      */
     protected static function _get($params, $condition = "AND", $tableName, $className)
     {
@@ -46,7 +46,7 @@ class Entity extends \App\Database
      * @param array $params
      * @param string $tableName
      * @param string $className
-     * @return array|bool
+     * @return Entity[]|bool
      */
     protected static function _getAll($params = [], $tableName, $className)
     {
@@ -102,6 +102,10 @@ class Entity extends \App\Database
         return false;
     }
 
+    /**
+     * @param array $data
+     * @return bool
+     */
     public function update($data)
     {
         $strQuery = "UPDATE ".$this->table." SET ";
@@ -125,6 +129,9 @@ class Entity extends \App\Database
         return false;
     }
 
+    /**
+     * @return bool
+     */
     public function _delete()
     {
         $query = self::$db->prepare("DELETE FROM $this->table WHERE id = ?");
@@ -140,6 +147,9 @@ class Entity extends \App\Database
         return false;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return (array)$this;

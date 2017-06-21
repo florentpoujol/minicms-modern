@@ -135,6 +135,15 @@ class UserTest extends DatabaseTestCase
         self::assertTrue(password_verify("qwerty", $user->password_hash));
         self::assertEmpty($user->password_token);
         self::assertEquals(0, $user->password_change_time);
+
+        self::assertEquals(0, $user->is_blocked);
+        self::assertFalse($user->isBlocked());
+        self::assertTrue($user->block());
+        self::assertEquals(1, $user->is_blocked);
+        self::assertTrue($user->isBlocked());
+        self::assertTrue($user->block(false));
+        self::assertEquals(0, $user->is_blocked);
+        self::assertFalse($user->isBlocked());
     }
 
     public function testDelete()

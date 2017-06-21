@@ -141,6 +141,7 @@ CREATE TABLE `users` (
   `password_change_time` int(11) unsigned DEFAULT NULL,
   `role` varchar(255) NOT NULL,
   `creation_datetime` datetime NOT NULL,
+  `is_blocked` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -154,4 +155,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-17 22:17:57
+-- Dump completed on 2017-06-21 21:57:40
