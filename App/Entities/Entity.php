@@ -7,13 +7,14 @@ use \PDO;
 class Entity extends \App\Database
 {
     public $id;
+    public $creation_datetime;
 
     protected $table = "";
     protected $className = "";
 
     public function __construct()
     {
-        $this->className = get_called_class();
+        $this->className = str_replace("App\Entities\\", "", get_called_class());
         $this->table = strtolower($this->className)."s";
     }
 
@@ -127,7 +128,16 @@ class Entity extends \App\Database
     public function _delete()
     {
         $query = self::$db->prepare("DELETE FROM $this->table WHERE id = ?");
-        return $query->execute([$this->id]);
+        $success = $query->execute([$this->id]);
+
+        if ($success) {
+            $props = get_object_vars($this);
+            foreach ($props as $name => $value) {
+                $this->{$name} = null;
+            }
+            return true;
+        }
+        return false;
     }
 
     public function toArray()

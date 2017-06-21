@@ -9,8 +9,18 @@ class Comment extends Entity
         return parent::_get($params, $condition, "comments", "Comment");
     }
 
-    public static function getAll($params)
+    public static function getAll($params = [])
     {
         return parent::_getAll($params, "comments", "Comment");
+    }
+
+    public static function countAll()
+    {
+        return parent::_countAll("comments");
+    }
+
+    public function delete()
+    {
+        return self::_delete();
     }
 }

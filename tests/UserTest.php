@@ -1,6 +1,8 @@
 <?php
 
 use App\Entities\User;
+use App\Entities\Page;
+use App\Entities\Comment;
 
 class UserTest extends DatabaseTestCase
 {
@@ -103,5 +105,56 @@ class UserTest extends DatabaseTestCase
 
         self::assertEquals(4, User::countAll());
         self::assertCount(2, User::getAll(["role" => "admin"]));
+    }
+
+    public function testUpdate()
+    {
+        $newUser = [
+            "name" => "FLorent",
+            "email" => "flo@rent.fr",
+            "role" => "admin",
+            "password" => "azerty"
+        ];
+
+        $user = User::create($newUser);
+        self::assertNotEmpty($user->email_token);
+
+        self::assertTrue($user->updateEmailToken(""));
+        self::assertEmpty($user->email_token);
+
+        self::assertEmpty($user->password_token);
+        self::assertEquals(0, $user->password_change_time);
+        self::assertTrue($user->updatePasswordToken("newtoken"));
+        self::assertEquals("newtoken", $user->password_token);
+        $time = time();
+        self::assertGreaterThan($time - 1, $user->password_change_time);
+        self::assertLessThan($time + 1, $user->password_change_time);
+
+        self::assertTrue(password_verify("azerty", $user->password_hash));
+        self::assertTrue($user->updatePassword("qwerty"));
+        self::assertTrue(password_verify("qwerty", $user->password_hash));
+        self::assertEmpty($user->password_token);
+        self::assertEquals(0, $user->password_change_time);
+    }
+
+    public function testDelete()
+    {
+        $user = User::get(["id" => 2]); // the writer, who has 1 comment and 2 pages
+
+        self::assertCount(1, Comment::getAll(["user_id" => 2]));
+        self::assertEquals(3, Comment::countAll());
+        self::assertCount(2, Page::getAll(["user_id" => 2]));
+
+        $user->delete(1); // deleted by the admin who has id 1
+
+        self::assertFalse(User::get(["id" => 2]));
+
+        self::assertCount(0, Comment::getAll(["user_id" => 2]));
+        self::assertEquals(2, Comment::countAll());
+        self::assertCount(0, Page::getAll(["user_id" => 2]));
+        self::assertCount(2, Page::getAll(["user_id" => 1]));
+
+        self::assertNull($user->id);
+        self::assertNull($user->name);
     }
 }
