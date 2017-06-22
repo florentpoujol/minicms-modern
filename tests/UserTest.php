@@ -154,7 +154,7 @@ class UserTest extends DatabaseTestCase
         self::assertEquals(3, Comment::countAll());
         self::assertCount(2, Page::getAll(["user_id" => 2]));
 
-        $user->delete(1); // deleted by the admin who has id 1
+        $user->deleteByAdmin(1);
 
         self::assertFalse(User::get(["id" => 2]));
 

@@ -21,36 +21,6 @@ class User extends Entity
     public $role;
     public $is_blocked;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table = "users";
-    }
-
-    /**
-     * @param array $params
-     * @param string $condition
-     * @return User|bool
-     */
-    public static function get($params, $condition = "AND")
-    {
-        return parent::_get($params, $condition, "users", "User");
-    }
-
-    /**
-     * @param array $params
-     * @return User[]|bool
-     */
-    public static function getAll($params = [])
-    {
-        return parent::_getAll($params, "users", "User");
-    }
-
-    public static function countAll()
-    {
-        return parent::_countAll("users");
-    }
-
     /**
      * Get all the posts created by that user
      * @return Post[]|bool
@@ -84,8 +54,6 @@ class User extends Entity
      */
     public static function create($newUser)
     {
-        unset($newUser["id"]);
-
         $query = self::$db->prepare("SELECT id FROM users");
         $query->execute();
         if ($query->fetch() === false) {
@@ -105,17 +73,9 @@ class User extends Entity
         unset($newUser["password"]);
         unset($newUser["password_confirmation"]);
 
-        $newUser["creation_datetime"] = date("Y-m-d H:i:s");
         $newUser["is_blocked"] = 0;
 
-        $query = self::$db->prepare("INSERT INTO users(name, email, email_token, password_hash, password_token, role, is_blocked, creation_datetime)
-            VALUES(:name, :email, :email_token, :password_hash, :password_token, :role, :is_blocked, :creation_datetime)");
-        $success = $query->execute($newUser);
-
-        if ($success) {
-            return self::get(["id" => self::$db->lastInsertId()]);
-        }
-        return false;
+        return parent::create($newUser);
     }
 
     public function updatePasswordToken($token)
@@ -154,7 +114,7 @@ class User extends Entity
      * @param int $adminId The id of the admin user that delete this user
      * @return bool
      */
-    public function delete($adminId)
+    public function deleteByAdmin($adminId)
     {
         $rows = $this->getComments();
         foreach ($rows as $row) {
@@ -171,7 +131,7 @@ class User extends Entity
             $row->update(["user_id" => $adminId]);
         }
 
-        return parent::_delete();
+        return parent::delete();
     }
 
     public function isAdmin()

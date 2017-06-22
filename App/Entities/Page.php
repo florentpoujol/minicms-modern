@@ -2,45 +2,9 @@
 
 namespace App\Entities;
 
-/**
- * Class User
- * Instances represents the logged in user.
- * @package App\Entities
- */
-class Page extends Entity
+class Page extends BasePage
 {
-    public $slug;
-    public $title;
-    public $content;
     public $parent_page_id;
-    public $user_id;
-    public $creation_datetime;
-    public $published;
-    public $allow_comment;
-
-    /**
-     * @param array $params
-     * @param string $condition
-     * @return Page|bool
-     */
-    public static function get($params, $condition = "AND")
-    {
-        return parent::_get($params, $condition, "pages", "Page");
-    }
-
-    /**
-     * @param $params
-     * @return Page[]|bool
-     */
-    public static function getAll($params)
-    {
-        return parent::_getAll($params, "pages", "Page");
-    }
-
-    public static function countAll()
-    {
-        return parent::_countAll("users");
-    }
 
     /**
      * @return Comment[]|bool
@@ -51,21 +15,30 @@ class Page extends Entity
     }
 
     /**
-     * @param array $newUser
      * @return Page|bool
      */
-    public static function create($newPage)
+    public function getParent()
     {
-
+        return Page::get($this->parent_page_id);
     }
+
+    /**
+     * @return Page[]|bool
+     */
+    public function getChildren()
+    {
+        return Page::getAll(["parent_page_id" => $this->parent_page_id]);
+    }
+
 
     public function delete()
     {
+        $children = $this->getChildren();
+        foreach ($children as $child) {
+            $child->update(["parent_page_id" => null]);
+        }
 
+        return parent::delete();
     }
 
-    public function getExcerpt()
-    {
-
-    }
 }

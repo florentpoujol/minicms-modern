@@ -9,31 +9,34 @@ class Entity extends \App\Database
     public $id;
     public $creation_datetime;
 
-    protected $table = "";
-    protected $className = "";
-
-    public function __construct()
+    /**
+     * @return string
+     */
+    protected static function getTableName()
     {
-        $this->className = str_replace("App\Entities\\", "", get_called_class());
-        $this->table = strtolower($this->className)."s";
+        $tableName = str_replace("App\Entities\\", "", get_called_class());
+        return strtolower($tableName."s");
     }
 
     /**
-     * @param string $tableName The table name
-     * @param array $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
+     * @param array|int $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
      * @param string $condition Should be AND or OR
-     * @return Entity|bool Entity populated from DB data, or false on error or if nothing is found
+     * @return $this|bool Entity populated from DB data, or false on error or if nothing is found
      */
-    protected static function _get($params, $condition = "AND", $tableName, $className)
+    public static function get($params, $condition = "AND")
     {
-        $strQuery = "SELECT * FROM $tableName WHERE ";
+        if (is_int($params)) {
+            $params = ["id" => $params];
+        }
+
+        $strQuery = "SELECT * FROM ".self::getTableName()." WHERE ";
         foreach ($params as $name => $value) {
             $strQuery .= "$name=:$name $condition ";
         }
         $strQuery = rtrim($strQuery," $condition ");
 
         $query = self::$db->prepare($strQuery);
-        $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
+        $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
         $success = $query->execute($params);
 
         if ($success) {
@@ -44,11 +47,9 @@ class Entity extends \App\Database
 
     /**
      * @param array $params
-     * @param string $tableName
-     * @param string $className
-     * @return Entity[]|bool
+     * @return $this[]|bool
      */
-    protected static function _getAll($params = [], $tableName, $className)
+    public static function getAll($params = [])
     {
         if (isset($params["pageNumber"])) {
             $pageNumber = $params["pageNumber"] - 1;
@@ -69,7 +70,7 @@ class Entity extends \App\Database
             unset($params["count"]);
         }
 
-        $strQuery = "SELECT * FROM $tableName";
+        $strQuery = "SELECT * FROM ".self::getTableName();
         if (count(array_keys($params)) >= 1) {
             $strQuery .= " WHERE ";
             foreach ($params as $name => $value) {
@@ -79,7 +80,7 @@ class Entity extends \App\Database
         }
 
         $query = self::$db->prepare($strQuery.$limitQuery);
-        $query->setFetchMode(PDO::FETCH_CLASS, "App\Entities\\$className");
+        $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
         $success = $query->execute($params);
 
         if ($success) {
@@ -89,15 +90,44 @@ class Entity extends \App\Database
     }
 
     /**
-     * @param string $tableName
      * @return int|bool
      */
-    protected static function _countAll($tableName)
+    public static function countAll()
     {
-        $query = self::$db->prepare("SELECT COUNT(*) FROM $tableName");
+        $query = self::$db->prepare("SELECT COUNT(*) FROM ".self::getTableName());
         $success = $query->execute();
         if ($success) {
             return (int)$query->fetch()->{"COUNT(*)"};
+        }
+        return false;
+    }
+
+    /**
+     * @param array $data
+     * @return Entity|bool
+     */
+    public static function create($data)
+    {
+        unset($data["id"]);
+        $data["creation_datetime"] = date("Y-m-d H:i:s");
+
+        $strQuery = "INSERT INTO ".self::getTableName()." (";
+        foreach ($data as $key => $value) {
+            $strQuery .= "$key, ";
+        }
+        $strQuery = rtrim($strQuery, ", ").") ";
+
+        $strQuery .= "VALUES (";
+        foreach ($data as $key => $value) {
+            $strQuery .= ":$key, ";
+        }
+        $strQuery = rtrim($strQuery, ", ").")";
+
+        $query = self::$db->prepare($strQuery);
+        $success = $query->execute($data);
+
+        if ($success) {
+            return self::get(["id" => self::$db->lastInsertId()]);
         }
         return false;
     }
@@ -108,7 +138,7 @@ class Entity extends \App\Database
      */
     public function update($data)
     {
-        $strQuery = "UPDATE ".$this->table." SET ";
+        $strQuery = "UPDATE ".self::getTableName()." SET ";
         foreach ($data as $name => $value) {
             $strQuery .= "$name = :$name, ";
         }
@@ -132,9 +162,9 @@ class Entity extends \App\Database
     /**
      * @return bool
      */
-    public function _delete()
+    public function delete()
     {
-        $query = self::$db->prepare("DELETE FROM $this->table WHERE id = ?");
+        $query = self::$db->prepare("DELETE FROM ".self::getTableName()." WHERE id = ?");
         $success = $query->execute([$this->id]);
 
         if ($success) {
@@ -145,13 +175,5 @@ class Entity extends \App\Database
             return true;
         }
         return false;
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return (array)$this;
     }
 }

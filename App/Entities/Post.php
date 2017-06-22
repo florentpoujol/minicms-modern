@@ -2,15 +2,23 @@
 
 namespace App\Entities;
 
-class Post extends Entity
+class Post extends BasePage
 {
-    public static function get($params, $condition = "AND")
+    public $category_id;
+
+    /**
+     * @return Category|bool
+     */
+    public function getCategory()
     {
-        return parent::_get($params, $condition, "posts", "Post");
+        return Category::get(["category_id" => $this->category_id]);
     }
 
-    public static function getAll($params)
+    /**
+     * @return Comment[]|bool
+     */
+    public function getComments()
     {
-        return parent::_getAll($params, "posts", "Post");
+        return Comment::getAll(["post_id" => $this->id]);
     }
 }

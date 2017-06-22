@@ -4,23 +4,49 @@ namespace App\Entities;
 
 class Comment extends Entity
 {
-    public static function get($params, $condition = "AND")
+    public $content;
+    public $user_id;
+    public $post_id;
+    public $page_id;
+
+    /**
+     * @return User|bool
+     */
+    public function getUser()
     {
-        return parent::_get($params, $condition, "comments", "Comment");
+        return User::get(["id" => $this->user_id]);
     }
 
-    public static function getAll($params = [])
+    /**
+     * @return Post|bool
+     */
+    public function getPost()
     {
-        return parent::_getAll($params, "comments", "Comment");
+        return Post::get(["id" => $this->post_id]);
     }
 
-    public static function countAll()
+    /**
+     * @return Page|bool
+     */
+    public function getPage()
     {
-        return parent::_countAll("comments");
+        return Page::get(["id" => $this->page_id]);
     }
 
-    public function delete()
+    /**
+     * @param array $newComment
+     * @return Comment|bool
+     */
+    public static function create($newComment)
     {
-        return self::_delete();
+        if (! isset($newComment["post_id"])) {
+            $newComment["post_id"] = null;
+        }
+
+        if (! isset($newComment["page_id"])) {
+            $newComment["page_id"] = null;
+        }
+
+        return parent::create($newComment);
     }
 }
