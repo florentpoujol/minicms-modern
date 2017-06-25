@@ -2,7 +2,7 @@
 
 namespace App;
 
-class Validate
+class Validate extends Database
 {
     /**
      * check the data against the patterns
@@ -141,6 +141,23 @@ class Validate
     }
 
     /**
+     * @param string $value
+     * @param string $table
+     * @param string $field
+     * @return bool
+     */
+    public static function valueExists($value, $table, $field)
+    {
+        $query = self::$db->prepare("SELECT id FROM $table WHERE $field = ?");
+        $success = $query->execute([$value]);
+
+        if ($success) {
+            return ($query->fetch() !== false);
+        }
+        return false;
+    }
+
+    /**
      * Check for all the user data (name, email, password if any, etc...)
      * @param array $user
      * @return bool
@@ -152,6 +169,11 @@ class Validate
         if (! self::name($user["name"])) {
             $ok = false;
             Messages::addError("fieldvalidation.name");
+        }
+
+        if (! isset($user["id"]) && self::valueExists($user["name"], "users", "name")) {
+            $ok = false;
+            Messages::addError("user.namenotunique");
         }
 
         if (! self::email($user["email"])) {
@@ -175,6 +197,98 @@ class Validate
             if (! in_array($user["role"], $roles)) {
                 $userOK = false;
                 Messages::addError("fieldvalidation.role");
+            }
+        }
+
+        return $ok;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public static function category($data)
+    {
+        $ok = true;
+
+        if (! self::slug($data["slug"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.slug");
+        }
+
+        if (! isset($data["id"]) && self::valueExists($data["slug"], "categories", "slug")) {
+            $ok = false;
+            Messages::addError("db.slugnotunique");
+        }
+
+        if (! self::title($data["title"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.title");
+        }
+
+        return $ok;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public static function post($data)
+    {
+        $ok = true;
+
+        if (! self::slug($data["slug"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.slug");
+        }
+
+        if (! isset($data["id"]) && self::valueExists($data["slug"], "posts", "slug")) {
+            $ok = false;
+            Messages::addError("db.slugnotunique");
+        }
+
+        if (! self::name($data["name"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.name");
+        }
+
+        $cat = \App\Entities\Category::get($data["category_id"]);
+        if ($cat === false) {
+            $ok = false;
+            Messages::addError("category.unknown");
+        }
+
+        return $ok;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public static function page($data)
+    {
+        $ok = true;
+
+        if (! self::slug($data["slug"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.slug");
+        }
+
+        if (! isset($data["id"]) && self::valueExists($data["slug"], "pages", "slug")) {
+            $ok = false;
+            Messages::addError("db.slugnotunique");
+        }
+
+        if (! self::title($data["title"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.title");
+        }
+
+        if (is_int($data["parent_page_id"])) {
+            $parentPage = \App\Entities\Page::get($data["parent_page_id"]);
+            if ($parentPage === false) {
+                $ok = false;
+                Messages::addError("page.unknown");
             }
         }
 

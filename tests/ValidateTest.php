@@ -1,9 +1,8 @@
 <?php
 
 use App\Validate;
-use PHPUnit\Framework\TestCase;
 
-class ValidateTest extends TestCase
+class ValidateTest extends DatabaseTestCase
 {
     public function testValidate()
     {
@@ -110,5 +109,12 @@ class ValidateTest extends TestCase
 
         self::assertArrayNotHasKey("garbage", $post);
         self::assertArrayNotHasKey("garbage2", $post);
+    }
+
+    public function testValueExists()
+    {
+        self::assertTrue(Validate::valueExists("Admin", "users", "name"));
+        self::assertFalse(Validate::valueExists("category-3", "categories", "slug"));
+        self::assertTrue(Validate::valueExists(1, "pages", "parent_page_id"));
     }
 }

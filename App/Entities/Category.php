@@ -5,7 +5,7 @@ namespace App\Entities;
 class Category extends Entity
 {
     public $slug;
-    public $name;
+    public $title;
 
     /**
      * @return string

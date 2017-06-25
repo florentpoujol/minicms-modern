@@ -4,11 +4,15 @@
 <?php include "../App/views/messages.php"; ?>
 
 @if ($action === "update")
-User id: {user->id} <br>
+User id: {post["id"]} <br>
 @endif
 <?php
 $form = new \App\Form("user$action", $post);
-$form->open(\App\Route::buildQueryString("admin/users/$action/".$post["id"]));
+$str = "admin/users/$action";
+if ($action == "update") {
+    $str .= "/".$post["id"];
+}
+$form->open(\App\Route::buildQueryString($str));
     $form->text("name", "name");
     $form->email("email", "email");
     $form->password("password", "password");
@@ -21,7 +25,9 @@ $form->open(\App\Route::buildQueryString("admin/users/$action/".$post["id"]));
     ];
     $form->select("role", $options, "Roles: ");
 
-    $form->hidden("id", $post["id"]);
-    $form->submit("", "Create user");
+    if ($action === "update") {
+        $form->hidden("id", $post["id"]);
+    }
+    $form->submit("", "$action user");
 $form->close();
 ?>

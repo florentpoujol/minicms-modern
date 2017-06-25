@@ -33,7 +33,7 @@ class Entity extends \App\Database
         foreach ($params as $name => $value) {
             $strQuery .= "$name=:$name $condition ";
         }
-        $strQuery = rtrim($strQuery," $condition ");
+        $strQuery = substr($strQuery, 0, -(strlen($condition)+2));
 
         $query = self::$db->prepare($strQuery);
         $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
@@ -63,12 +63,14 @@ class Entity extends \App\Database
             $params["count"] = $itemsPerPage;
         }
 
-        $limitQuery = "";
+        $limit = "";
         if (isset($params["offset"])) {
-            $limitQuery = " LIMIT ".$params["offset"].", ".$params["count"];
+            $limit = " LIMIT ".$params["offset"].", ".$params["count"];
             unset($params["offset"]);
             unset($params["count"]);
         }
+
+        $orderBy = " ORDER BY id ASC ";
 
         $strQuery = "SELECT * FROM ".static::getTableName();
         if (count(array_keys($params)) >= 1) {
@@ -81,10 +83,10 @@ class Entity extends \App\Database
                     $strQuery .= "$name=:$name AND ";
                 }
             }
-            $strQuery = rtrim($strQuery, " AND ");
+            $strQuery = substr($strQuery, 0, -5);
         }
 
-        $query = self::$db->prepare($strQuery.$limitQuery);
+        $query = self::$db->prepare($strQuery.$orderBy.$limit);
         $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
         $success = $query->execute($params);
 
@@ -95,12 +97,22 @@ class Entity extends \App\Database
     }
 
     /**
+     * @param array $params
      * @return int|false
      */
-    public static function countAll()
+    public static function countAll($params = [])
     {
-        $query = self::$db->prepare("SELECT COUNT(*) FROM ".static::getTableName());
-        $success = $query->execute();
+        $where = "";
+        if (count(array_keys($params)) >= 1) {
+            $where = " WHERE ";
+            foreach ($params as $name => $value) {
+                $where .= "$name=:$name AND ";
+            }
+            $where = substr($where, 0, -5);
+        }
+
+        $query = self::$db->prepare("SELECT COUNT(*) FROM ".static::getTableName().$where);
+        $success = $query->execute($params);
         if ($success) {
             return (int)$query->fetch()->{"COUNT(*)"};
         }
@@ -143,6 +155,8 @@ class Entity extends \App\Database
      */
     public function update($data)
     {
+        unset($data["id"]);
+
         $strQuery = "UPDATE ".static::getTableName()." SET ";
         foreach ($data as $name => $value) {
             $strQuery .= "$name = :$name, ";

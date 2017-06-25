@@ -12,14 +12,19 @@ Database::connect();
 
 Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been changed based on config value
 
+session_start();
+
 Messages::load();
 
 require_once "../vendor/phpmailer/class.smtp.php"; // no need for autoloading with such a minimal installation
 require_once "../vendor/phpmailer/class.phpmailer.php";
 
 // check if user is logged in
-session_start();
-$user = null; // is App\Entities\User when user is logged in ; null when user is guest
+/**
+ * Is App\Entities\User when user is logged in ; null when user is guest
+ * @var Entities\User|null
+ */
+$user = null;
 $userId = Session::get("minicms_mvc_auth");
 
 if ($userId !== null) {

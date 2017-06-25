@@ -7,7 +7,6 @@ namespace App;
  * Messages are pieces of strings that are to be displyed to the user on a page to notify him of a success or an error
  * Are stored in database, segregated based on session id, when the page needs to be reloaded before displaying the messages.
  * Integrates with the language system. Actual messages can be stored in the "messages.success" or "messages.error" dictionaries.
- * @todo Store the creation time as well and flush messages older than 1 day so that leftover messages don't cramp te table
  * @package App
  */
 class Messages extends Database

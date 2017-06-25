@@ -37,11 +37,11 @@ class CategoryTest extends DatabaseTestCase
     function testUpdate()
     {
         $cat = Category::get(1);
-        self::assertEquals("Category 1", $cat->name);
+        self::assertEquals("Category 1", $cat->title);
 
         self::assertTrue($cat->update(["name" => "NewCategoryName"]));
-        self::assertEquals("NewCategoryName", $cat->name);
-        self::assertEquals("NewCategoryName", Category::get(1)->name);
+        self::assertEquals("NewCategoryName", $cat->title);
+        self::assertEquals("NewCategoryName", Category::get(1)->title);
     }
 
     function testDelete()

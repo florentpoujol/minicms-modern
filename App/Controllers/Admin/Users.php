@@ -9,24 +9,14 @@ use App\Validate;
 
 class Users extends AdminBaseController
 {
-
-    public function __construct($user)
-    {
-        parent::__construct($user);
-
-        if ($this->user->isCommenter() && strpos(Route::$methodName, "Update") === false) {
-            Route::redirect("admin/users/update/".$this->user->id);
-        }
-    }
-
     public function getRead($pageNumber = 1)
     {
         $allRows = User::getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
-            "pageNumber" => $pageNumber,
             "pagination" => [
+                "pageNumber" => $pageNumber,
                 "itemsCount" => User::countAll(),
                 "queryString" => Route::buildQueryString("admin/users/read/")
             ]
@@ -52,7 +42,6 @@ class Users extends AdminBaseController
         $post = [];
         if (Validate::csrf("usercreate")) {
             $post = Validate::sanitizePost([
-                "id" => "int",
                 "name" => "string",
                 "email" => "string",
                 "password" => "string",
@@ -65,6 +54,7 @@ class Users extends AdminBaseController
 
                 if (is_object($user)) {
                     Messages::addSuccess("user.created");
+                    Route::redirect("admin/users/update/".$user->id);
                 } else {
                     Messages::addError("db.createuser");
                 }
@@ -118,7 +108,7 @@ class Users extends AdminBaseController
                 if (is_object($user)) {
                     if ($user->update($post)) {
                         Messages::addSuccess("user.updated");
-                        Route::redirect("admin/users/update/".$post["id"]);
+                        Route::redirect("admin/users/update/".$user->id);
                     } else {
                         Messages::addError("db.userupdated");
                     }
@@ -142,7 +132,7 @@ class Users extends AdminBaseController
     {
         if ($this->user->isAdmin()) {
 
-            $id = (int)$_POST["user_id"];
+            $id = (int)$_POST["id"];
             if ($this->user->id !== $id) {
 
                 if (Validate::csrf("userdelete$id")) {
