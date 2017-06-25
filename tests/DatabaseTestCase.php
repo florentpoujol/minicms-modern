@@ -30,4 +30,9 @@ abstract class DatabaseTestCase extends TestCase
         App\Database::connect(self::$pdo);
         return $this->conn;
     }
+
+    public function getDataSet()
+    {
+        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/userDataSet.yml");
+    }
 }

@@ -7,6 +7,7 @@ users:
     password_hash: ""
     password_token: ""
     role: admin
+    is_blocked: 0
     creation_datetime: "2017-01-01 00:00:00"
   -
     id: 2
@@ -16,6 +17,7 @@ users:
     password_hash: ""
     password_token: ""
     role: writer
+    is_blocked: 0
     creation_datetime: "2017-01-01 00:00:00"
   -
     id: 3
@@ -25,6 +27,7 @@ users:
     password_hash: ""
     password_token: ""
     role: commenter
+    is_blocked: 0
     creation_datetime: "2017-01-01 00:00:00"
 
 categories:

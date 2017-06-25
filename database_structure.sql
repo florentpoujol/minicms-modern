@@ -26,6 +26,7 @@ CREATE TABLE `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `slug` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `creation_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -141,7 +142,7 @@ CREATE TABLE `users` (
   `password_change_time` int(11) unsigned DEFAULT NULL,
   `role` varchar(255) NOT NULL,
   `creation_datetime` datetime NOT NULL,
-  `is_blocked` tinyint(4) DEFAULT NULL,
+  `is_blocked` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -155,4 +156,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-21 21:57:40
+-- Dump completed on 2017-06-22 22:48:32

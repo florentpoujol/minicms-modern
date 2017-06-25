@@ -2,13 +2,6 @@
 
 namespace App\Entities;
 
-use App\Security;
-
-/**
- * Class User
- * Instances represents the logged in user.
- * @package App\Entities
- */
 class User extends Entity
 {
     // fields from DB
@@ -20,6 +13,46 @@ class User extends Entity
     public $password_change_time;
     public $role;
     public $is_blocked;
+
+    /**
+     * @return User|false
+     */
+    public static function get($params, $condition = "AND")
+    {
+        // note: redeclaring a method like that seems necessary due to a probable bug
+        // in PHPStorm that does not properly handle a return type  $this|bool on the parent method
+        return parent::get($params, $condition);
+    }
+
+    /**
+     * @param array $newUser
+     * @return User|bool
+     */
+    public static function create($newUser)
+    {
+        $query = self::$db->prepare("SELECT id FROM users");
+        $query->execute();
+        if ($query->fetch() === false) {
+            // the first user gets to be admin
+            $newUser["role"] = "admin";
+        }
+
+        if (! isset($newUser["role"])) {
+            $newUser["role"] = "commenter";
+        }
+
+        $newUser["email_token"] = \App\Security::getUniqueToken();
+
+        $newUser["password_hash"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
+        $newUser["password_token"] = "";
+
+        unset($newUser["password"]);
+        unset($newUser["password_confirmation"]);
+
+        $newUser["is_blocked"] = 0;
+
+        return parent::create($newUser);
+    }
 
     /**
      * Get all the posts created by that user
@@ -46,36 +79,6 @@ class User extends Entity
     public function getComments()
     {
         return Comment::getAll(["user_id" => $this->id]);
-    }
-
-    /**
-     * @param array $newUser
-     * @return User|bool
-     */
-    public static function create($newUser)
-    {
-        $query = self::$db->prepare("SELECT id FROM users");
-        $query->execute();
-        if ($query->fetch() === false) {
-            // the first user gets to be admin
-            $newUser["role"] = "admin";
-        }
-
-        if (! isset($newUser["role"])) {
-            $newUser["role"] = "commenter";
-        }
-
-        $newUser["email_token"] = Security::getUniqueToken();
-
-        $newUser["password_hash"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
-        $newUser["password_token"] = "";
-
-        unset($newUser["password"]);
-        unset($newUser["password_confirmation"]);
-
-        $newUser["is_blocked"] = 0;
-
-        return parent::create($newUser);
     }
 
     public function updatePasswordToken($token)

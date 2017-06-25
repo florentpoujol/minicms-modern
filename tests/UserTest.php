@@ -6,11 +6,6 @@ use App\Entities\Comment;
 
 class UserTest extends DatabaseTestCase
 {
-    public function getDataSet()
-    {
-        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/userDataSet.yml");
-    }
-
     public function testGet()
     {
         $user = User::get(["id" => 999]);

@@ -7,11 +7,6 @@ use App\Entities\User;
 
 class CommentTest extends DatabaseTestCase
 {
-    public function getDataSet()
-    {
-        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/userDataSet.yml");
-    }
-
     public function testGet()
     {
         self::assertFalse(Comment::get(["id" => 999]));

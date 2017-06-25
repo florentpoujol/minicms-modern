@@ -22,8 +22,8 @@ class BasePage extends Entity
     }
 
     /**
-     * Overridden in child classes
-     * @return Comment[]|bool
+     * Must be overridden in child classes
+     * @return array Empty array
      */
     public function getComments()
     {

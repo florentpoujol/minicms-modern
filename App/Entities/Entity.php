@@ -21,15 +21,15 @@ class Entity extends \App\Database
     /**
      * @param array|int $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
      * @param string $condition Should be AND or OR
-     * @return $this|bool Entity populated from DB data, or false on error or if nothing is found
+     * @return Entity|false Entity populated from DB data, or false on error or if nothing is found
      */
     public static function get($params, $condition = "AND")
     {
-        if (is_int($params)) {
+        if (! is_array($params)) {
             $params = ["id" => $params];
         }
 
-        $strQuery = "SELECT * FROM ".self::getTableName()." WHERE ";
+        $strQuery = "SELECT * FROM ".static::getTableName()." WHERE ";
         foreach ($params as $name => $value) {
             $strQuery .= "$name=:$name $condition ";
         }
@@ -47,7 +47,7 @@ class Entity extends \App\Database
 
     /**
      * @param array $params
-     * @return $this[]|bool
+     * @return $this[]|false
      */
     public static function getAll($params = [])
     {
@@ -70,11 +70,16 @@ class Entity extends \App\Database
             unset($params["count"]);
         }
 
-        $strQuery = "SELECT * FROM ".self::getTableName();
+        $strQuery = "SELECT * FROM ".static::getTableName();
         if (count(array_keys($params)) >= 1) {
             $strQuery .= " WHERE ";
             foreach ($params as $name => $value) {
-                $strQuery .= "$name=:$name AND ";
+                if ($value === null) {
+                    $strQuery .= "$name IS NULL AND ";
+                    unset($params[$name]);
+                } else {
+                    $strQuery .= "$name=:$name AND ";
+                }
             }
             $strQuery = rtrim($strQuery, " AND ");
         }
@@ -90,11 +95,11 @@ class Entity extends \App\Database
     }
 
     /**
-     * @return int|bool
+     * @return int|false
      */
     public static function countAll()
     {
-        $query = self::$db->prepare("SELECT COUNT(*) FROM ".self::getTableName());
+        $query = self::$db->prepare("SELECT COUNT(*) FROM ".static::getTableName());
         $success = $query->execute();
         if ($success) {
             return (int)$query->fetch()->{"COUNT(*)"};
@@ -104,14 +109,14 @@ class Entity extends \App\Database
 
     /**
      * @param array $data
-     * @return Entity|bool
+     * @return Entity|false
      */
     public static function create($data)
     {
         unset($data["id"]);
         $data["creation_datetime"] = date("Y-m-d H:i:s");
 
-        $strQuery = "INSERT INTO ".self::getTableName()." (";
+        $strQuery = "INSERT INTO ".static::getTableName()." (";
         foreach ($data as $key => $value) {
             $strQuery .= "$key, ";
         }
@@ -138,7 +143,7 @@ class Entity extends \App\Database
      */
     public function update($data)
     {
-        $strQuery = "UPDATE ".self::getTableName()." SET ";
+        $strQuery = "UPDATE ".static::getTableName()." SET ";
         foreach ($data as $name => $value) {
             $strQuery .= "$name = :$name, ";
         }
@@ -164,7 +169,7 @@ class Entity extends \App\Database
      */
     public function delete()
     {
-        $query = self::$db->prepare("DELETE FROM ".self::getTableName()." WHERE id = ?");
+        $query = self::$db->prepare("DELETE FROM ".static::getTableName()." WHERE id = ?");
         $success = $query->execute([$this->id]);
 
         if ($success) {
@@ -175,5 +180,13 @@ class Entity extends \App\Database
             return true;
         }
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return (array)$this;
     }
 }

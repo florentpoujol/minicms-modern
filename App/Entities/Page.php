@@ -7,19 +7,44 @@ class Page extends BasePage
     public $parent_page_id;
 
     /**
+     * @return Page|false
+     */
+    public static function get($params, $condition = "AND")
+    {
+        // note: redeclaring a method like that seems necessary due to a probable bug
+        // in PHPStorm that does not properly handle a return type  $this|bool on the parent method
+        return parent::get($params, $condition);
+    }
+
+    /**
+     * @return Page|false
+     */
+    public static function create($data)
+    {
+        // same reason as  for ::get()
+        return parent::create($data);
+    }
+
+    /**
      * @return Comment[]|bool
      */
     public function getComments()
     {
-        return Comment::getAll(["page_id" => $this->id]);
+        if (is_int($this->id)) {
+            return Comment::getAll(["page_id" => $this->id]);
+        }
+        return [];
     }
 
     /**
-     * @return Page|bool
+     * @return Page|false
      */
     public function getParent()
     {
-        return Page::get($this->parent_page_id);
+        if (is_int($this->parent_page_id)) {
+            return Page::get($this->parent_page_id);
+        }
+        return false;
     }
 
     /**
@@ -27,9 +52,11 @@ class Page extends BasePage
      */
     public function getChildren()
     {
-        return Page::getAll(["parent_page_id" => $this->parent_page_id]);
+        if (is_int($this->id)) {
+            return Page::getAll(["parent_page_id" => $this->id]);
+        }
+        return [];
     }
-
 
     public function delete()
     {
@@ -40,5 +67,4 @@ class Page extends BasePage
 
         return parent::delete();
     }
-
 }
