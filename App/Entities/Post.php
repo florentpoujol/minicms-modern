@@ -30,7 +30,7 @@ class Post extends BasePage
      */
     public function getCategory()
     {
-        return Category::get(["category_id" => $this->category_id]);
+        return Category::get(["id" => $this->category_id]);
     }
 
     /**
@@ -38,6 +38,8 @@ class Post extends BasePage
      */
     public function getComments()
     {
-        return Comment::getAll(["post_id" => $this->id]);
+        if (is_int($this->id)) {
+            return Comment::getAll(["post_id" => $this->id]);
+        }
     }
 }
