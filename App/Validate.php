@@ -195,7 +195,7 @@ class Validate extends Database
         if (isset($user["role"])) {
             $roles = ["admin", "writer", "commenter"];
             if (! in_array($user["role"], $roles)) {
-                $userOK = false;
+                $ok = false;
                 Messages::addError("fieldvalidation.role");
             }
         }

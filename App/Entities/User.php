@@ -81,6 +81,27 @@ class User extends Entity
         return Comment::getAll(["user_id" => $this->id]);
     }
 
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public function update($data)
+    {
+        if (isset($data["password"])) {
+            $password = $data["password"];
+            if ($password !== "") {
+                $this->updatePassword($password);
+            }
+            unset($data["password"]);
+            unset($data["password_confirmation"]);
+        }
+        return parent::update($data);
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
     public function updatePasswordToken($token)
     {
         $time = 0;
@@ -94,6 +115,10 @@ class User extends Entity
         ]);
     }
 
+    /**
+     * @param string $password
+     * @return bool
+     */
     public function updatePassword($password)
     {
         return $this->update([
@@ -103,11 +128,19 @@ class User extends Entity
         ]);
     }
 
+    /**
+     * @param string $token
+     * @return bool
+     */
     public function updateEmailToken($token)
     {
         return $this->update(["email_token" => $token]);
     }
 
+    /**
+     * @param bool $block
+     * @return bool
+     */
     public function block($block = true)
     {
         return $this->update(["is_blocked" => ($block ? 1 : 0)]);

@@ -1,9 +1,9 @@
 
 <h1>{pageTitle}</h1>
 
-<?php include "../App/views/messages.php"; ?>
+{include ../App/views/messages.php}
 
-@if ($user->isAdmin())
+@if ($this->user->isAdmin())
 <a href="{@queryString admin/users/create}">{@lang users.createlink}</a> <br>
 @endif
 <br>
@@ -16,7 +16,7 @@
         <th>role</th>
         <th>creation date</th>
 
-        @if ($user->isAdmin())
+        @if ($this->user->isAdmin())
         <th>email token</th>
         <th>password token</th>
         <th>password change time</th>
@@ -33,17 +33,17 @@
         <td>{row->role}</td>
         <td>{row->creation_datetime}</td>
 
-        @if ($user->isAdmin())
+        @if ($this->user->isAdmin())
         <td>{row->email_token}</td>
         <td>{row->password_token}</td>
         <td>{row->password_change_time}</td>
         @endif
 
-        @if ($user->isAdmin() || $user->id === $row->id)
+        @if ($this->user->isAdmin() || $this->user->id === $row->id)
         <td><a href="{@queryString admin/users/update/$row->id}">Edit</a></td>
         @endif
 
-        @if ($user->isAdmin())
+        @if ($this->user->isAdmin())
         <td>
         <?php
         $form = new \App\Form("userdelete".$row->id);

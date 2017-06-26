@@ -1,7 +1,7 @@
 
 <h1>{pageTitle}</h1>
 
-<?php include "../App/views/messages.php"; ?>
+{include ../App/views/messages.php}
 
 <a href="{@queryString admin/categories/create}">{@lang categories.createlink}</a> <br>
 <br>

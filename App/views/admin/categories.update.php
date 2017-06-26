@@ -1,7 +1,7 @@
 
 <h1>{pageTitle}</h1>
 
-<?php include "../App/views/messages.php"; ?>
+{include ../App/views/messages.php}
 
 @if ($action === "update")
 Category id: {post["id"]} <br>

@@ -76,7 +76,7 @@ class Users extends AdminBaseController
             Route::redirect("admin/users/update/".$this->user->id);
         }
 
-        $user = User::get(["id" => $id]);
+        $user = User::get($id);
         if ($user === false) {
             Messages::addError("user.unknown");
             Route::redirect("admin/users");
@@ -102,8 +102,13 @@ class Users extends AdminBaseController
                 "role" => "string"
             ]);
 
+            if (! $this->user->isAdmin()) {
+                $post["id"] = $this->user->id;
+                $post["role"] = $this->user->role;
+            }
+
             if (Validate::user($post)) {
-                $user = User::get(["id" => $post["id"]]);
+                $user = User::get($post["id"]);
 
                 if (is_object($user)) {
                     if ($user->update($post)) {
@@ -116,7 +121,6 @@ class Users extends AdminBaseController
                     Messages::addError("user.unknown");
                 }
             }
-
         } else {
             Messages::addError("csrffail");
         }
@@ -137,10 +141,9 @@ class Users extends AdminBaseController
 
                 if (Validate::csrf("userdelete$id")) {
 
-                    $user = User::get(["id" => $id]);
+                    $user = User::get($id);
                     if (is_object($user)) {
-
-                        if ($user->delete($this->user->id)) {
+                        if ($user->deleteByAdmin($this->user->id)) {
                             Messages::addSuccess("user.deleted");
                         } else {
                             Messages::addError("user.deleting");
