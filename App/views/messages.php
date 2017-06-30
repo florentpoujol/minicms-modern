@@ -1,27 +1,26 @@
 <?php
 $successes = \App\Messages::getSuccesses();
-if (count($successes) > 0):
 ?>
+@if (count($successes) > 0)
 <div class="success-msg">
     <ul>
-        <?php foreach ($successes as $msg): ?>
-        <li><?php echo $msg; ?></li>
-        <?php endforeach; ?>
+        @foreach ($successes as $msg)
+        <li>{$msg}</li>
+        @endforeach
   </ul>
 </div>
-<?php
-endif;
+@endif
 
+<?php
 $errors = \App\Messages::getErrors();
-if (count($errors) > 0):
 ?>
+@if (count($errors) > 0)
 <div class="error-msg">
     <ul>
-        <?php foreach ($errors as $msg): ?>
-        <li><?php echo $msg; ?></li>
-        <?php endforeach; ?>
+        @foreach ($errors as $msg)
+        <li>{$msg}</li>
+        @endforeach
   </ul>
 </div>
-<?php
-endif;
-?>
+@endif
+

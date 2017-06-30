@@ -134,7 +134,7 @@ class Validate extends Database
                     break;
             }
 
-            $sanitizedPost[$key] = $value;
+            $sanitizedPost[$key] = $value; // if $value was null, it is now 0, false or ""
         }
 
         return $sanitizedPost;

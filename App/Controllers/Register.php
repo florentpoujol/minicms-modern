@@ -87,14 +87,14 @@ class Register extends BaseController
 
     public function getResendConfirmationEmail()
     {
-        $this->render("resendconfirmemail");
+        $this->render("resendconfirmationemail");
     }
 
     public function postResendConfirmationEmail()
     {
         $post = Validate::sanitizePost(["confirm_email" => "string"]);
 
-        if (Validate::csrf("resendconfirmemail")) {
+        if (Validate::csrf("resendconfirmationemail")) {
             if (Validate::email($post["confirm_email"])) {
                 $user = User::get(["email" => $post["confirm_email"]]);
 
@@ -118,6 +118,6 @@ class Register extends BaseController
             Messages::addError("csrffail");
         }
 
-        $this->render("resendconfirmemail", null, $post);
+        $this->render("resendconfirmationemail", null, $post);
     }
 }

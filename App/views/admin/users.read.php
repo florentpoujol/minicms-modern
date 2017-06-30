@@ -1,10 +1,10 @@
 
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
 
 {include ../App/views/messages.php}
 
 @if ($this->user->isAdmin())
-<a href="{@queryString admin/users/create}">{@lang users.createlink}</a> <br>
+<a href="{queryString admin/users/create}">{lang users.createlink}</a> <br>
 @endif
 <br>
 
@@ -27,20 +27,20 @@
 
     @foreach ($allRows as $row)
     <tr>
-        <td>{row->id}</td>
-        <td>{row->name}</td>
-        <td>{row->email}</td>
-        <td>{row->role}</td>
-        <td>{row->creation_datetime}</td>
+        <td>{$row->id}</td>
+        <td>{$row->name}</td>
+        <td>{$row->email}</td>
+        <td>{$row->role}</td>
+        <td>{$row->creation_datetime}</td>
 
         @if ($this->user->isAdmin())
-        <td>{row->email_token}</td>
-        <td>{row->password_token}</td>
-        <td>{row->password_change_time}</td>
+        <td>{$row->email_token}</td>
+        <td>{$row->password_token}</td>
+        <td>{$row->password_change_time}</td>
         @endif
 
         @if ($this->user->isAdmin() || $this->user->id === $row->id)
-        <td><a href="{@queryString admin/users/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/users/update/$row->id}">Edit</a></td>
         @endif
 
         @if ($this->user->isAdmin())

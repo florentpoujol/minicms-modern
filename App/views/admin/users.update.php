@@ -1,10 +1,10 @@
 
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
 
 {include ../App/views/messages.php}
 
 @if ($action === "update")
-User id: {post["id"]} <br>
+User id: {$post["id"]} <br>
 @endif
 <?php
 $form = new \App\Form("user$action", $post);

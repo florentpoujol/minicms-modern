@@ -3,7 +3,7 @@
 
 {include ../App/views/messages.php}
 
-<a href="{@queryString admin/categories/create}">{@lang categories.createlink}</a> <br>
+<a href="{queryString admin/categories/create}">{lang categories.createlink}</a> <br>
 <br>
 
 <table>
@@ -24,7 +24,7 @@
         <td>{row->slug}</td>
         <td>{row->title}</td>
         <td><?php echo \App\Entities\Post::countAll(["category_id" => $row->id]); ?></td>
-        <td><a href="{@queryString admin/categories/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/categories/update/$row->id}">Edit</a></td>
 
         @if ($user->isAdmin())
         <td>

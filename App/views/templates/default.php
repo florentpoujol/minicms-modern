@@ -2,7 +2,7 @@
 <html>
 <head>
 
-    <title><?php echo $pageTitle ?></title>
+    <title>{$pageTitle}</title>
     <meta charset="utf-8">
 
 <?php

@@ -1,8 +1,8 @@
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
+
+{include ../App/views/messages.php}
 
 <?php
-include "../App/views/messages.php";
-
 $form = new App\Form("login", $post);
 
 $form->open(App\Route::buildQueryString("login"));
@@ -12,4 +12,4 @@ $form->open(App\Route::buildQueryString("login"));
 $form->close();
 ?>
 
-<a href="{@queryString login/lostpassword}">Forgot Password ?</a>
+<a href="{queryString login/lostpassword}">Forgot Password ?</a>

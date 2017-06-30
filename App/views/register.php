@@ -1,10 +1,10 @@
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
+
+{include ../App/views/messages.php}
 
 <?php
-include "messages.php";
-
 $form = new App\Form("register", $post);
-$form->open("?c=register");
+$form->open(\App\Route::buildQueryString("register"));
     $form->text("register_name", "name");
     $form->email("register_email", "email");
     $form->password("register_password", "password");
@@ -13,4 +13,4 @@ $form->open("?c=register");
 $form->close();
 ?>
 
-<a href="?c=register&a=resendconfirmemail">Send confirmation again ?</a>
+<a href="{queryString register/resendconfirmationemail}">Send confirmation again ?</a>
