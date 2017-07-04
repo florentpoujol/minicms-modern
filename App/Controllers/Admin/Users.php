@@ -39,15 +39,14 @@ class Users extends AdminBaseController
             Route::redirect("admin/users/read");
         }
 
-        $post = [];
+        $post = Validate::sanitizePost([
+            "name" => "string",
+            "email" => "string",
+            "password" => "string",
+            "password_confirmation" => "string",
+            "role" => "string"
+        ]);
         if (Validate::csrf("usercreate")) {
-            $post = Validate::sanitizePost([
-                "name" => "string",
-                "email" => "string",
-                "password" => "string",
-                "password_confirmation" => "string",
-                "role" => "string"
-            ]);
 
             if (Validate::user($post)) {
                 $user = User::create($post);
@@ -91,26 +90,25 @@ class Users extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = [];
-        if (Validate::csrf("userupdate")) {
-            $schema = [
-                "id" => "int",
-                "name" => "string",
-                "email" => "string",
-                "password" => "string",
-                "password_confirmation" => "string",
-                "role" => "string"
-            ];
+        $schema = [
+            "id" => "int",
+            "name" => "string",
+            "email" => "string",
+            "password" => "string",
+            "password_confirmation" => "string",
+            "role" => "string"
+        ];
 
-            if ($this->user->isAdmin()) {
-                $schema = array_merge($schema, [
-                    "email_token" => "string",
-                    "password_token" => "string",
-                    "password_change_time" => "string",
-                    "is_blocked" => "int",
-                ]);
-            }
-            $post = Validate::sanitizePost($schema);
+        if ($this->user->isAdmin()) {
+            $schema = array_merge($schema, [
+                "email_token" => "string",
+                "password_token" => "string",
+                "password_change_time" => "string",
+                "is_blocked" => "int",
+            ]);
+        }
+        $post = Validate::sanitizePost($schema);
+        if (Validate::csrf("userupdate")) {
 
             if (! $this->user->isAdmin()) {
                 $post["id"] = $this->user->id;

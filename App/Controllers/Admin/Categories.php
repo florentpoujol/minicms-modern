@@ -31,12 +31,11 @@ class Categories extends AdminBaseController
 
     public function postCreate()
     {
-        $post = [];
+        $post = Validate::sanitizePost([
+            "slug" => "string",
+            "title" => "string"
+        ]);
         if (Validate::csrf("categorycreate")) {
-            $post = Validate::sanitizePost([
-                "slug" => "string",
-                "title" => "string"
-            ]);
 
             if (Validate::category($post)) {
                 $cat = Category::create($post);
@@ -76,13 +75,12 @@ class Categories extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = [];
+        $post = Validate::sanitizePost([
+            "id" => "int",
+            "slug" => "string",
+            "title" => "string"
+        ]);
         if (Validate::csrf("categoryupdate")) {
-            $post = Validate::sanitizePost([
-                "id" => "int",
-                "slug" => "string",
-                "title" => "string"
-            ]);
 
             if (Validate::category($post)) {
                 $cat = Category::get($post["id"]);

@@ -11,19 +11,27 @@
         <th>id</th>
         <th>slug</th>
         <th>title</th>
-        <th>Creator</th>
-        <th>creation date</th>
+        <th>Parent</th>
+        <th>Creation date</th>
         <th>Nb comments</th>
         <th>Edit</th>
         <th>Delete</th>
     </tr>
 
     @foreach ($allRows as $row)
+    <?php
+    $parent = $row->getParent();
+    if (is_object($parent)) {
+        $parent = $parent->title." (".$parent->id.")";
+    } else {
+        $parent = "";
+    }
+    ?>
     <tr>
         <td>{$row->id}</td>
         <td>{$row->slug}</td>
         <td>{$row->title}</td>
-        <td>{$row->getUser()->name} ({$row->getUser()->id})</td>
+        <td>{$parent}</td>
         <td>{$row->creation_datetime}</td>
         <td><?php echo \App\Entities\Comment::countAll(["page_id" => $row->id]); ?></td>
 

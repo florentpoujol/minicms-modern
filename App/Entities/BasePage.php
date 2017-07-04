@@ -9,17 +9,8 @@ class BasePage extends Entity
     public $slug;
     public $title;
     public $content;
-    public $user_id;
     public $published;
     public $allow_comments;
-
-    /**
-     * @return User|bool
-     */
-    public function getUser()
-    {
-        return User::get(["id" => $this->user_id]);
-    }
 
     /**
      * Must be overridden in child classes

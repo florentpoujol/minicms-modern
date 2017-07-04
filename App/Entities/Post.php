@@ -4,6 +4,7 @@ namespace App\Entities;
 
 class Post extends BasePage
 {
+    public $user_id;
     public $category_id;
 
     /**
@@ -23,6 +24,14 @@ class Post extends BasePage
     {
         // same reason as  for ::get()
         return parent::create($data);
+    }
+
+    /**
+     * @return User|bool
+     */
+    public function getUser()
+    {
+        return User::get(["id" => $this->user_id]);
     }
 
     /**

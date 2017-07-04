@@ -1,5 +1,4 @@
 <?php
-use \App\Entities\User;
 use \App\Entities\Page;
 ?>
 
@@ -22,21 +21,15 @@ $form->open(\App\Route::buildQueryString($str));
 $form->text("slug", "slug");
 $form->text("title", "title");
 
-// user id
-$users = array_merge(
-        User::getAll(["role" => "admin"]),
-        User::getAll(["role" => "writer"])
-);
-$options = [];
-foreach ($users as $user) {
-    $options[$user->id] = $user->name." ($user->id)";
-}
-$form->select("user_id", $options, "owner: ");
+$form->textarea("content", ["cols" => 50, "rows" => 20, "label" => "content"]);
 
 // parent page id
 $pages = Page::getAll(["parent_page_id" => null]);
-$options = ["" => "None"];
+$options = ["0" => "None"];
 foreach ($pages as $page) {
+    if ($action === "update" && $post["id"] === $page->id)
+        continue;
+
     $options[$page->id] = $page->title." ($page->id)";
 }
 $form->select("parent_page_id", $options, "parent page: ");
@@ -47,9 +40,8 @@ $form->checkbox("published", true, "published");
 // allow comments
 $form->checkbox("allow_comments", null, "allowcomments");
 
-
 if ($action === "update") {
-    echo $post["creation_datetime"];
+    echo "Creation date: ".$post["creation_datetime"];
     $form->hidden("id", $post["id"]);
 }
 $form->submit("", "$action page");

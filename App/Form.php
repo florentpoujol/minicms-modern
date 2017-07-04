@@ -77,18 +77,18 @@ class Form
 
         // value
         $value = null;
-        if (isset($attributes["value"])) {
+        if ($type !== "password" && isset($this->data[$name])) {
+            $value = $this->data[$name];
+        } elseif (isset($attributes["value"])) {
             $value = $attributes["value"];
             unset($attributes["value"]);
-        } elseif ($type !== "password" && isset($this->data[$name])) {
-            $value = $this->data[$name];
         }
 
-        $noValueTypes = ["checkbox", "radio", "select", "textarea"];
+        $noValueTypes = ["checkbox", "radio"];
         if (! in_array($type, $noValueTypes) && $value !== null) {
             $content .= ' value="'.htmlentities($value).'"';
         } elseif ($type === "checkbox") {
-            if (is_bool($value)) {
+            if (is_bool($value) || is_int($value)) {
                 if ($value) {
                     $attributes["checked"] = "";
                 } else {
@@ -138,18 +138,15 @@ class Form
         $this->input("password", $name, $attributes);
     }
 
-
     public function hidden($name, $value)
     {
         $this->input("hidden", $name, ["value" => $value]);
     }
 
-
     public function submit($name = "", $value = "")
     {
         $this->input("submit", $name, ["value" => $value]);
     }
-
 
     /**
      * @param string $name
@@ -200,7 +197,7 @@ class Form
                 }
             }
 
-            $content .= "<label for='$name'> $label
+            $content .= "<label> $label
             ";
         }
 
@@ -239,6 +236,65 @@ class Form
         }
 
         $content .= "</select> <br>
+        ";
+
+        if ($label !== "") {
+            $content .="</label>
+            ";
+        }
+
+        echo $content;
+    }
+
+    /**
+     * @param string $name
+     * @param array $attributes
+     */
+    public function textarea($name, $attributes = [])
+    {
+        $label = "";
+        if (is_string($attributes)) {
+            $label = $attributes;
+            $attributes = [];
+        }
+
+        if (isset($attributes["label"])) {
+            $label = $attributes["label"];
+            unset($attributes["label"]);
+        }
+
+        $content = "";
+
+        if ($label !== "") {
+            $tmpLabel = Lang::get("formlabel.$label");
+            if ($tmpLabel !== "formlabel.$label") {
+                $label = $tmpLabel;
+            } else {
+                $tmpLabel = Lang::get($label);
+                if ($tmpLabel !== $label) {
+                    $label = $tmpLabel;
+                }
+            }
+
+            $content .= "<label> $label
+            ";
+        }
+
+        $value = "";
+        if (isset($attributes["value"])) {
+            $value = $attributes["value"];
+            unset($attributes["value"]);
+        }
+        if (isset($this->data[$name])) {
+            $value = $this->data[$name];
+        }
+
+        $content .= '<textarea name="'.$name.'"';
+        foreach ($attributes as $attr => $attrValue) {
+            $content .= " $attr='$attrValue'";
+        }
+
+        $content .= ">$value</textarea> <br>
         ";
 
         if ($label !== "") {

@@ -31,18 +31,16 @@ class Pages extends AdminBaseController
 
     public function pageCreate()
     {
-        $post = [];
+        $post = Validate::sanitizePost([
+            "id" => "int",
+            "slug" => "string",
+            "title" => "string",
+            "content" => "string",
+            "parent_page_id" => "int",
+            "published" => "int",
+            "allow_comments" => "int"
+        ]);
         if (Validate::csrf("pagecreate")) {
-            $post = Validate::sanitizePost([
-                "id" => "int",
-                "slug" => "string",
-                "title" => "string",
-                "content" => "string",
-                "parent_page_id" => "int",
-                "published" => "int",
-                "allow_comments" => "int"
-            ]);
-
             if (Validate::page($post)) {
                 $page = Page::create($post);
 
@@ -78,19 +76,21 @@ class Pages extends AdminBaseController
         $this->render("pages.update", "pages.updatecategory", $data);
     }
 
-    public function pageUpdate()
+    public function postUpdate()
     {
-        $post = [];
-        if (Validate::csrf("categoryupdate")) {
-            $post = Validate::sanitizePost([
-                "id" => "int",
-                "slug" => "string",
-                "title" => "string",
-                "content" => "string",
-                "category_id" => "int",
-                "published" => "int",
-                "allow_comments" => "int"
-            ]);
+        var_dump($_POST);
+        $post = Validate::sanitizePost([
+            "id" => "int",
+            "slug" => "string",
+            "title" => "string",
+            "content" => "string",
+            "parent_page_id" => "int",
+            "published" => "checkbox",
+            "allow_comments" => "checkbox"
+        ]);
+        var_dump($post);
+
+        if (Validate::csrf("pageupdate")) {
 
             if (Validate::page($post)) {
                 $page = Page::get($post["id"]);
@@ -98,7 +98,7 @@ class Pages extends AdminBaseController
                 if (is_object($page)) {
                     if ($page->update($post)) {
                         Messages::addSuccess("page.updated");
-                        Route::redirect("admin/pages/update/".$page["id"]);
+                        Route::redirect("admin/pages/update/".$page->id);
                     } else {
                         Messages::addError("db.pageupdated");
                     }
@@ -110,16 +110,18 @@ class Pages extends AdminBaseController
             Messages::addError("csrffail");
         }
 
+        $post["creation_datetime"] = Page::get($post["id"])->creation_datetime;
+
         $data = [
             "action" => "update",
             "post" => $post
         ];
-        $this->render("pages.update", "pages.createnewpage", $data);
+        $this->render("pages.update", "pages.update", $data);
     }
 
-    public function pageDelete()
+    public function postDelete()
     {
-        $id = (int)$_POST["page_id"];
+        $id = (int)$_POST["id"];
         if (Validate::csrf("pagedelete$id")) {
             $page = Page::get($id);
             if (is_object($page)) {

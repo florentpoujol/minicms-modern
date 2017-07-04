@@ -26,7 +26,7 @@ class CategoryTest extends DatabaseTestCase
 
         $data = [
             "slug" => "category3",
-            "name" => "Category 3",
+            "title" => "Category 3",
         ];
         $cat = Category::create($data);
         self::assertInstanceOf(Category::class, $cat);
@@ -39,7 +39,7 @@ class CategoryTest extends DatabaseTestCase
         $cat = Category::get(1);
         self::assertEquals("Category 1", $cat->title);
 
-        self::assertTrue($cat->update(["name" => "NewCategoryName"]));
+        self::assertTrue($cat->update(["title" => "NewCategoryName"]));
         self::assertEquals("NewCategoryName", $cat->title);
         self::assertEquals("NewCategoryName", Category::get(1)->title);
     }

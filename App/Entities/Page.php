@@ -58,6 +58,14 @@ class Page extends BasePage
         return [];
     }
 
+    public function update($data)
+    {
+        if ($data["parent_page_id"] <= 0) {
+            $data["parent_page_id"] = null;
+        }
+        return parent::update($data);
+    }
+
     public function delete()
     {
         $children = $this->getChildren();

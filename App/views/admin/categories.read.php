@@ -1,5 +1,5 @@
 
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
 
 {include ../App/views/messages.php}
 
@@ -13,20 +13,20 @@
         <th>title</th>
         <th>post count</th>
         <th>Edit</th>
-        @if ($user->isAdmin())
+        @if ($this->user->isAdmin())
         <th>Delete</th>
         @endif
     </tr>
 
     @foreach ($allRows as $row)
     <tr>
-        <td>{row->id}</td>
-        <td>{row->slug}</td>
-        <td>{row->title}</td>
+        <td>{$row->id}</td>
+        <td>{$row->slug}</td>
+        <td>{$row->title}</td>
         <td><?php echo \App\Entities\Post::countAll(["category_id" => $row->id]); ?></td>
         <td><a href="{queryString admin/categories/update/$row->id}">Edit</a></td>
 
-        @if ($user->isAdmin())
+        @if ($this->user->isAdmin())
         <td>
         <?php
         $form = new \App\Form("categorydelete".$row->id);

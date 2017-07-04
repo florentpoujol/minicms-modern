@@ -112,7 +112,10 @@ class Route
                 break;
         }
 
-        $controllerName = "\App\Controllers\\".ucfirst($controllerName);
+        $parts = explode("\\", $controllerName);
+        $parts = array_map(function($val){ return ucfirst($val); }, $parts);
+        $controllerName = join("\\", $parts);
+        $controllerName = "\App\Controllers\\$controllerName";
         $methodName = App::$requestMethod.$methodName;
 
         self::$controllerName = $controllerName;
@@ -165,7 +168,6 @@ class Route
     public static function logout()
     {
         Session::destroy();
-        // TODO destroy cookie
         self::redirect();
     }
 }

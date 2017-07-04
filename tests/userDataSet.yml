@@ -34,11 +34,11 @@ categories:
   -
     id: 1
     slug: category-1
-    name: Category 1
+    title: Category 1
   -
     id: 2
     slug: category-2
-    name: Category 2
+    title: Category 2
 
 posts:
   -
@@ -68,7 +68,6 @@ pages:
     slug: page1
     title: the page
     content: the content of the page
-    user_id: 2
     parent_page_id:
     published: 1
     allow_comments: 1
@@ -78,7 +77,6 @@ pages:
     slug: otherpage
     title: the other page
     content: the content of other page
-    user_id: 2
     parent_page_id: 1
     published: 1
     allow_comments: 1

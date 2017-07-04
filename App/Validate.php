@@ -132,6 +132,10 @@ class Validate extends Database
                         $value = strval($value);
                     }
                     break;
+
+                case "checkbox":
+                    $value === "on" ? $value = 1 : $value = 0;
+                    break;
             }
 
             $sanitizedPost[$key] = $value; // if $value was null, it is now 0, false or ""
@@ -284,11 +288,16 @@ class Validate extends Database
             Messages::addError("fieldvalidation.title");
         }
 
-        if (is_int($data["parent_page_id"])) {
-            $parentPage = \App\Entities\Page::get($data["parent_page_id"]);
-            if ($parentPage === false) {
+        if (is_int($data["parent_page_id"]) && $data["parent_page_id"] > 0) {
+            if (isset($data["id"]) && $data["parent_page_id"] === $data["id"]) {
                 $ok = false;
-                Messages::addError("page.unknown");
+                Messages::addError("page.cantparenttoitself");
+            } else {
+                $parentPage = \App\Entities\Page::get($data["parent_page_id"]);
+                if ($parentPage === false) {
+                    $ok = false;
+                    Messages::addError("page.unknown");
+                }
             }
         }
 

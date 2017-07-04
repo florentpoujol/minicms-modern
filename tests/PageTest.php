@@ -1,7 +1,6 @@
 <?php
 
 use App\Entities\Page;
-use App\Entities\User;
 use App\Entities\Comment;
 
 class PageTest extends DatabaseTestCase
@@ -36,14 +35,11 @@ class PageTest extends DatabaseTestCase
     function testCreate()
     {
         self::assertEquals(2, Page::countAll());
-        $user = User::get(2);
-        self::assertCount(2, $user->getPages());
 
         $data = [
             "slug" => "page3",
             "title" => "the third page",
             "content" => "the third page content",
-            "user_id" => 2,
             "published" => 0,
             "allow_comments" => 1
         ];
@@ -51,7 +47,6 @@ class PageTest extends DatabaseTestCase
         $page = Page::create($data);
         self::assertInstanceOf(Page::class, $page);
         self::assertEquals(3, Page::countAll());
-        self::assertCount(3, $user->getPages());
         self::assertEquals(3, $page->id);
         self::assertEquals("the third page content", $page->content);
     }
@@ -77,16 +72,13 @@ class PageTest extends DatabaseTestCase
             "slug" => "page3",
             "title" => "the third page",
             "content" => "the third page content",
-            "user_id" => 2,
             "parent_page_id" => 1,
             "published" => 0,
             "allow_comments" => 1
         ];
         $page3 = Page::create($data);
         $page = Page::get(1);
-        $user = User::get(2);
 
-        self::assertCount(3, $user->getPages());
         self::assertEquals(1, $page->id);
         self::assertCount(2, $page->getChildren());
         self::assertInstanceOf(Page::class, $page3->getParent());
@@ -98,7 +90,6 @@ class PageTest extends DatabaseTestCase
         self::assertTrue($page->delete());
         $page3 = Page::get(3);
 
-        self::assertCount(2, $user->getPages());
         self::assertNull($page->id);
         self::assertNull($page3->parent_page_id);
         self::assertFalse($page3->getParent());
