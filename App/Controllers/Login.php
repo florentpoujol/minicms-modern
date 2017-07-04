@@ -9,7 +9,6 @@ use App\Entities\User;
 
 class Login extends BaseController
 {
-
     function __construct($user)
     {
         parent::__construct($user);

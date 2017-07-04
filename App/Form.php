@@ -69,7 +69,7 @@ class Form
                 }
             }
 
-            $content .= "<label for='$name'> $label
+            $content .= "<label> $label
             ";
         }
 
@@ -80,17 +80,25 @@ class Form
         if (isset($attributes["value"])) {
             $value = $attributes["value"];
             unset($attributes["value"]);
-        } else if ($type !== "password" && isset($this->data[$name])) {
+        } elseif ($type !== "password" && isset($this->data[$name])) {
             $value = $this->data[$name];
         }
 
-        if ($value !== null) {
+        $noValueTypes = ["checkbox", "radio", "select", "textarea"];
+        if (! in_array($type, $noValueTypes) && $value !== null) {
             $content .= ' value="'.htmlentities($value).'"';
+        } elseif ($type === "checkbox") {
+            if (is_bool($value)) {
+                if ($value) {
+                    $attributes["checked"] = "";
+                } else {
+                    unset($attributes["checked"]);
+                }
+            }
         }
 
         // other attributes
         $noValueAttrs = ["checked", "selected", "required"];
-
         foreach ($attributes as $attr => $value) {
             $content .= ' '.$attr;
 
@@ -143,10 +151,15 @@ class Form
     }
 
 
-    public function checkbox($name, $isChecked = false, $attributes = null)
+    /**
+     * @param string $name
+     * @param bool $isChecked
+     * @param array|string $attributes
+     */
+    public function checkbox($name, $isChecked = false, $attributes = [])
     {
-        if (!isset($attributes)) {
-            $attributes = [];
+        if (is_string($attributes)) {
+            $attributes = ["label" => $attributes];
         }
 
         if ($isChecked) {
@@ -154,12 +167,14 @@ class Form
         }
         else {
             unset($attributes["checked"]);
+            // passing false to the method cannot force the field
+            // to be unchecked when the data passed to the form says it is checked
         }
 
         $this->input("checkbox", $name, $attributes);
     }
 
-    public function select($name, $options, $attributes = null)
+    public function select($name, $options, $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -189,29 +204,37 @@ class Form
             ";
         }
 
+        $defaultValue = null;
+        if (isset($attributes["value"])) {
+            $defaultValue = $attributes["value"];
+            unset($attributes["value"]);
+        }
+
         $content .= '<select name="'.$name.'"';
 
         // other attributes
-        $noValueAttrs = ["checked", "selected", "required"];
-
         foreach ($attributes as $attr => $value) {
-            $content .= ' '.$attr;
-
-            if (! in_array($attr, $noValueAttrs)) {
-                $content .= '="'.$value.'"';
-            }
+            $content .= " $attr='$value'";
         }
 
         $content .= ">
         ";
 
         // options
-        foreach ($options as $value => $text) {
+        $valueFromData = null;
+        if (isset($this->data[$name])) {
+            $valueFromData = $this->data[$name];
+        }
+
+        foreach ($options as $_value => $text) {
             $selected = "";
-            if (isset($this->data[$name]) && $this->data[$name] === $value) {
+            if (
+                ($valueFromData !== null && $valueFromData === $_value) ||
+                ($valueFromData === null && $defaultValue === $_value)
+            ) {
                 $selected = "selected";
             }
-            $content .= '<option value="'.$value.'" '.$selected.'>'.$text.'</option>
+            $content .= '<option value="'.$_value.'" '.$selected.'>'.$text.'</option>
             ';
         }
 

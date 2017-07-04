@@ -93,14 +93,24 @@ class Users extends AdminBaseController
     {
         $post = [];
         if (Validate::csrf("userupdate")) {
-            $post = Validate::sanitizePost([
+            $schema = [
                 "id" => "int",
                 "name" => "string",
                 "email" => "string",
                 "password" => "string",
                 "password_confirmation" => "string",
                 "role" => "string"
-            ]);
+            ];
+
+            if ($this->user->isAdmin()) {
+                $schema = array_merge($schema, [
+                    "email_token" => "string",
+                    "password_token" => "string",
+                    "password_change_time" => "string",
+                    "is_blocked" => "int",
+                ]);
+            }
+            $post = Validate::sanitizePost($schema);
 
             if (! $this->user->isAdmin()) {
                 $post["id"] = $this->user->id;
@@ -124,6 +134,8 @@ class Users extends AdminBaseController
         } else {
             Messages::addError("csrffail");
         }
+
+        $post["creation_datetime"] = User::get($post["id"])->creation_datetime;
 
         $data = [
             "action" => "update",
