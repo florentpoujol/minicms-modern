@@ -61,19 +61,15 @@ class UserTest extends DatabaseTestCase
         $posts = $admin->getPosts();
         self::assertCount(2, $posts);
         self::assertContainsOnlyInstancesOf(App\Entities\Post::class, $posts);
-        self::assertEmpty(0, $admin->getPages());
         self::assertEmpty(0, $admin->getComments());
 
         self::assertEmpty(0, $writer->getPosts());
-        $pages = $writer->getPages();
-        self::assertCount(2, $pages);
-        self::assertContainsOnlyInstancesOf(App\Entities\Page::class, $pages);
+
         $comments = $writer->getComments();
         self::assertCount(1, $comments);
         self::assertContainsOnlyInstancesOf(App\Entities\Comment::class, $comments);
 
         self::assertEmpty(0, $commenter->getPosts());
-        self::assertEmpty(0, $commenter->getPages());
         $comments = $commenter->getComments();
         self::assertCount(2, $comments);
         self::assertContainsOnlyInstancesOf(App\Entities\Comment::class, $comments);
@@ -147,7 +143,6 @@ class UserTest extends DatabaseTestCase
 
         self::assertCount(1, Comment::getAll(["user_id" => 2]));
         self::assertEquals(3, Comment::countAll());
-        self::assertCount(2, Page::getAll(["user_id" => 2]));
 
         $user->deleteByAdmin(1);
 
@@ -155,8 +150,6 @@ class UserTest extends DatabaseTestCase
 
         self::assertCount(0, Comment::getAll(["user_id" => 2]));
         self::assertEquals(2, Comment::countAll());
-        self::assertCount(0, Page::getAll(["user_id" => 2]));
-        self::assertCount(2, Page::getAll(["user_id" => 1]));
 
         self::assertNull($user->id);
         self::assertNull($user->name);

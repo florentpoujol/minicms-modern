@@ -33,6 +33,6 @@ abstract class DatabaseTestCase extends TestCase
 
     public function getDataSet()
     {
-        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/userDataSet.yml");
+        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/mainDataSet.yml");
     }
 }

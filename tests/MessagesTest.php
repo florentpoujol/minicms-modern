@@ -3,9 +3,8 @@ use App\Messages;
 
 class MessagesTest extends DatabaseTestCase
 {
-    public function getDataSet()
-    {
-        return new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/setUpDataSet.yml");
+    public function setUp() {
+        \App\Lang::load("en", true);
     }
 
     public function testSuccess()
@@ -57,13 +56,13 @@ class MessagesTest extends DatabaseTestCase
         Messages::addSuccess("the success message");
         Messages::addError("the error message");
 
-        self::assertEquals(1, $this->getConnection()->getRowCount("messages"));
+        self::assertEquals(0, $this->getConnection()->getRowCount("messages"));
         Messages::save();
-        self::assertEquals(3, $this->getConnection()->getRowCount("messages"));
+        self::assertEquals(2, $this->getConnection()->getRowCount("messages"));
 
-        $queryTable = $this->getConnection()->createQueryTable("messages", "SELECT id, type, content FROM messages");
         $dataSet = new \PHPUnit\DbUnit\DataSet\YamlDataSet(__dir__."/messagesDataSet.yml");
         $expectedTable = $dataSet->getTable("messages");
+        $queryTable = $this->getConnection()->createQueryTable("messages", "SELECT type, content FROM messages ORDER BY id ASC");
 
         self::assertTablesEqual($expectedTable, $queryTable);
     }

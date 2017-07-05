@@ -1,13 +1,7 @@
 messages:
   -
-    id: 1
-    type: "testtype"
-    content: "the old msg"
-  -
-    id: 2
     type: "success"
     content: "the success message"
   -
-    id: 3
     type: "error"
     content: "the error message"

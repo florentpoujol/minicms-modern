@@ -64,15 +64,6 @@ class User extends Entity
     }
 
     /**
-     * Get all the page created by that user
-     * @return Page[]|bool
-     */
-    public function getPages()
-    {
-        return Page::getAll(["user_id" => $this->id]);
-    }
-
-    /**
      * Get all the comments created by that user
      * @return Comment[]|bool
      */
@@ -155,11 +146,6 @@ class User extends Entity
         $rows = $this->getComments();
         foreach ($rows as $row) {
             $row->delete();
-        }
-
-        $rows = $this->getPages();
-        foreach ($rows as $row) {
-            $row->update(["user_id" => $adminId]);
         }
 
         $rows = $this->getPosts();

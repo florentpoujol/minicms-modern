@@ -60,7 +60,7 @@ class Page extends BasePage
 
     public function update($data)
     {
-        if ($data["parent_page_id"] <= 0) {
+        if (isset($data["parent_page_id"]) && $data["parent_page_id"] <= 0) {
             $data["parent_page_id"] = null;
         }
         return parent::update($data);
