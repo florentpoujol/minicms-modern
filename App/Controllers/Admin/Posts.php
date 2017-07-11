@@ -9,23 +9,14 @@ use App\Validate;
 
 class Posts extends AdminBaseController
 {
-    public function __construct($user)
-    {
-        parent::__construct($user);
-
-        if ($this->user->isCommenter()) {
-            Route::redirect("admin/posts/update/".$this->user->id);
-        }
-    }
-
     public function getRead($pageNumber = 1)
     {
         $allRows = Post::getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
-            "pageNumber" => $pageNumber,
             "pagination" => [
+                "pageNumber" => $pageNumber,
                 "itemsCount" => Post::countAll(),
                 "queryString" => Route::buildQueryString("admin/posts/read/")
             ]
@@ -35,28 +26,29 @@ class Posts extends AdminBaseController
 
     public function getCreate()
     {
-        $this->render("posts.update", "posts.createnewcategory", ["action" => "create"]);
+        $this->render("posts.update", "posts.createnew", ["action" => "create"]);
     }
 
     public function postCreate()
     {
-        $post = [];
-        if (Validate::csrf("postcreate")) {
-            $post = Validate::sanitizePost([
-                "id" => "int",
-                "slug" => "string",
-                "title" => "string",
-                "content" => "string",
-                "category_id" => "int",
-                "published" => "int",
-                "allow_comments" => "int"
-            ]);
+        $post = Validate::sanitizePost([
+            "id" => "int",
+            "slug" => "string",
+            "title" => "string",
+            "content" => "string",
+            "category_id" => "int",
+            "user_id" => "int",
+            "published" => "checkbox",
+            "allow_comments" => "checkbox"
+        ]);
 
+        if (Validate::csrf("postcreate")) {
             if (Validate::post($post)) {
                 $thePost = Post::create($post);
 
                 if (is_object($thePost)) {
                     Messages::addSuccess("post.created");
+                    Route::redirect("admin/posts/update/".$thePost->id);
                 } else {
                     Messages::addError("db.createpost");
                 }
@@ -89,25 +81,25 @@ class Posts extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = [];
-        if (Validate::csrf("categoryupdate")) {
-            $post = Validate::sanitizePost([
-                "id" => "int",
-                "slug" => "string",
-                "title" => "string",
-                "content" => "string",
-                "category_id" => "int",
-                "published" => "int",
-                "allow_comments" => "int"
-            ]);
+        $post = Validate::sanitizePost([
+            "id" => "int",
+            "slug" => "string",
+            "title" => "string",
+            "content" => "string",
+            "category_id" => "int",
+            "user_id" => "int",
+            "published" => "checkbox",
+            "allow_comments" => "checkbox"
+        ]);
 
+        if (Validate::csrf("postupdate")) {
             if (Validate::post($post)) {
                 $thePost = Post::get($post["id"]);
 
                 if (is_object($thePost)) {
                     if ($thePost->update($post)) {
                         Messages::addSuccess("post.updated");
-                        Route::redirect("admin/posts/update/".$post["id"]);
+                        Route::redirect("admin/posts/update/".$thePost->id);
                     } else {
                         Messages::addError("db.postupdated");
                     }
@@ -119,16 +111,18 @@ class Posts extends AdminBaseController
             Messages::addError("csrffail");
         }
 
+        $post["creation_datetime"] = Post::get($post["id"])->creation_datetime;
+
         $data = [
             "action" => "update",
             "post" => $post
         ];
-        $this->render("posts.update", "posts.createnewpost", $data);
+        $this->render("posts.update", "posts.update", $data);
     }
 
     public function postDelete()
     {
-        $id = (int)$_POST["post_id"];
+        $id = (int)$_POST["id"];
         if (Validate::csrf("postdelete$id")) {
             $post = Post::get($id);
             if (is_object($post)) {

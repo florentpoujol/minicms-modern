@@ -111,10 +111,10 @@ class ValidateTest extends DatabaseTestCase
         self::assertArrayNotHasKey("garbage2", $post);
     }
 
-    public function testValueExists()
+    public function testValueExistsInField()
     {
-        self::assertTrue(Validate::valueExists("Admin", "users", "name"));
-        self::assertFalse(Validate::valueExists("category-3", "categories", "slug"));
-        self::assertTrue(Validate::valueExists(1, "pages", "parent_page_id"));
+        self::assertTrue(Validate::valueExistsInDB("Admin", "name", "users"));
+        self::assertFalse(Validate::valueExistsInDB("category-3", "slug", "categories"));
+        self::assertTrue(Validate::valueExistsInDB(1, "parent_page_id", "pages"));
     }
 }

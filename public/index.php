@@ -3,6 +3,7 @@
 namespace App;
 
 require_once "../autoload.php";
+require_once "../vendor/autoload.php";
 
 App::load();
 
@@ -15,9 +16,6 @@ Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been c
 session_start();
 
 Messages::load();
-
-require_once "../vendor/phpmailer/class.smtp.php"; // no need for autoloading with such a minimal installation
-require_once "../vendor/phpmailer/class.phpmailer.php";
 
 // check if user is logged in
 /**

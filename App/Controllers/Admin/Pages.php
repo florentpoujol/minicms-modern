@@ -37,15 +37,17 @@ class Pages extends AdminBaseController
             "title" => "string",
             "content" => "string",
             "parent_page_id" => "int",
-            "published" => "int",
-            "allow_comments" => "int"
+            "published" => "checkbox",
+            "allow_comments" => "checkbox"
         ]);
+
         if (Validate::csrf("pagecreate")) {
             if (Validate::page($post)) {
                 $page = Page::create($post);
 
                 if (is_object($page)) {
                     Messages::addSuccess("page.created");
+                    Route::redirect("admin/pages/update/".$page->id);
                 } else {
                     Messages::addError("db.createpage");
                 }
@@ -78,7 +80,6 @@ class Pages extends AdminBaseController
 
     public function postUpdate()
     {
-        var_dump($_POST);
         $post = Validate::sanitizePost([
             "id" => "int",
             "slug" => "string",
@@ -88,7 +89,6 @@ class Pages extends AdminBaseController
             "published" => "checkbox",
             "allow_comments" => "checkbox"
         ]);
-        var_dump($post);
 
         if (Validate::csrf("pageupdate")) {
 

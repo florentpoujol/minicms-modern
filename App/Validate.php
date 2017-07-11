@@ -25,7 +25,6 @@ class Validate extends Database
         return true;
     }
 
-
     public static function title($data)
     {
         $pattern = "/^[a-zA-Z0-9_:,?!\. -]{2,}$/";
@@ -145,23 +144,6 @@ class Validate extends Database
     }
 
     /**
-     * @param string $value
-     * @param string $table
-     * @param string $field
-     * @return bool
-     */
-    public static function valueExists($value, $table, $field)
-    {
-        $query = self::$db->prepare("SELECT id FROM $table WHERE $field = ?");
-        $success = $query->execute([$value]);
-
-        if ($success) {
-            return ($query->fetch() !== false);
-        }
-        return false;
-    }
-
-    /**
      * Check for all the user data (name, email, password if any, etc...)
      * @param array $user
      * @return bool
@@ -175,7 +157,7 @@ class Validate extends Database
             Messages::addError("fieldvalidation.name");
         }
 
-        if (! isset($user["id"]) && self::valueExists($user["name"], "users", "name")) {
+        if (! isset($user["id"]) && self::valueExistsInDB($user["name"], "name", "users")) {
             $ok = false;
             Messages::addError("user.namenotunique");
         }
@@ -220,7 +202,7 @@ class Validate extends Database
             Messages::addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExists($data["slug"], "categories", "slug")) {
+        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "categories")) {
             $ok = false;
             Messages::addError("db.slugnotunique");
         }
@@ -246,20 +228,26 @@ class Validate extends Database
             Messages::addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExists($data["slug"], "posts", "slug")) {
+        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "posts")) {
             $ok = false;
             Messages::addError("db.slugnotunique");
         }
 
-        if (! self::name($data["name"])) {
+        if (! self::title($data["title"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.name");
+            Messages::addError("fieldvalidation.title");
         }
 
         $cat = \App\Entities\Category::get($data["category_id"]);
         if ($cat === false) {
             $ok = false;
             Messages::addError("category.unknown");
+        }
+
+        $user = \App\Entities\User::get($data["user_id"]);
+        if ($user === false) {
+            $ok = false;
+            Messages::addError("user.unknown");
         }
 
         return $ok;
@@ -278,7 +266,7 @@ class Validate extends Database
             Messages::addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExists($data["slug"], "pages", "slug")) {
+        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "pages")) {
             $ok = false;
             Messages::addError("db.slugnotunique");
         }

@@ -37,4 +37,21 @@ class Database
             self::$db = $connexion;
         }
     }
+
+    /**
+     * @param string $value
+     * @param string $field
+     * @param string $table
+     * @return bool
+     */
+    public static function valueExistsInDB($value, $field, $table)
+    {
+        $query = self::$db->prepare("SELECT id FROM $table WHERE $field = ?");
+        $success = $query->execute([$value]);
+
+        if ($success) {
+            return ($query->fetch() !== false);
+        }
+        return false;
+    }
 }

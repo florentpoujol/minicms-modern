@@ -3,7 +3,7 @@
 
 {include ../App/views/messages.php}
 
-<a href="{queryString admin/pages/create}">{lang page.createlink}</a> <br>
+<a href="{queryString admin/posts/create}">{lang post.createlink}</a> <br>
 <br>
 
 <table>
@@ -11,7 +11,7 @@
         <th>id</th>
         <th>slug</th>
         <th>title</th>
-        <th>Parent</th>
+        <th>category</th>
         <th>Allow comments</th>
         <th>Nb comments</th>
         <th>Published</th>
@@ -22,28 +22,28 @@
 
     @foreach ($allRows as $row)
     <?php
-    $parent = $row->getParent();
-    if (is_object($parent)) {
-        $parent = $parent->title." (".$parent->id.")";
-    } else {
-        $parent = "";
+    $category = $row->getCategory();
+    if (is_object($category)) {
+        $category = $category->title." (".$category->id.")";
     }
+
+
     ?>
     <tr>
         <td>{$row->id}</td>
         <td>{$row->slug}</td>
         <td>{$row->title}</td>
-        <td>{$parent}</td>
+        <td>{$category}</td>
         <td>{$row->allow_comments}</td>
-        <td><?php echo \App\Entities\Comment::countAll(["page_id" => $row->id]); ?></td>
+        <td><?php echo \App\Entities\Comment::countAll(["post_id" => $row->id]); ?></td>
         <td>{$row->published}</td>
         <td>{$row->creation_datetime}</td>
 
-        <td><a href="{queryString admin/pages/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/posts/update/$row->id}">Edit</a></td>
         <td>
             <?php
-            $form = new \App\Form("pagedelete".$row->id);
-            $form->open(\App\Route::buildQueryString("admin/pages/delete"));
+            $form = new \App\Form("postdelete".$row->id);
+            $form->open(\App\Route::buildQueryString("admin/posts/delete"));
             $form->hidden("id", $row->id);
             $form->submit("", "Delete");
             $form->close();

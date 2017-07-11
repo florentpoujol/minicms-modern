@@ -1,10 +1,10 @@
 
-<h1>{pageTitle}</h1>
+<h1>{$pageTitle}</h1>
 
 {include ../App/views/messages.php}
 
 @if ($action === "update")
-Category id: {post["id"]} <br>
+Category id: {$post["id"]} <br>
 @endif
 <?php
 $form = new \App\Form("category$action", $post);
