@@ -65,7 +65,7 @@ class Validate extends Database
      * Validate the CSRF token found in session with the one provided with the request
      * @param string $request The name of the request
      * @param string $token The token provided with the request. If null, if will be found in $_POST based on the request name
-     * @param int $timeLimit Default 900 sec = 15 min
+     * @param int $timeLimit The validity duration of a token. Default 900 sec = 15 min
      * @return bool
      */
     public static function csrf($request, $token = null, $timeLimit = 900)
@@ -80,15 +80,9 @@ class Validate extends Database
             }
         }
 
-        $time = time();
-        if ($timeLimit > $time) {
-            $timeLimit = 900;
-        }
-
-        if (
-            Session::get($tokenName) === $token &&
-            $time < Session::get($request."_csrf_time", -99999) + $timeLimit
-        ) {
+        if (Session::get($tokenName) === $token &&
+            time() < Session::get($request."_csrf_time") + $timeLimit)
+        {
             unset($_POST[$tokenName]);
             Session::destroy($tokenName);
             Session::destroy($request."_csrf_time");

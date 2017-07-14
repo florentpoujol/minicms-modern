@@ -14,9 +14,19 @@ return [
     "resendconfirmemail" => [
         "pagetitle" => "Rensend confirmation email"
     ],
-
     "users" => [
         "pagetitle" => "Users"
+    ],
+
+    "admin" => [
+        "page" => [
+            "readtitle" => "Pages",
+            "createtitle" => "Add a new page",
+            "updatetitle" => "Edit a page",
+        ],
+        "category" => [
+
+        ],
     ],
 
     "formlabel" => [
@@ -26,6 +36,9 @@ return [
         "email" => "Email: ",
         "password" => "Password: ",
         "password_confirm" => "Password confirmation: ",
+        "config" => [
+            "sitetitle" => "Site name",
+        ]
     ],
 
     "email" => [
@@ -55,13 +68,14 @@ return [
             "error" => "There has been an error, please try again",
             "csrffail" => "CSRF validation has failed",
             "user" => [
+                "create" => "Error creating the user",
                 "alreadyloggedin" => "You are already logged in",
                 "unknown" => "Unknow user",
                 "unknownwithfield" => "Unknow user with {field} '{value}'",
                 "wrongpassword" => "Wrong password",
                 "notactivated" => "This user's email address is not confirmed yet. You can sent the activation email again, blabla",
                 "alreaddyactivated" => "this email address is already confirmed. you can login with this user",
-                "unauthorized" => "You are not authorized to access this page"
+                "unauthorizedaccess" => "You are not authorized to access this page"
             ],
             "fieldvalidation" => [
                 "email" => "The email has the wrong format",

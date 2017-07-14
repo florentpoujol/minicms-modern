@@ -2,6 +2,8 @@
 
 namespace App;
 
+use PHPMailer;
+
 class Emails
 {
     public static function send($to, $subject, $body)
@@ -20,7 +22,7 @@ class Emails
                 return false;
             }
         } else {
-            $mail = new \PHPmailer;
+            $mail = new PHPmailer;
 
             $mail->isSMTP();
             // $mail->SMTPDebug = 3;
@@ -51,7 +53,7 @@ class Emails
     public static function sendConfirmEmail($user)
     {
         $subject = Lang::get("email.confirmemail.subject");
-        $url = App::$url."index.php?c=register&a=confirmemail&id=".$user->id."&token=".$user->email_token;
+        $url = Route::getUrl("register/confirmemail/".$user->id."/".$user->email_token);
         $body = Lang::get("email.confirmemail.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
     }
@@ -59,8 +61,15 @@ class Emails
     public static function sendChangePassword($user)
     {
         $subject = Lang::get("email.changepassword.subject");
-        $url = Route::getURL("login/resetpassword/".$user->id, ["token" => $user->password_token]);
+        $url = Route::getURL("login/resetpassword/".$user->id."/".$user->password_token);
         $body = Lang::get("email.changepassword.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
+    }
+
+    public static function sendTest($email)
+    {
+        $subject = Lang::get("email.test.subject");
+        $body = Lang::get("email.test.body");
+        return self::send($email, $subject, $body);
     }
 }

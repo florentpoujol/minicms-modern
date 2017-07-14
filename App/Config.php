@@ -6,7 +6,7 @@ class Config
 {
     public static $configFolder = __DIR__."/../config/";
 
-    private static $config = [];
+    public static $config = [];
 
     /**
      * read the config file (JSON) then populate the $config array

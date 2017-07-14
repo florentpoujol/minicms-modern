@@ -26,8 +26,6 @@
     if (is_object($category)) {
         $category = $category->title." (".$category->id.")";
     }
-
-
     ?>
     <tr>
         <td>{$row->id}</td>
