@@ -19,17 +19,16 @@ class Login extends BaseController
         }
     }
 
-    public function getIndex($idOrSlug = null)
+    public function getLogin()
     {
         $this->render("login");
     }
 
-    public function postIndex()
+    public function postLogin()
     {
         $post = Validate::sanitizePost([
             "login_name" => "string",
-            "login_password" => "string",
-            "login_csrf_token" => "string"
+            "login_password" => "string"
         ]);
 
         if (Validate::csrf("login")) {
@@ -86,8 +85,7 @@ class Login extends BaseController
     public function postLostPassword()
     {
         $post = Validate::sanitizePost([
-            "lostpassword_email" => "string",
-            "lostpassword_csrf_token" => "string"
+            "lostpassword_email" => "string"
         ]);
 
         $email = $post["lostpassword_email"];

@@ -7,7 +7,6 @@ use App\Messages;
 use App\Route;
 use App\Config as AppConfig;
 use App\Validate;
-use PharIo\Manifest\Email;
 
 class Config extends AdminBaseController
 {

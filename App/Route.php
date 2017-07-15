@@ -80,6 +80,11 @@ class Route
                 self::logout();
                 break;
 
+            case "login":
+            case "register":
+                $methodName = $routeName;
+                break;
+
             case "lostpassword":
             case "resetpassword":
                 $controllerName = "Login";

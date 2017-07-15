@@ -10,7 +10,6 @@ use App\Entities\User;
 
 class Register extends BaseController
 {
-
     function __construct($user)
     {
         parent::__construct($user);
@@ -21,23 +20,21 @@ class Register extends BaseController
         }
     }
 
-    public function getIndex($idOrSlug = null)
+    public function getRegister()
     {
         $this->render("register");
     }
 
-    public function postIndex()
+    public function postRegister()
     {
-        $post = [];
+        $post = Validate::sanitizePost([
+            "register_name"             => "string",
+            "register_email"            => "string",
+            "register_password"         => "string",
+            "register_password_confirm" => "string"
+        ]);
 
         if (Validate::csrf("register")) {
-            $post = Validate::sanitizePost([
-                "register_name"             => "string",
-                "register_email"            => "string",
-                "register_password"         => "string",
-                "register_password_confirm" => "string"
-            ]);
-
             $user = [
                 "name" => $post["register_name"],
                 "email" => $post["register_email"],
@@ -60,6 +57,8 @@ class Register extends BaseController
                     Messages::addError("db.createuser");
                 }
             }
+        } else {
+            Messages::addError("csrffail");
         }
 
         $this->render("register", null, ["post" => $post]);

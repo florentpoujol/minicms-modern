@@ -21,15 +21,15 @@ class Pages extends AdminBaseController
                 "queryString" => Route::buildQueryString("admin/pages/read")
             ]
         ];
-        $this->render("pages.read", "pages.pagetitle", $data);
+        $this->render("pages.read", "admin.page.readtitle", $data);
     }
 
     public function getCreate()
     {
-        $this->render("pages.update", "pages.update.pagetitle", ["action" => "create"]);
+        $this->render("pages.update", "admin.page.create", ["action" => "create"]);
     }
 
-    public function pageCreate()
+    public function postCreate()
     {
         $post = Validate::sanitizePost([
             "id" => "int",
@@ -49,7 +49,7 @@ class Pages extends AdminBaseController
                     Messages::addSuccess("page.created");
                     Route::redirect("admin/pages/update/".$page->id);
                 } else {
-                    Messages::addError("db.createpage");
+                    Messages::addError("page.create");
                 }
             }
         } else {
@@ -60,7 +60,7 @@ class Pages extends AdminBaseController
             "action" => "create",
             "post" => $post
         ];
-        $this->render("pages.update", "pages.createnewcategory", $data);
+        $this->render("pages.update", "admin.page.create", $data);
     }
 
     public function getUpdate($id)
@@ -75,7 +75,7 @@ class Pages extends AdminBaseController
             "action" => "update",
             "post" => $page->toArray()
         ];
-        $this->render("pages.update", "pages.updatecategory", $data);
+        $this->render("pages.update", "admin.page.updatetitle", $data);
     }
 
     public function postUpdate()
@@ -116,7 +116,7 @@ class Pages extends AdminBaseController
             "action" => "update",
             "post" => $post
         ];
-        $this->render("pages.update", "pages.update", $data);
+        $this->render("pages.update", "admin.page.updatetitle", $data);
     }
 
     public function postDelete()
