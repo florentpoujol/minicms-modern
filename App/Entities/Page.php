@@ -75,4 +75,9 @@ class Page extends BasePage
 
         return parent::delete();
     }
+
+    public function getLink($routeName = "page")
+    {
+        return parent::getLink($routeName);
+    }
 }

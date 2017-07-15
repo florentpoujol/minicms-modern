@@ -52,7 +52,7 @@ class BaseController
 
         // process template keywords
         $keywords = [
-            "(foreach|for|if|elseif) \((.+)\)" => "$1 ($2):",
+            "(foreach|for|if|elseif)( )?\((.+)\)" => "$1 ($3):",
             "(else)" => "$1:",
             "(endforeach|endfor|endif)" => "$1;"
         ];

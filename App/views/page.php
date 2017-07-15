@@ -1,3 +1,8 @@
-<h1>{$pageTitle}</h1>
 
-this is a single page
+<article>
+    <h1>{$page->title}</h1>
+
+    <p>
+        <?= $page->content ?>
+    </p>
+</article>

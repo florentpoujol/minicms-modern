@@ -73,28 +73,21 @@ class Route
         $controllerArgs = array_map($cb, $controllerArgs);
 
         $controllerName = $routeName;
-        $methodName = "Index";
+        $methodName = $routeName;
 
         switch ($routeName) {
             case "logout":
                 self::logout();
                 break;
 
-            case "login":
-            case "register":
-                $methodName = $routeName;
-                break;
-
             case "lostpassword":
             case "resetpassword":
                 $controllerName = "Login";
-                $methodName = $routeName;
                 break;
 
             case "resendconfirmationemail":
             case "confirmemail":
                 $controllerName = "Register";
-                $methodName = $routeName;
                 break;
 
             case "admin_config":
@@ -121,9 +114,9 @@ class Route
         $parts = array_map(function($val){ return ucfirst($val); }, $parts);
         $controllerName = join("\\", $parts);
         $controllerName = "\App\Controllers\\$controllerName";
-        $methodName = App::$requestMethod.$methodName;
-
         self::$controllerName = $controllerName;
+
+        $methodName = App::$requestMethod.$methodName;
         self::$methodName = $methodName;
 
         $controller = new $controllerName($user);

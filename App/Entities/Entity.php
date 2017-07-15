@@ -196,6 +196,11 @@ class Entity extends \App\Database
         return false;
     }
 
+    public function getLink($routeName)
+    {
+        return '<a href="'.\App\Route::getURL("$routeName/$this->id").'">'.$this->title.'</a>';
+    }
+
     /**
      * @return array
      */

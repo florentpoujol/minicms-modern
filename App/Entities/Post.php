@@ -50,5 +50,11 @@ class Post extends BasePage
         if (is_int($this->id)) {
             return Comment::getAll(["post_id" => $this->id]);
         }
+        return false;
+    }
+
+    public function getLink($routeName = "post")
+    {
+        return parent::getLink($routeName);
     }
 }

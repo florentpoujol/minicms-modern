@@ -2,22 +2,23 @@
 
 namespace App\Controllers;
 
-use \App\Entities\Page as PageEntity;
+use App\Entities\Page as PageEntity;
+use App\Messages;
+use App\Route;
 
 class Page extends BaseController
 {
-    public function __construct($user)
+    public function getPage($pageId)
     {
-        parent::__construct($user);
+        $page = PageEntity::get($pageId);
 
-    }
+        if ($page === false) {
+            Messages::addError("post.unknow");
+            Route::redirect("blog");
+        }
 
-    public function getIndex($idOrSlug = null)
-    {
-
-        $page = PageEntity::get(["id" => $idOrSlug, "slug" => $idOrSlug], "OR");
         $data = [
-            $pageContent = $page
+            "page" => $page
         ];
         $this->render("page", $page->title, $data);
     }

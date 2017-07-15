@@ -35,11 +35,13 @@ class Category extends Entity
     }
 
     /**
+     * @param array $params
      * @return Post[]|bool
      */
-    public function getPosts()
+    public function getPosts($params = [])
     {
-        return Post::getAll(["category_id" => $this->id]);
+        $params = array_merge(["category_id" => $this->id], $params);
+        return Post::getAll($params);
     }
 
     /**
@@ -53,5 +55,10 @@ class Category extends Entity
         }
 
         return parent::delete();
+    }
+
+    public function getLink($routeName = "category")
+    {
+        return parent::getLink($routeName);
     }
 }
