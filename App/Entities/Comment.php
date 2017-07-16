@@ -20,6 +20,43 @@ class Comment extends Entity
     }
 
     /**
+     * @param int $id
+     * @param int $pageNumber
+     * @return Comment[]|false
+     */
+    public static function getAllForWriter($id, $pageNumber = null)
+    {
+        $limit = "";
+        if ($pageNumber !== null) {
+            $pageNumber = $pageNumber - 1;
+            if ($pageNumber < 0) {
+                $pageNumber = 0;
+            }
+            $itemsPerPage = \App\Config::get("items_per_page");
+
+            $offset = $pageNumber * $itemsPerPage;
+            $limit = " LIMIT $offset, $itemsPerPage";
+        }
+        $orderBy = " ORDER BY comments.id ASC ";
+
+        $strQuery = "SELECT comments.* FROM comments 
+        LEFT JOIN posts ON comments.post_id = posts.id
+        WHERE comments.user_id = :user_id OR posts.user_id = :post_user_id";
+
+        $query = self::$db->prepare($strQuery.$orderBy.$limit);
+        $query->setFetchMode(\PDO::FETCH_CLASS, get_called_class());
+        $success = $query->execute([
+            "user_id" => $id,
+            "post_user_id" => $id,
+        ]);
+
+        if ($success) {
+            return $query->fetchAll();
+        }
+        return false;
+    }
+
+    /**
      * @param array $data
      * @return Comment|bool
      */

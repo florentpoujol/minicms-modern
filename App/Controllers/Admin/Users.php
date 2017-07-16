@@ -103,8 +103,8 @@ class Users extends AdminBaseController
             $schema = array_merge($schema, [
                 "email_token" => "string",
                 "password_token" => "string",
-                "password_change_time" => "string",
-                "is_blocked" => "int",
+                "password_change_time" => "int",
+                "is_blocked" => "checkbox",
             ]);
         }
         $post = Validate::sanitizePost($schema);

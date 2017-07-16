@@ -35,7 +35,6 @@ class AdminBaseController extends \App\Controllers\BaseController
         )
         {
             Route::redirect("admin/users/update/".$this->user->id);
-
         }
     }
 

@@ -20,7 +20,11 @@
         <th>email token</th>
         <th>password token</th>
         <th>password change time</th>
+        @endif
+
         <th>Edit</th>
+
+        @if ($this->user->isAdmin())
         <th>Delete</th>
         @endif
     </tr>
@@ -41,6 +45,8 @@
 
         @if ($this->user->isAdmin() || $this->user->id === $row->id)
         <td><a href="{queryString admin/users/update/$row->id}">Edit</a></td>
+        @else
+        <td></td>
         @endif
 
         @if ($this->user->isAdmin())

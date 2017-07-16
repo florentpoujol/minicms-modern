@@ -289,6 +289,12 @@ class Validate extends Database
             }
         }
 
+        $user = \App\Entities\User::get($data["user_id"]);
+        if ($user === false) {
+            $ok = false;
+            Messages::addError("user.unknown");
+        }
+
         return $ok;
     }
 
@@ -309,6 +315,25 @@ class Validate extends Database
         if (json_decode($data["json_structure"]) === null) {
             $ok = false;
             Messages::addError("fieldvalidation.menustructure");
+        }
+
+        return $ok;
+    }
+
+    public static function comment($data)
+    {
+        $ok = true;
+
+        $len = strlen($data["content"]);
+        if ($len < 10 || $len > 1000) {
+            $ok = false;
+            Messages::addError("fieldvalidation.commentcontent");
+        }
+
+        $user = \App\Entities\User::get($data["user_id"]);
+        if ($user === false) {
+            $ok = false;
+            Messages::addError("user.unknown");
         }
 
         return $ok;
