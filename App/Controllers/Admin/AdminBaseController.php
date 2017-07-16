@@ -20,6 +20,9 @@ class AdminBaseController extends \App\Controllers\BaseController
 
         $this->template = "defaultAdmin";
 
+        // prevent commenters to access anything other than
+        // - its user update page
+        // - the list of its comments
         if (
             $this->user->isCommenter() &&
             (
@@ -31,9 +34,6 @@ class AdminBaseController extends \App\Controllers\BaseController
             )
         )
         {
-            // prevent commenters to access anything other than
-            // - its user update page
-            // - the list of its comments
             Route::redirect("admin/users/update/".$this->user->id);
 
         }
@@ -42,10 +42,5 @@ class AdminBaseController extends \App\Controllers\BaseController
     public function render($view, $pageTitle = null, $data = [])
     {
         parent::render("admin/$view", $pageTitle, $data);
-    }
-
-    public function getRead()
-    {
-        $this->render("admin/main", "admin index");
     }
 }

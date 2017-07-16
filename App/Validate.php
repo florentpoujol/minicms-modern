@@ -129,6 +129,12 @@ class Validate extends Database
                 case "checkbox":
                     $value === "on" ? $value = 1 : $value = 0;
                     break;
+
+                case "array":
+                    if (! is_array($value)) {
+                        $value = (array)$value;
+                    }
+                    break;
             }
 
             $sanitizedPost[$key] = $value; // if $value was null, it is now 0, false or ""
@@ -281,6 +287,28 @@ class Validate extends Database
                     Messages::addError("page.unknown");
                 }
             }
+        }
+
+        return $ok;
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public static function menu($data)
+    {
+        $ok = true;
+
+        if (! self::name($data["name"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.name");
+        }
+
+        // check for valid JSON
+        if (json_decode($data["json_structure"]) === null) {
+            $ok = false;
+            Messages::addError("fieldvalidation.menustructure");
         }
 
         return $ok;
