@@ -26,11 +26,11 @@ class AdminBaseController extends \App\Controllers\BaseController
         if (
             $this->user->isCommenter() &&
             (
-                (Route::$controllerName === "users" &&
-                strpos(Route::$methodName, "Update") === false)
+                (strpos(strtolower(Route::$controllerName), "users") !== false &&
+                strpos(strtolower(Route::$methodName), "update") === false)
                 ||
-                (Route::$controllerName === "comments" &&
-                strpos(Route::$methodName, "Read") === false)
+                (strpos(strtolower(Route::$controllerName), "comments") !== false &&
+                strpos(strtolower(Route::$methodName), "read") === false)
             )
         )
         {

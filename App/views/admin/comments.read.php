@@ -11,7 +11,9 @@
         <th>page</th>
         <th>created at</th>
         <th>content</th>
+        @if ($this->user->isWriter())
         <th>Edit</th>
+        @endif
         @if ($this->user->isAdmin())
         <th>Delete</th>
         @endif
@@ -47,8 +49,9 @@
         <td>{$page}</td>
         <td>{$row->creation_datetime}</td>
         <td>{$row->content}</td>
-
+        @if ($this->user->isWriter())
         <td><a href="{queryString admin/comments/update/$row->id}">Edit</a></td>
+        @endif
         @if ($this->user->isAdmin())
         <td>
             <?php

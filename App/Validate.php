@@ -336,6 +336,22 @@ class Validate extends Database
             Messages::addError("user.unknown");
         }
 
+        if (isset($data["page_id"])) {
+            $page = \App\Entities\Page::get($data["page_id"]);
+            if ($page === false) {
+                $ok = false;
+                Messages::addError("page.unknown");
+            }
+        }
+
+        if (isset($data["post_id"])) {
+            $post = \App\Entities\Post::get($data["post_id"]);
+            if ($post === false) {
+                $ok = false;
+                Messages::addError("post.unknown");
+            }
+        }
+
         return $ok;
     }
 }

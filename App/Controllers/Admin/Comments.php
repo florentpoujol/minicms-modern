@@ -39,40 +39,6 @@ class Comments extends AdminBaseController
         $this->render("comments.read", "admin.comment.readtitle", $data);
     }
 
-    /*public function postCreate()
-    {
-        $post = Validate::sanitizePost([
-            "id" => "int",
-            "slug" => "string",
-            "title" => "string",
-            "content" => "string",
-            "parent_page_id" => "int",
-            "published" => "checkbox",
-            "allow_comments" => "checkbox"
-        ]);
-
-        if (Validate::csrf("pagecreate")) {
-            if (Validate::page($post)) {
-                $page = Page::create($post);
-
-                if (is_object($page)) {
-                    Messages::addSuccess("page.created");
-                    Route::redirect("admin/pages/update/".$page->id);
-                } else {
-                    Messages::addError("page.create");
-                }
-            }
-        } else {
-            Messages::addError("csrffail");
-        }
-
-        $data = [
-            "action" => "create",
-            "post" => $post
-        ];
-        $this->render("pages.update", "admin.page.create", $data);
-    }*/
-
     public function getUpdate($id)
     {
         $comment = Comment::get($id);
