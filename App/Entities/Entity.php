@@ -21,7 +21,7 @@ class Entity extends \App\Database
     /**
      * @param array|int $params One or several WHERE clause from which to find the user. The keys must match the database fields names.
      * @param string $condition Should be AND or OR
-     * @return Entity|false Entity populated from DB data, or false on error or if nothing is found
+     * @return $this|false Entity populated from DB data, or false on error or if nothing is found
      */
     public static function get($params, $condition = "AND")
     {
@@ -121,7 +121,7 @@ class Entity extends \App\Database
 
     /**
      * @param array $data
-     * @return Entity|false
+     * @return $this|false
      */
     public static function create($data)
     {

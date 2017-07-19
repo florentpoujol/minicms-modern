@@ -7,25 +7,6 @@ class Page extends BasePage
     public $parent_page_id;
 
     /**
-     * @return Page|false
-     */
-    public static function get($params, $condition = "AND")
-    {
-        // note: redeclaring a method like that seems necessary due to a probable bug
-        // in PHPStorm that does not properly handle a return type  $this|bool on the parent method
-        return parent::get($params, $condition);
-    }
-
-    /**
-     * @return Page|false
-     */
-    public static function create($data)
-    {
-        // same reason as  for ::get()
-        return parent::create($data);
-    }
-
-    /**
      * @return Comment[]|bool
      */
     public function getComments()

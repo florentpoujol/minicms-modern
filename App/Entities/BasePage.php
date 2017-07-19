@@ -2,7 +2,6 @@
 
 namespace App\Entities;
 
-
 class BasePage extends Entity
 {
     // fields from DB

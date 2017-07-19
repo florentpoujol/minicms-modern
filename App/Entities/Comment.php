@@ -10,16 +10,6 @@ class Comment extends Entity
     public $page_id;
 
     /**
-     * @return Comment|false
-     */
-    public static function get($params, $condition = "AND")
-    {
-        // note: redeclaring a method like that seems necessary due to a probable bug
-        // in PHPStorm that does not properly handle a return type  $this|bool on the parent method
-        return parent::get($params, $condition);
-    }
-
-    /**
      * @param int $id
      * @param int $pageNumber
      * @return Comment[]|false

@@ -1,7 +1,6 @@
 <?php
 
 use App\Entities\User;
-use App\Entities\Page;
 use App\Entities\Comment;
 
 class UserTest extends DatabaseTestCase
