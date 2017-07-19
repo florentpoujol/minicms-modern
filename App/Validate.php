@@ -2,6 +2,11 @@
 
 namespace App;
 
+use App\Entities\Category;
+use App\Entities\Page;
+use App\Entities\Post;
+use App\Entities\User;
+
 class Validate extends Database
 {
     /**
@@ -238,13 +243,13 @@ class Validate extends Database
             Messages::addError("fieldvalidation.title");
         }
 
-        $cat = \App\Entities\Category::get($data["category_id"]);
+        $cat = Category::get($data["category_id"]);
         if ($cat === false) {
             $ok = false;
             Messages::addError("category.unknown");
         }
 
-        $user = \App\Entities\User::get($data["user_id"]);
+        $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
             Messages::addError("user.unknown");
@@ -281,7 +286,7 @@ class Validate extends Database
                 $ok = false;
                 Messages::addError("page.cantparenttoitself");
             } else {
-                $parentPage = \App\Entities\Page::get($data["parent_page_id"]);
+                $parentPage = Page::get($data["parent_page_id"]);
                 if ($parentPage === false) {
                     $ok = false;
                     Messages::addError("page.unknown");
@@ -289,7 +294,7 @@ class Validate extends Database
             }
         }
 
-        $user = \App\Entities\User::get($data["user_id"]);
+        $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
             Messages::addError("user.unknown");
@@ -330,14 +335,14 @@ class Validate extends Database
             Messages::addError("fieldvalidation.commentcontent");
         }
 
-        $user = \App\Entities\User::get($data["user_id"]);
+        $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
             Messages::addError("user.unknown");
         }
 
         if (isset($data["page_id"])) {
-            $page = \App\Entities\Page::get($data["page_id"]);
+            $page = Page::get($data["page_id"]);
             if ($page === false) {
                 $ok = false;
                 Messages::addError("page.unknown");
@@ -345,11 +350,29 @@ class Validate extends Database
         }
 
         if (isset($data["post_id"])) {
-            $post = \App\Entities\Post::get($data["post_id"]);
+            $post = Post::get($data["post_id"]);
             if ($post === false) {
                 $ok = false;
                 Messages::addError("post.unknown");
             }
+        }
+
+        return $ok;
+    }
+
+    public static function media($data)
+    {
+        $ok = true;
+
+        if (! self::name($data["slug"])) {
+            $ok = false;
+            Messages::addError("fieldvalidation.slug");
+        }
+
+        $user = User::get($data["user_id"]);
+        if ($user === false) {
+            $ok = false;
+            Messages::addError("user.unknown");
         }
 
         return $ok;

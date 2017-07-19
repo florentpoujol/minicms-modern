@@ -20,9 +20,14 @@ class Form
         $this->data = $data;
     }
 
-    public function open($target, $method = "POST")
+    public function open($target, $method = "POST", $forFileUpload = false)
     {
-        echo '<form action="'.$target.'" method="'.$method.'">
+        if ($forFileUpload) {
+            $forFileUpload = ' enctype="multipart/form-data"';
+        } else {
+            $forFileUpload = "";
+        }
+        echo '<form action="' . $target . '" method="' . $method . '"' . $forFileUpload . '>        
         ';
     }
 
@@ -136,6 +141,18 @@ class Form
     public function password($name, $attributes = null)
     {
         $this->input("password", $name, $attributes);
+    }
+
+    /**
+     * @param $name
+     * @param array $attributes
+     */
+    public function file($name, $attributes = [])
+    {
+        if (! isset($attributes["accept"])) {
+            $attributes["accept"] = ".jpeg, .jpg, image/jpeg, .png, image/png, .pdf, application/pdf, .zip, application/zip";
+        }
+        $this->input("file", $name, $attributes);
     }
 
     public function hidden($name, $value)

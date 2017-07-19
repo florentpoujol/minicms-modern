@@ -5,9 +5,9 @@ namespace App;
 require_once "../autoload.php";
 require_once "../vendor/autoload.php";
 
-App::load();
-
 Config::load();
+
+App::load();
 
 Database::connect();
 

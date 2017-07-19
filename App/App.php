@@ -22,6 +22,8 @@ class App
 
     public static $requestMethod = "get";
 
+    public static $uploadPath = "";
+
     public static function load()
     {
         self::$protocol = $_SERVER["REQUEST_SCHEME"];
@@ -30,5 +32,7 @@ class App
         self::$url = self::$protocol."://".self::$host.self::$directory;
 
         self::$requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
+
+        self::$uploadPath = trim(Config::get("upload_folder"), "/") . "/";
     }
 }

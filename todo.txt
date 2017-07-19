@@ -3,3 +3,9 @@ check why "unknonw user" error message on login form is displayed as "unknow u";
 
 don't let user on a default page (ie: admin or admin/users)
 always redirect him to the correct url (admin/users/read/1)
+
+table sort button
+
+check for all vulnerabilities (change html of form)
+
+check for uniqueness of user name, slugs, etc...

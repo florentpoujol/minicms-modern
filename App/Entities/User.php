@@ -62,6 +62,14 @@ class User extends Entity
     }
 
     /**
+     * @return Media[]|bool
+     */
+    public function getMedias()
+    {
+        return Media::getAll(["user_id" => $this->id]);
+    }
+
+    /**
      * @param array $data
      * @return bool
      */
@@ -137,7 +145,7 @@ class User extends Entity
             $row->delete();
         }
 
-        $rows = $this->getPosts();
+        $rows = array_merge($this->getPosts(), $this->getMedias());
         foreach ($rows as $row) {
             $row->update(["user_id" => $adminId]);
         }

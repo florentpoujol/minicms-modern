@@ -14,6 +14,7 @@
             @endif
             @if (! $this->user->isCommenter())
             <li><a href="{queryString admin/menus}">{lang menu.title}</a></li>
+            <li><a href="{queryString admin/medias}">{lang media.title}</a></li>
             <li><a href="{queryString admin/categories}">{lang category.title}</a></li>
             <li><a href="{queryString admin/posts}">{lang post.title}</a></li>
             <li><a href="{queryString admin/pages}">{lang page.title}</a></li>

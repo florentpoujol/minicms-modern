@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Entities\Page;
 use App\Entities\Comment;
 use App\Messages;
 use App\Validate;
