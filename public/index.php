@@ -5,32 +5,37 @@ namespace App;
 require_once "../autoload.php";
 require_once "../vendor/autoload.php";
 
-Config::load();
+$configLoaded = Config::load();
+
+Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been changed based on config value or navigator language
 
 App::load();
 
-Database::connect();
+if ($configLoaded) {
 
-Lang::load(Lang::$currentLanguage); // let's imagine $currentLanguage has been changed based on config value
+    Database::connect();
 
-session_start();
+    session_start();
 
-Messages::load();
+    Messages::load();
 
-// check if user is logged in
-/**
- * Is App\Entities\User when user is logged in ; null when user is guest
- * @var Entities\User|null
- */
-$user = null;
-$userId = Session::get("minicms_mvc_auth");
+    // check if user is logged in
+    /**
+     * Is App\Entities\User when user is logged in ; null when user is guest
+     * @var Entities\User|null
+     */
+    $user = null;
+    $userId = Session::get("minicms_mvc_auth");
 
-if ($userId !== null) {
-    $user = Entities\User::get(["id" => (int)$userId]);
+    if ($userId !== null) {
+        $user = Entities\User::get(["id" => (int)$userId]);
 
-    if ($user === false) {
-        Route::logout();
+        if ($user === false) {
+            Route::logout();
+        }
     }
-}
 
-Route::load($user);
+    Route::load($user);
+} else {
+    Route::toInstall();
+}

@@ -13,13 +13,15 @@ class Config
      */
     public static function load()
     {
-        $jsonConfig = file_get_contents(self::$configFolder."config.json");
+        $path = self::$configFolder."config.json";
+        if (file_exists($path)) {
+            $jsonConfig = file_get_contents($path);
 
-        if (is_string($jsonConfig)) {
-            self::$config = json_decode($jsonConfig, true);
-            return true;
+            if (is_string($jsonConfig)) {
+                self::$config = json_decode($jsonConfig, true);
+                return true;
+            }
         }
-
         return false;
     }
 

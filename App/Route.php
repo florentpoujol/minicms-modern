@@ -47,7 +47,7 @@ class Route
      * @param Entities\User $user The user, to pass to the controller. Null when user is guest
      * @return void
      */
-    public static function load($user = null)
+    public static function load($user)
     {
         $r = isset($_GET["r"]) ? $_GET["r"] : "blog";
 
@@ -161,6 +161,13 @@ class Route
         Messages::save();
         header("Location: ".self::getURL($route));
         exit;
+    }
+
+    public static function toInstall()
+    {
+        $controller = new \App\Controllers\Install(null);
+        $methodName = App::$requestMethod . "Install";
+        $controller->{$methodName}();
     }
 
     public static function logout()
