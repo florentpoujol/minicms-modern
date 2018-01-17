@@ -53,7 +53,7 @@ class Login extends BaseController
 
                             $this->user = $user;
 
-                            \App\Session::set("minicms_mvc_auth", $this->user->id);
+                            \App\Session::set("minicms_modern_auth", $this->user->id);
                             Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
 
                             Route::redirect("admin");

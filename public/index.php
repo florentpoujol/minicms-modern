@@ -25,7 +25,7 @@ if ($configLoaded) {
      * @var Entities\User|null
      */
     $user = null;
-    $userId = Session::get("minicms_mvc_auth");
+    $userId = Session::get("minicms_modern_auth");
 
     if ($userId !== null) {
         $user = Entities\User::get(["id" => (int)$userId]);

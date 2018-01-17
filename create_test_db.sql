@@ -1,2 +1,2 @@
-drop database if exists test_minicms_mvc;
-create database test_minicms_mvc;
+drop database if exists test_minicms_modern;
+create database test_minicms_modern;

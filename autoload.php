@@ -1,6 +1,6 @@
 <?php
 
-function minimvc_mvc_autoload($className)
+function minicms_mvc_autoload($className)
 {
     $className = str_replace("\\", DIRECTORY_SEPARATOR, $className);
     $path = __DIR__ . "/" . $className . ".php";
@@ -9,4 +9,4 @@ function minimvc_mvc_autoload($className)
     }
 }
 
-spl_autoload_register("minimvc_mvc_autoload");
+spl_autoload_register("minicms_mvc_autoload");

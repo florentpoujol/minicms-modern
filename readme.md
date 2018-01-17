@@ -1,4 +1,4 @@
-# Mini CMS - MVC
+# Mini CMS - Modern
 
 The point of this project is to practice web development, specifically back-end dev with PHP, by creating a basic CMS, using as much OOP as possible (where it makes sens) and notably the MVC design pattern, but without using any frameworks or non-native libraries.
 
