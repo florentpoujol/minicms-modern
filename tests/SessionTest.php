@@ -1,30 +1,26 @@
 <?php
 
-use App\Session;
+namespace Tests;
+
 use App\Helpers;
-use App\Lang;
-use PHPUnit\Framework\TestCase;
 
-class SessionTest extends TestCase
+class SessionTest extends BaseTestCase
 {
-
     public function testId()
     {
-        $session = new Session(new Helpers(), new Lang());
-        self::assertInternalType("string", $session->getId());
-        self::assertNotEmpty($session->getId());
-        self::assertEquals($session->getId(), $session->getId());
+        self::assertInternalType("string", $this->session->getId());
+        self::assertNotEmpty($this->session->getId());
+        self::assertEquals($this->session->getId(), $this->session->getId());
     }
 
     public function testGet()
     {
-        $session = new Session(new Helpers(), new Lang());
-        self::assertEquals(null, $session->get("nonExistentKey"));
-        self::assertEquals("defaultvalue", $session->get("nonExistentKey", "defaultvalue"));
+        self::assertEquals(null, $this->session->get("nonExistentKey"));
+        self::assertEquals("defaultvalue", $this->session->get("nonExistentKey", "defaultvalue"));
 
         $_SESSION["thekey"] = 10;
-        self::assertEquals(10, $session->get("thekey"));
-        self::assertEquals(10, $session->get("thekey", "defaultvalue"));
+        self::assertEquals(10, $this->session->get("thekey"));
+        self::assertEquals(10, $this->session->get("thekey", "defaultvalue"));
     }
 
     /**
@@ -32,10 +28,9 @@ class SessionTest extends TestCase
      */
     public function testSet()
     {
-        $session = new Session(new Helpers(), new Lang());
-        self::assertEquals(null, $session->get("nonExistentKey"));
-        $session->set("nonExistentKey", true);
-        self::assertEquals(true, $session->get("nonExistentKey"));
+        self::assertEquals(null, $this->session->get("nonExistentKey"));
+        $this->session->set("nonExistentKey", true);
+        self::assertEquals(true, $this->session->get("nonExistentKey"));
     }
 
     /**
@@ -43,17 +38,16 @@ class SessionTest extends TestCase
      */
     public function testDestroy()
     {
-        $session = new Session(new Helpers(), new Lang());
-        self::assertEquals(true, $session->get("nonExistentKey"));
-        $session->delete("nonExistentKey");
-        self::assertEquals(null, $session->get("nonExistentKey"));
-        $session->delete("nonExistentKey"); // test doesn't throw error
+        self::assertEquals(true, $this->session->get("nonExistentKey"));
+        $this->session->delete("nonExistentKey");
+        self::assertEquals(null, $this->session->get("nonExistentKey"));
+        $this->session->delete("nonExistentKey"); // test doesn't throw error
 
         self::assertNotEmpty($_SESSION);
         self::assertFalse(empty($_SESSION));
-        $session->destroy();
+        $this->session->destroy();
         self::assertTrue(empty($_SESSION));
-        self::assertEmpty($session->getId());
+        self::assertEmpty($this->session->getId());
     }
 
     public function testUniqueToken()
@@ -66,9 +60,8 @@ class SessionTest extends TestCase
 
     public function testCSRFTokensCreation()
     {
-        $session = new Session(new Helpers(), new Lang());
-        $token1 = $session->createCSRFToken("request1");
-        $token2 = $session->createCSRFToken("request2");
+        $token1 = $this->session->createCSRFToken("request1");
+        $token2 = $this->session->createCSRFToken("request2");
 
         self::assertNotEquals($token1, $token2, "the two returned tokens should not be the same");
 
@@ -82,23 +75,19 @@ class SessionTest extends TestCase
         self::assertEquals($token2, $_SESSION["request2_csrf_token"], "the returned token is not the same as the one stored in session for request2");
         self::assertInternalType("int", $_SESSION["request2_csrf_time"], "the time stored in session is not an int for request2");
 
-        $token3 = $session->createCSRFToken("request2");
+        $token3 = $this->session->createCSRFToken("request2");
         self::assertNotEquals($token2, $_SESSION["request2_csrf_token"], "the session token for request2 is still the same");
         self::assertEquals($token3, $_SESSION["request2_csrf_token"], "the returned token3 is not the same as the one stored in session for request2");
     }
 
     public function testFlashSuccesses()
     {
-        $lang = new Lang();
-        $lang->load("en");
-        $session = new Session(new Helpers(), $lang);
+        $this->session->addSuccess("the success message");
+        $this->session->addSuccess("user.loggedin");
+        $this->session->addSuccess("user.loggedin", ["username" => "Florent"]);
 
-        $session->addSuccess("the success message");
-        $session->addSuccess("user.loggedin");
-        $session->addSuccess("user.loggedin", ["username" => "Florent"]);
-
-        $msgs = $session->getSuccesses();
-        self::assertEmpty($session->getSuccesses());
+        $msgs = $this->session->getSuccesses();
+        self::assertEmpty($this->session->getSuccesses());
         self::assertNotEmpty($msgs);
         self::assertCount(3, $msgs);
 
@@ -115,16 +104,12 @@ class SessionTest extends TestCase
 
     public function testFlashErrors()
     {
-        $lang = new Lang();
-        $lang->load("en");
-        $session = new Session(new Helpers(), $lang);
+        $this->session->addError("the error message");
+        $this->session->addError("user.unknownwithfield");
+        $this->session->addError("user.unknownwithfield", ["field" => "name", "value" => "Florent"]);
 
-        $session->addError("the error message");
-        $session->addError("user.unknownwithfield");
-        $session->addError("user.unknownwithfield", ["field" => "name", "value" => "Florent"]);
-
-        $msgs = $session->getErrors();
-        self::assertEmpty($session->getErrors());
+        $msgs = $this->session->getErrors();
+        self::assertEmpty($this->session->getErrors());
         self::assertNotEmpty($msgs);
         self::assertCount(3, $msgs);
 

@@ -3,9 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Comment;
-use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Comments extends AdminBaseController
 {
@@ -56,14 +55,14 @@ class Comments extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "content" => "string",
             "user_id" => "int"
         ]);
 
-        if (Validate::csrf("commentupdate")) {
-            if (Validate::comment($post)) {
+        if (Validator::csrf("commentupdate")) {
+            if (Validator::comment($post)) {
                 $comment = Comment::get($post["id"]);
 
                 if (is_object($comment)) {
@@ -93,7 +92,7 @@ class Comments extends AdminBaseController
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validate::csrf("commentdelete$id")) {
+        if (Validator::csrf("commentdelete$id")) {
             $comment = Comment::get($id);
             if (is_object($comment)) {
                 if ($comment->delete()) {

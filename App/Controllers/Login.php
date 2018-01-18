@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Messages;
-use App\Validate;
+use App\Validator;
 use App\Route;
 use App\Entities\User;
 
@@ -26,20 +26,20 @@ class Login extends BaseController
 
     public function postLogin()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "login_name" => "string",
             "login_password" => "string"
         ]);
 
-        if (Validate::csrf("login")) {
+        if (Validator::csrf("login")) {
             $formatOK = true;
 
-            if(! Validate::name($post["login_name"])) {
+            if(! Validator::name($post["login_name"])) {
                 $formatOK = false;
                 Messages::addError("fieldvalidation.name");
             }
 
-            if(! Validate::password($post["login_password"])) {
+            if(! Validator::password($post["login_password"])) {
                 $formatOK = false;
                 Messages::addError("fieldvalidation.password");
             }
@@ -83,14 +83,14 @@ class Login extends BaseController
 
     public function postLostPassword()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "lostpassword_email" => "string"
         ]);
 
         $email = $post["lostpassword_email"];
 
-        if (Validate::csrf("lostpassword")) {
-            if (Validate::email($email)) {
+        if (Validator::csrf("lostpassword")) {
+            if (Validator::email($email)) {
                 $user = User::get(["email" => $email]);
 
                 if (is_object($user)) {
@@ -139,7 +139,7 @@ class Login extends BaseController
             "password_token" => $passwordToken
         ]);
 
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "resetpassword" => "string",
             "resetpassword_confirm" => "string"
         ]);
@@ -147,9 +147,9 @@ class Login extends BaseController
         if (
             $passwordToken !== "" && $user !== false &&
             time() < $user->password_change_time + (3600 * 48) &&
-            Validate::csrf("resetpassword")
+            Validator::csrf("resetpassword")
         ) {
-            if (Validate::password($post["resetpassword"], $post["resetpassword_confirm"])) {
+            if (Validator::password($post["resetpassword"], $post["resetpassword_confirm"])) {
                 $success = $user->updatePassword($post["resetpassword"]);
 
                 if ($success) {

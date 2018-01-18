@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Config;
 use App\Database;
 use App\Messages;
-use App\Validate;
+use App\Validator;
 
 class Install extends BaseController
 {
@@ -38,14 +38,14 @@ class Install extends BaseController
 
     public function postInstall()
     {
-        $userPost = Validate::sanitizePost([
+        $userPost = Validator::sanitizePost([
             "name" => "string",
             "email" => "string",
             "password" => "string",
             "password_confirm" => "string"
         ]);
 
-        $configPost = Validate::sanitizePost([
+        $configPost = Validator::sanitizePost([
             "site_title" => "string",
             "db_host" => "string",
             "db_name" => "string",
@@ -54,8 +54,8 @@ class Install extends BaseController
         ]);
 
         if ($this->checkCanInstall()) {
-            if (Validate::csrf("install")) {
-                if (Validate::user($userPost) && Database::install($configPost, $userPost)) {
+            if (Validator::csrf("install")) {
+                if (Validator::user($userPost) && Database::install($configPost, $userPost)) {
                     // DB OK, just create config file
                     $defaultConfig = file_get_contents(Config::$configFolder . "config.sample.json");
                     $defaultConfig = json_decode($defaultConfig, true);

@@ -1,65 +1,65 @@
 <?php
 
-use App\Validate;
+namespace Tests;
 
-class ValidateTest extends DatabaseTestCase
+class ValidatorTest extends BaseTestCase
 {
     public function testValidate()
     {
-        self::assertTrue(Validate::title("This is : a title !"));
+        self::assertTrue($this->validator->title("This is : a title !"));
 
-        self::assertTrue(Validate::name("Florent"));
+        self::assertTrue($this->validator->name("Florent"));
 
-        self::assertTrue(Validate::slug("florent2"));
+        self::assertTrue($this->validator->slug("florent2"));
 
-        self::assertTrue(Validate::email("email@email.fr"));
-        self::assertTrue(Validate::email("em.ail2@email.com.nf"));
+        self::assertTrue($this->validator->email("email@email.fr"));
+        self::assertTrue($this->validator->email("em.ail2@email.com.nf"));
 
         $pass = "thePassWord5!";
         $pass2 = "thePassWord5!";
-        self::assertTrue(Validate::password($pass));
-        self::assertTrue(Validate::password($pass, $pass2));
+        self::assertTrue($this->validator->password($pass));
+        self::assertTrue($this->validator->password($pass, $pass2));
 
 
-        self::assertFalse(Validate::title("t"));
-        self::assertFalse(Validate::title("This is ; a title §"));
+        self::assertFalse($this->validator->title("t"));
+        self::assertFalse($this->validator->title("This is ; a title §"));
 
-        self::assertFalse(Validate::name("Flo rent"));
+        self::assertFalse($this->validator->name("Flo rent"));
 
-        self::assertFalse(Validate::slug("Flo rent"));
-        self::assertFalse(Validate::slug("florent!"));
+        self::assertFalse($this->validator->slug("Flo rent"));
+        self::assertFalse($this->validator->slug("florent!"));
 
-        self::assertFalse(Validate::email("emailemail.fr"));
-        self::assertFalse(Validate::email("email@email"));
+        self::assertFalse($this->validator->email("emailemail.fr"));
+        self::assertFalse($this->validator->email("email@email"));
 
-        self::assertFalse(Validate::password("thePass"));
-        self::assertFalse(Validate::password("465"));
-        self::assertFalse(Validate::password("aZ12", "aZ1"));
+        self::assertFalse($this->validator->password("thePass"));
+        self::assertFalse($this->validator->password("465"));
+        self::assertFalse($this->validator->password("aZ12", "aZ1"));
     }
 
     public function testCSRF()
     {
-        self::assertFalse(Validate::csrf("unknowrequest", "unknowtoken"));
-        self::assertFalse(Validate::csrf("unknowrequest"));
+        self::assertFalse($this->validator->csrf("unknowrequest", "unknowtoken"));
+        self::assertFalse($this->validator->csrf("unknowrequest"));
 
         $_SESSION["therequest_csrf_token"] = "thetoken";
         $_SESSION["therequest_csrf_time"] = time() - 60;
-        self::assertFalse(Validate::csrf("therequest", "thewrongtoken"));
-        self::assertFalse(Validate::csrf("therequest", "thetoken", 10));
+        self::assertFalse($this->validator->csrf("therequest", "thewrongtoken"));
+        self::assertFalse($this->validator->csrf("therequest", "thetoken", 10));
 
-        self::assertTrue(Validate::csrf("therequest", "thetoken", 100));
+        self::assertTrue($this->validator->csrf("therequest", "thetoken", 100));
         self::assertArrayNotHasKey("therequest_csrf_token", $_SESSION);
         self::assertArrayNotHasKey("therequest_csrf_time", $_SESSION);
 
         $_SESSION["therequest_csrf_token"] = "thetoken";
         $_SESSION["therequest_csrf_time"] = time() - 60;
-        self::assertTrue(Validate::csrf("therequest", "thetoken")); // default time limit = 900
+        self::assertTrue($this->validator->csrf("therequest", "thetoken")); // default time limit = 900
 
         $_SESSION["therequest_csrf_token"] = "thetoken";
         $_SESSION["therequest_csrf_time"] = time() - 60;
-        self::assertFalse(Validate::csrf("therequest"));
+        self::assertFalse($this->validator->csrf("therequest"));
         $_POST["therequest_csrf_token"] = "thetoken";
-        self::assertTrue(Validate::csrf("therequest"));
+        self::assertTrue($this->validator->csrf("therequest"));
         self::assertArrayNotHasKey("therequest_csrf_token", $_POST);
     }
 
@@ -86,7 +86,7 @@ class ValidateTest extends DatabaseTestCase
             "nonexistentkey" => "string"
         ];
 
-        $post = Validate::sanitizePost($schema);
+        $post = $this->validator->sanitizePost($schema);
 
         self::assertArrayHasKey("int", $post);
         self::assertInternalType("int", $post["int"]);
@@ -111,10 +111,10 @@ class ValidateTest extends DatabaseTestCase
         self::assertArrayNotHasKey("garbage2", $post);
     }
 
-    public function testValueExistsInField()
+    /*public function testValueExistsInField()
     {
-        self::assertTrue(Validate::valueExistsInDB("Admin", "name", "users"));
-        self::assertFalse(Validate::valueExistsInDB("category-3", "slug", "categories"));
-        self::assertTrue(Validate::valueExistsInDB(1, "parent_page_id", "pages"));
-    }
+        self::assertTrue($this->validator->valueExistsInDB("Admin", "name", "users"));
+        self::assertFalse($this->validator->valueExistsInDB("category-3", "slug", "categories"));
+        self::assertTrue($this->validator->valueExistsInDB(1, "parent_page_id", "pages"));
+    }*/
 }

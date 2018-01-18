@@ -5,7 +5,7 @@ namespace App\Controllers\Admin;
 use App\Entities\User;
 use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Users extends AdminBaseController
 {
@@ -39,16 +39,16 @@ class Users extends AdminBaseController
             Route::redirect("admin/users/read");
         }
 
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "name" => "string",
             "email" => "string",
             "password" => "string",
             "password_confirmation" => "string",
             "role" => "string"
         ]);
-        if (Validate::csrf("usercreate")) {
+        if (Validator::csrf("usercreate")) {
 
-            if (Validate::user($post)) {
+            if (Validator::user($post)) {
                 $user = User::create($post);
 
                 if (is_object($user)) {
@@ -107,15 +107,15 @@ class Users extends AdminBaseController
                 "is_blocked" => "checkbox",
             ]);
         }
-        $post = Validate::sanitizePost($schema);
-        if (Validate::csrf("userupdate")) {
+        $post = Validator::sanitizePost($schema);
+        if (Validator::csrf("userupdate")) {
 
             if (! $this->user->isAdmin()) {
                 $post["id"] = $this->user->id;
                 $post["role"] = $this->user->role;
             }
 
-            if (Validate::user($post)) {
+            if (Validator::user($post)) {
                 $user = User::get($post["id"]);
 
                 if (is_object($user)) {
@@ -149,7 +149,7 @@ class Users extends AdminBaseController
             $id = (int)$_POST["id"];
             if ($this->user->id !== $id) {
 
-                if (Validate::csrf("userdelete$id")) {
+                if (Validator::csrf("userdelete$id")) {
 
                     $user = User::get($id);
                     if (is_object($user)) {

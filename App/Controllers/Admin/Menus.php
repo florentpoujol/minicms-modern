@@ -5,7 +5,7 @@ namespace App\Controllers\Admin;
 use App\Entities\Menu;
 use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Menus extends AdminBaseController
 {
@@ -35,7 +35,7 @@ class Menus extends AdminBaseController
 
     public function postCreate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "name" => "string",
             "in_use" => "checkbox",
@@ -43,8 +43,8 @@ class Menus extends AdminBaseController
             "json_structure" => "string"
         ]);
 
-        if (Validate::csrf("menucreate")) {
-            if (Validate::menu($post)) {
+        if (Validator::csrf("menucreate")) {
+            if (Validator::menu($post)) {
                 $menu = Menu::create($post);
 
                 if (is_object($menu)) {
@@ -82,7 +82,7 @@ class Menus extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "name" => "string",
             "in_use" => "checkbox",
@@ -90,9 +90,9 @@ class Menus extends AdminBaseController
             "json_structure" => "string"
         ]);
 
-        if (Validate::csrf("menuupdate")) {
+        if (Validator::csrf("menuupdate")) {
 
-            if (Validate::menu($post)) {
+            if (Validator::menu($post)) {
                 $menu = Menu::get($post["id"]);
 
                 if (is_object($menu)) {
@@ -122,7 +122,7 @@ class Menus extends AdminBaseController
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validate::csrf("menudelete$id")) {
+        if (Validator::csrf("menudelete$id")) {
             $menu = Menu::get($id);
             if (is_object($menu)) {
                 if ($menu->delete()) {

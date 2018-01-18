@@ -7,15 +7,25 @@ use App\Entities\Page;
 use App\Entities\Post;
 use App\Entities\User;
 
-class Validate extends Database
+class Validator extends Database
 {
+    /**
+     * @var Session
+     */
+    public $session;
+
+    public function __construct(Session $session)
+    {
+        $this->session = $session;
+    }
+
     /**
      * check the data against the patterns
      * @param mixed $data
      * @param string|array $patterns can be string or array of strings
      * @return bool true if all pattern(s) are found in the data, false otherwise
      */
-    public static function validate($data, $patterns): bool
+    public function validate($data, $patterns): bool
     {
         if (! is_array($patterns)) {
             $patterns = [$patterns];
@@ -33,46 +43,46 @@ class Validate extends Database
     /**
      * @param mixed $data
      */
-    public static function title(string $data): bool
+    public function title(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_:,?!\. -]{2,}$/";
-        return self::validate($data, $pattern);
+        return $this->validate($data, $pattern);
     }
 
     /**
      * @param mixed $data
      */
-    public static function name(string $data): bool
+    public function name(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9-]{2,}$/";
-        return self::validate($data, $pattern);
+        return $this->validate($data, $pattern);
     }
 
     /**
      * @param mixed $data
      */
-    public static function slug(string $data): bool
+    public function slug(string $data): bool
     {
         $pattern = "/^[a-z]{1}[a-z0-9-]{1,}$/";
-        return self::validate($data, $pattern);
+        return $this->validate($data, $pattern);
     }
 
     /**
      * @param mixed $data
      */
-    public static function email(string $data): bool
+    public function email(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_\.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.-]+$/";
-        return self::validate($data, $pattern);
+        return $this->validate($data, $pattern);
     }
 
     /**
      * @param mixed $data
      */
-    public static function password(string $data, string $confirm = null): bool
+    public function password(string $data, string $confirm = null): bool
     {
         $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
-        $formatOK = self::validate($data, $patterns);
+        $formatOK = $this->validate($data, $patterns);
 
         if ($confirm !== null) {
             return ($formatOK && $data === $confirm);
@@ -85,7 +95,7 @@ class Validate extends Database
      * @param string $token The token provided with the request. If null, if will be found in $_POST based on the request name
      * @param int $timeLimit The validity duration of a token. Default 900 sec = 15 min
      */
-    public static function csrf(string $requestName, string $token = null, int $timeLimit = 900): bool
+    public function csrf(string $requestName, string $token = null, int $timeLimit = 900): bool
     {
         $tokenName = $requestName . "_csrf_token";
 
@@ -97,12 +107,12 @@ class Validate extends Database
             }
         }
 
-        if (Session::get($tokenName) === $token &&
-            time() < Session::get($requestName."_csrf_time") + $timeLimit)
+        if ($this->session->get($tokenName) === $token &&
+            time() < $this->session->get($requestName . "_csrf_time") + $timeLimit)
         {
             unset($_POST[$tokenName]);
-            Session::destroy($tokenName);
-            Session::destroy($requestName."_csrf_time");
+            $this->session->delete($tokenName);
+            $this->session->delete($requestName . "_csrf_time");
             return true;
         }
 
@@ -113,7 +123,7 @@ class Validate extends Database
      * Returns an array of only the specified keys from $_POST, casted to their desired types
      * @param array $schema Assoc array containing the desired keys and their wanted type
      */
-    public static function sanitizePost(array $schema): array
+    public function sanitizePost(array $schema): array
     {
         $sanitizedPost = [];
 
@@ -166,23 +176,23 @@ class Validate extends Database
     /**
      * Check for all the user data (name, email, password if any, etc...)
      */
-    public static function user(array $user): bool
+    public function user(array $user): bool
     {
         $ok = true;
 
-        if (! self::name($user["name"])) {
+        if (! $this->name($user["name"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.name");
+            $this->session->addError("fieldvalidation.name");
         }
 
-        if (! isset($user["id"]) && self::valueExistsInDB($user["name"], "name", "users")) {
+        if (! isset($user["id"]) && $this->valueExistsInDB($user["name"], "name", "users")) {
             $ok = false;
-            Messages::addError("user.namenotunique");
+            $this->session->addError("user.namenotunique");
         }
 
-        if (! self::email($user["email"])) {
+        if (! $this->email($user["email"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.email");
+            $this->session->addError("fieldvalidation.email");
         }
 
         if (isset($user["password"]) && $user["password"] !== "") {
@@ -190,9 +200,9 @@ class Validate extends Database
                 $user["password_confirm"] = null;
             }
 
-            if (! Validate::password($user["password"], $user["password_confirm"])) {
+            if (! Validator::password($user["password"], $user["password_confirm"])) {
                 $ok = false;
-                Messages::addError("fieldvalidation.passwordnotequal");
+                $this->session->addError("fieldvalidation.passwordnotequal");
             }
         }
 
@@ -200,97 +210,97 @@ class Validate extends Database
             $roles = ["admin", "writer", "commenter"];
             if (! in_array($user["role"], $roles)) {
                 $ok = false;
-                Messages::addError("fieldvalidation.role");
+                $this->session->addError("fieldvalidation.role");
             }
         }
 
         return $ok;
     }
 
-    public static function category(array $data): bool
+    public function category(array $data): bool
     {
         $ok = true;
 
-        if (! self::slug($data["slug"])) {
+        if (! $this->slug($data["slug"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.slug");
+            $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "categories")) {
+        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "categories")) {
             $ok = false;
-            Messages::addError("db.slugnotunique");
+            $this->session->addError("db.slugnotunique");
         }
 
-        if (! self::title($data["title"])) {
+        if (! $this->title($data["title"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.title");
+            $this->session->addError("fieldvalidation.title");
         }
 
         return $ok;
     }
 
-    public static function post(array $data): bool
+    public function post(array $data): bool
     {
         $ok = true;
 
-        if (! self::slug($data["slug"])) {
+        if (! $this->slug($data["slug"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.slug");
+            $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "posts")) {
+        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "posts")) {
             $ok = false;
-            Messages::addError("db.slugnotunique");
+            $this->session->addError("db.slugnotunique");
         }
 
-        if (! self::title($data["title"])) {
+        if (! $this->title($data["title"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.title");
+            $this->session->addError("fieldvalidation.title");
         }
 
         $cat = Category::get($data["category_id"]);
         if ($cat === false) {
             $ok = false;
-            Messages::addError("category.unknown");
+            $this->session->addError("category.unknown");
         }
 
         $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
-            Messages::addError("user.unknown");
+            $this->session->addError("user.unknown");
         }
 
         return $ok;
     }
 
-    public static function page(array $data): bool
+    public function page(array $data): bool
     {
         $ok = true;
 
-        if (! self::slug($data["slug"])) {
+        if (! $this->slug($data["slug"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.slug");
+            $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && self::valueExistsInDB($data["slug"], "slug", "pages")) {
+        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "pages")) {
             $ok = false;
-            Messages::addError("db.slugnotunique");
+            $this->session->addError("db.slugnotunique");
         }
 
-        if (! self::title($data["title"])) {
+        if (! $this->title($data["title"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.title");
+            $this->session->addError("fieldvalidation.title");
         }
 
         if (is_int($data["parent_page_id"]) && $data["parent_page_id"] > 0) {
             if (isset($data["id"]) && $data["parent_page_id"] === $data["id"]) {
                 $ok = false;
-                Messages::addError("page.cantparenttoitself");
+                $this->session->addError("page.cantparenttoitself");
             } else {
                 $parentPage = Page::get($data["parent_page_id"]);
                 if ($parentPage === false) {
                     $ok = false;
-                    Messages::addError("page.unknown");
+                    $this->session->addError("page.unknown");
                 }
             }
         }
@@ -298,51 +308,51 @@ class Validate extends Database
         $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
-            Messages::addError("user.unknown");
+            $this->session->addError("user.unknown");
         }
 
         return $ok;
     }
 
-    public static function menu(array $data): bool
+    public function menu(array $data): bool
     {
         $ok = true;
 
-        if (! self::name($data["name"])) {
+        if (! $this->name($data["name"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.name");
+            $this->session->addError("fieldvalidation.name");
         }
 
         // check for valid JSON
         if (json_decode($data["json_structure"]) === null) {
             $ok = false;
-            Messages::addError("fieldvalidation.menustructure");
+            $this->session->addError("fieldvalidation.menustructure");
         }
 
         return $ok;
     }
 
-    public static function comment(array $data): bool
+    public function comment(array $data): bool
     {
         $ok = true;
 
         $len = strlen($data["content"]);
         if ($len < 10 || $len > 1000) {
             $ok = false;
-            Messages::addError("fieldvalidation.commentcontent");
+            $this->session->addError("fieldvalidation.commentcontent");
         }
 
         $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
-            Messages::addError("user.unknown");
+            $this->session->addError("user.unknown");
         }
 
         if (isset($data["page_id"])) {
             $page = Page::get($data["page_id"]);
             if ($page === false) {
                 $ok = false;
-                Messages::addError("page.unknown");
+                $this->session->addError("page.unknown");
             }
         }
 
@@ -350,26 +360,26 @@ class Validate extends Database
             $post = Post::get($data["post_id"]);
             if ($post === false) {
                 $ok = false;
-                Messages::addError("post.unknown");
+                $this->session->addError("post.unknown");
             }
         }
 
         return $ok;
     }
 
-    public static function media(array $data): bool
+    public function media(array $data): bool
     {
         $ok = true;
 
-        if (! self::name($data["slug"])) {
+        if (! $this->name($data["slug"])) {
             $ok = false;
-            Messages::addError("fieldvalidation.slug");
+            $this->session->addError("fieldvalidation.slug");
         }
 
         $user = User::get($data["user_id"]);
         if ($user === false) {
             $ok = false;
-            Messages::addError("user.unknown");
+            $this->session->addError("user.unknown");
         }
 
         return $ok;

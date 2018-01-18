@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Entities\Comment;
 use App\Messages;
-use App\Validate;
+use App\Validator;
 
 class Commentable extends BaseController
 {
@@ -20,11 +20,11 @@ class Commentable extends BaseController
         }
         $schema[$strEntity."_id"] = "int";
 
-        $post = Validate::sanitizePost($schema);
+        $post = Validator::sanitizePost($schema);
         $post["user_id"] = $this->user->id;
 
-        if (Validate::csrf("commentcreate" . $this->user->id . "_$entityId")) {
-            if (Validate::comment($post)) {
+        if (Validator::csrf("commentcreate" . $this->user->id . "_$entityId")) {
+            if (Validator::comment($post)) {
                 $comment = Comment::create($post);
 
                 if (is_object($comment)) {

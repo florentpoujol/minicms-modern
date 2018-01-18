@@ -3,9 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Media;
-use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Medias extends AdminBaseController
 {
@@ -31,18 +30,18 @@ class Medias extends AdminBaseController
 
     public function postCreate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "slug" => "string"
         ]);
 
         $post["user_id"] = $this->user->id;
 
-        if (Validate::csrf("mediacreate")) {
+        if (Validator::csrf("mediacreate")) {
             $ok = isset($_FILES["upload_file"]);
             if ($ok === false) {
                 Messages::addError("fieldvalidation.file");
             }
-            if (Validate::media($post) && $ok) {
+            if (Validator::media($post) && $ok) {
                 $media = Media::create($post);
 
                 if (is_object($media)) {
@@ -85,15 +84,15 @@ class Medias extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "slug" => "string",
             "user_id" => "int"
         ]);
 
-        if (Validate::csrf("mediaupdate")) {
+        if (Validator::csrf("mediaupdate")) {
 
-            if (Validate::media($post)) {
+            if (Validator::media($post)) {
                 $media = Media::get($post["id"]);
 
                 if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
@@ -130,7 +129,7 @@ class Medias extends AdminBaseController
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validate::csrf("mediadelete$id")) {
+        if (Validator::csrf("mediadelete$id")) {
             $media = Media::get($id);
             if (is_object($media)) {
                 if ($media->delete()) {

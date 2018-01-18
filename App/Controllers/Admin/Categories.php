@@ -3,9 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Category;
-use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Categories extends AdminBaseController
 {
@@ -31,13 +30,13 @@ class Categories extends AdminBaseController
 
     public function postCreate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "slug" => "string",
             "title" => "string"
         ]);
-        if (Validate::csrf("categorycreate")) {
+        if (Validator::csrf("categorycreate")) {
 
-            if (Validate::category($post)) {
+            if (Validator::category($post)) {
                 $cat = Category::create($post);
 
                 if (is_object($cat)) {
@@ -75,14 +74,14 @@ class Categories extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string"
         ]);
-        if (Validate::csrf("categoryupdate")) {
+        if (Validator::csrf("categoryupdate")) {
 
-            if (Validate::category($post)) {
+            if (Validator::category($post)) {
                 $category = Category::get($post["id"]);
 
                 if (is_object($category)) {
@@ -110,7 +109,7 @@ class Categories extends AdminBaseController
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validate::csrf("categorydelete$id")) {
+        if (Validator::csrf("categorydelete$id")) {
             $category = Category::get($id);
             if (is_object($category)) {
                 if ($category->delete()) {

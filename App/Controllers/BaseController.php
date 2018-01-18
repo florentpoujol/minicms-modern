@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Entities\User;
 use App\Lang;
 use App\Session;
+use App\Validator;
 
 class BaseController
 {
@@ -23,13 +24,19 @@ class BaseController
      */
     public $session;
 
+    /**
+     * @var Validator
+     */
+    public $validator;
+
     protected $template = "default";
 
-    public function __construct(User $user, Lang $localization, Session $session)
+    public function __construct(User $user, Lang $localization, Session $session, Validator $validator)
     {
         $this->user = $user; // logged in user
         $this->localization = $localization;
         $this->session = $session;
+        $this->validator = $validator;
     }
 
     public function render(string $view, string $pageTitle = null, array $data = [])

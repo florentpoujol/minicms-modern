@@ -41,20 +41,6 @@ CREATE TABLE `medias` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Table structure for table `messages`
---
-
-DROP TABLE IF EXISTS `messages`;
-CREATE TABLE `messages` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `type` varchar(255) NOT NULL,
-  `content` text NOT NULL,
-  `session_id` varchar(255) NOT NULL,
-  `time` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
-
---
 -- Table structure for table `pages`
 --
 

@@ -5,59 +5,81 @@ namespace App;
 use App\Entities\Menu;
 use App\Entities\User;
 use \PDO;
+use StdCmp\QueryBuilder\QueryBuilder;
 
 class Database
 {
-    public static $dbStructureFile = __dir__ . "/../database_structure.sql";
+    public $dbStructureFile = __dir__ . "/../database_structure.sql";
 
     /**
      * @var PDO
      * The PDO instance
      */
-    protected static $db;
+    public $pdo;
 
-    private static $pdoOptions = [
+    private $pdoOptions = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
+    /**
+     * @var Config
+     */
+    public $config;
 
-    public static function connect(\PDO $connection = null)
+    /**
+     * @var Session
+     */
+    public $session;
+
+    public function __construct(Config $config, Session $session)
     {
-        if ($connection === null) {
-            $host = Config::get("db_host");
-            $name = Config::get("db_name");
-            $user = Config::get("db_user");
-            $password = Config::get("db_password");
+        $this->config = $config;
+        $this->session = $session;
+    }
 
-            try {
-                self::$db = new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, self::$pdoOptions);
-            } catch (\Exception $e) {
-                echo "Error connecting to the database: probably wrong host, username or password.<br>";
-                echo $e->getMessage();
-                exit;
-            }
-        } else {
-            self::$db = $connection;
+    public function connect(array $connectionInfo = null)
+    {
+        if ($connectionInfo === null) {
+            $connectionInfo = [
+                "db_host" => $this->config->get("db_host"),
+                "db_name" => $this->config->get("db_name"),
+                "db_user" => $this->config->get("db_user"),
+                "db_password" => $this->config->get("db_password"),
+            ];
         }
+
+        try {
+            $dsn = "mysql:host=$connectionInfo[db_host];dbname=$connectionInfo[db_name];charset=utf8";
+            $this->pdo = new PDO($dsn, $connectionInfo["db_user"], $connectionInfo["db_password"], $this->pdoOptions);
+        } catch (\Exception $e) {
+            echo "Error connecting to the database: probably wrong host, username or password.<br>";
+            echo $e->getMessage();
+            exit;
+        }
+    }
+
+    public function getQueryBuilder(): QueryBuilder
+    {
+        return new QueryBuilder($this->pdo);
     }
 
     /**
      * @return bool|PDO
      */
-    public static function testConnection(string $host, string $name, string $user, string $password)
+    public function testConnection(array $connectionInfo)
     {
-        // todo : validate host, name and user format
+        // todo : validate host, name and user format ?
         try {
-            return new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, self::$pdoOptions);
+            $dsn = "mysql:host=$connectionInfo[db_host];dbname=$connectionInfo[db_name];charset=utf8";
+            return new PDO($dsn, $connectionInfo["db_user"], $connectionInfo["db_password"], $this->pdoOptions);
         } catch (\Exception $e) {
-            Messages::addError("Error connecting to the database: probably wrong host, username or password.");
-            Messages::addError($e->getMessage());
+            $this->session->addError("Error connecting to the database: probably wrong host, username or password.");
+            $this->session->addError($e->getMessage());
         }
         return false;
     }
-
 
     /**
      * Attempt to create the database, its structure and to populate it during the site's install process
@@ -65,28 +87,17 @@ class Database
      * @param array $userInfo Array containing the information about the first user.
      * @return bool
      */
-    public static function install(array $dbConnectionInfo, array $userInfo)
+    public function install(array $dbConnectionInfo, array $userInfo)
     {
-        // things to do in order :
-        // test connection to db
-        // create DB if not exist
-        // read sql file
-        // create table if not exists
-        // populate config and user
-
-        $db = self::testConnection(
-            $dbConnectionInfo["db_host"],
-            $dbConnectionInfo["db_name"],
-            $dbConnectionInfo["db_user"],
-            $dbConnectionInfo["db_password"]
-        );
-
+        $db = $this->testConnection($dbConnectionInfo);
+        // register $db to the container
+        // register the $querybuilder
         if ($db !== false) {
             $success = $db->exec("CREATE DATABASE IF NOT EXISTS `" . $dbConnectionInfo["db_name"] . "`");
             if ($success) {
                 $db->exec("use `" . $dbConnectionInfo["db_name"] . "`");
 
-                $sql = file_get_contents(self::$dbStructureFile);
+                $sql = file_get_contents($this->dbStructureFile);
                 $success = $db->exec($sql); // false on error, on success in this case
 
                 if ($success !== false) {
@@ -116,13 +127,13 @@ class Database
                     if (is_object($user) && is_object($menu)) {
                         return true;
                     } else {
-                        Messages::addError("install.populatingdb");
+                        $this->session->addError("install.populatingdb");
                     }
                 } else {
-                    Messages::addError("install.createtables");
+                    $this->session->addError("install.createtables");
                 }
             } else {
-                Messages::addError("install.createdb");
+                $this->session->addError("install.createdb");
             }
         }
         return false;
@@ -131,9 +142,9 @@ class Database
     /**
      * @param mixed $value
      */
-    public static function valueExistsInDB($value, string $field, string $table): bool
+    public function valueExistsInDB($value, string $field, string $table): bool
     {
-        $query = self::$db->prepare("SELECT id FROM $table WHERE $field = ?");
+        $query = $this->pdo->prepare("SELECT id FROM $table WHERE $field = ?");
         $success = $query->execute([$value]);
 
         if ($success) {

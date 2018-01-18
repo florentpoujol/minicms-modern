@@ -2,12 +2,19 @@
 
 namespace App\Entities;
 
+use App\Database;
 use \PDO;
 
-class Entity extends \App\Database
+class Entity
 {
     public $id;
+    public $title = ""; // not all entities have a title, but it is used below (in getLink())
     public $creation_datetime;
+
+    /**
+     * @var Database
+     */
+    public static $db;
 
     protected static function getTableName(): string
     {
@@ -21,24 +28,39 @@ class Entity extends \App\Database
      */
     public static function get($whereConditions, string $condition = "AND")
     {
+        $queryBuilder = self::$db->getQueryBuilder();
+        $queryBuilder->select()->fromTable(static::getTableName());
+
+        $whereFunction = "where";
+        if (strtolower($condition) === "or") {
+            $whereFunction = "orWhere";
+        }
+
         if (! is_array($whereConditions)) {
             $whereConditions = ["id" => $whereConditions];
         }
 
-        $strQuery = "SELECT * FROM " . static::getTableName() . " WHERE ";
-        foreach ($whereConditions as $name => $value) {
-            $strQuery .= "$name=:$name $condition ";
+        foreach ($whereConditions as $field => $value) {
+            $queryBuilder->{$whereFunction}($field, $value);
         }
-        $strQuery = substr($strQuery, 0, 0 - (strlen($condition) + 2) ); // the last AND or OR and the two spaces around
 
-        $query = self::$db->prepare($strQuery);
+        $query = $queryBuilder->execute($whereConditions);
+        $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
+        return $query->fetch();
+
+        /*if ($query->errorCode() !== "00000") {
+            return $query->fetch();
+        }
+        return false;*/
+
+        /*$query = self::$db->pdo->prepare($queryBuilder->toString());
         $query->setFetchMode(PDO::FETCH_CLASS, get_called_class());
         $success = $query->execute($whereConditions);
 
         if ($success) {
             return $query->fetch();
         }
-        return false;
+        return false;*/
     }
 
     /**

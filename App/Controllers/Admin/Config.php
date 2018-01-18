@@ -4,10 +4,9 @@ namespace App\Controllers\Admin;
 
 use App\Emails;
 use App\Entities\User;
-use App\Messages;
 use App\Route;
 use App\Config as AppConfig;
-use App\Validate;
+use App\Validator;
 
 class Config extends AdminBaseController
 {
@@ -33,11 +32,11 @@ class Config extends AdminBaseController
 
     public function postUpdate()
     {
-        $testEmail = Validate::sanitizePost([
+        $testEmail = Validator::sanitizePost([
             "test_email" => "string",
             "test_email_submit" => "string"
         ]);
-        $config = Validate::sanitizePost([
+        $config = Validator::sanitizePost([
             "db_host" => "string",
             "db_name" => "string",
             "db_user" =>  "string",
@@ -56,10 +55,10 @@ class Config extends AdminBaseController
             "items_per_page" => "int"
         ]);
 
-        if (Validate::csrf("config")) {
+        if (Validator::csrf("config")) {
             if ($testEmail["test_email_submit"] !== "") {
                 $email = $testEmail["test_email"];
-                if (Validate::email($email)) {
+                if (Validator::email($email)) {
                     if (Emails::sendTest($email)) {
                         Messages::addSuccess("Test email sent successfully");
                     }

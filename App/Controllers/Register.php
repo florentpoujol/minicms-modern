@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Messages;
-use App\Validate;
+use App\Validator;
 use App\Route;
 use App\Emails;
 use App\Entities\User;
@@ -28,14 +28,14 @@ Register extends BaseController
 
     public function postRegister()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "register_name"             => "string",
             "register_email"            => "string",
             "register_password"         => "string",
             "register_password_confirm" => "string"
         ]);
 
-        if (Validate::csrf("register")) {
+        if (Validator::csrf("register")) {
             $user = [
                 "name" => $post["register_name"],
                 "email" => $post["register_email"],
@@ -43,7 +43,7 @@ Register extends BaseController
                 "password_confirm" => $post["register_password_confirm"]
             ];
 
-            if (Validate::user($user)) {
+            if (Validator::user($user)) {
                 unset($post["password_confirm"]);
                 $user = User::create($post);
 
@@ -92,10 +92,10 @@ Register extends BaseController
 
     public function postResendConfirmationEmail()
     {
-        $post = Validate::sanitizePost(["confirm_email" => "string"]);
+        $post = Validator::sanitizePost(["confirm_email" => "string"]);
 
-        if (Validate::csrf("resendconfirmationemail")) {
-            if (Validate::email($post["confirm_email"])) {
+        if (Validator::csrf("resendconfirmationemail")) {
+            if (Validator::email($post["confirm_email"])) {
                 $user = User::get(["email" => $post["confirm_email"]]);
 
                 if (is_object($user)) {

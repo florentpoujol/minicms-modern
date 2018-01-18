@@ -5,7 +5,7 @@ namespace App\Controllers\Admin;
 use App\Entities\Page;
 use App\Messages;
 use App\Route;
-use App\Validate;
+use App\Validator;
 
 class Pages extends AdminBaseController
 {
@@ -31,7 +31,7 @@ class Pages extends AdminBaseController
 
     public function postCreate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
@@ -41,8 +41,8 @@ class Pages extends AdminBaseController
             "allow_comments" => "checkbox"
         ]);
 
-        if (Validate::csrf("pagecreate")) {
-            if (Validate::page($post)) {
+        if (Validator::csrf("pagecreate")) {
+            if (Validator::page($post)) {
                 $page = Page::create($post);
 
                 if (is_object($page)) {
@@ -80,7 +80,7 @@ class Pages extends AdminBaseController
 
     public function postUpdate()
     {
-        $post = Validate::sanitizePost([
+        $post = Validator::sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
@@ -90,9 +90,9 @@ class Pages extends AdminBaseController
             "allow_comments" => "checkbox"
         ]);
 
-        if (Validate::csrf("pageupdate")) {
+        if (Validator::csrf("pageupdate")) {
 
-            if (Validate::page($post)) {
+            if (Validator::page($post)) {
                 $page = Page::get($post["id"]);
 
                 if (is_object($page)) {
@@ -122,7 +122,7 @@ class Pages extends AdminBaseController
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validate::csrf("pagedelete$id")) {
+        if (Validator::csrf("pagedelete$id")) {
             $page = Page::get($id);
             if (is_object($page)) {
                 if ($page->delete()) {

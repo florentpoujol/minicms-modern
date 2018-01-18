@@ -3,13 +3,16 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\User;
+use App\Lang;
 use App\Route;
+use App\Session;
+use App\Validator;
 
 class AdminBaseController extends \App\Controllers\BaseController
 {
-    function __construct(User $user)
+    function __construct(User $user, Lang $localization, Session $session, Validator $validator)
     {
-        parent::__construct($user);
+        parent::__construct($user, $localization, $session, $validator);
 
         if (! isset($this->user)) {
             Route::redirect("login");
