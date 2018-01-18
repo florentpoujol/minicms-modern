@@ -2,37 +2,54 @@
 
 namespace App;
 
+use Psr\Container\ContainerInterface;
+use StdCmp\DI\DIContainer;
+
 class App
 {
-    public static $protocol = "http";
+    public $protocol = "http";
 
-    public static $host = "localhost";
+    public $host = "localhost";
 
     /**
      * Path, if any from the host to the index's directory.
      * Ends with a trailing slash.
      */
-    public static $directory = "/";
+    public $directory = "/";
 
     /**
      * Current full site URL without query string.
      * Ends with a trailing slash.
      */
-    public static $url = "";
+    public $url = "";
 
-    public static $requestMethod = "get";
+    public $requestMethod = "get";
 
-    public static $uploadPath = "";
+    public $uploadPath = "";
 
-    public static function load()
+    /**
+     * @var ContainerInterface
+     */
+    public $container;
+
+    public function __construct($container)
     {
-        self::$protocol = $_SERVER["REQUEST_SCHEME"];
-        self::$host = $_SERVER["HTTP_HOST"];
-        self::$directory = str_replace("index.php", "", $_SERVER["SCRIPT_NAME"]); // trailing slash
-        self::$url = self::$protocol . "://" . self::$host . self::$directory;
+        $this->container = $container;
 
-        self::$requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
+        $this->setupRequestInfo();
+    }
 
-        self::$uploadPath = trim(Config::get("upload_folder"), "/") . "/";
+    public function setupRequestInfo()
+    {
+        $this->protocol = $_SERVER["REQUEST_SCHEME"];
+        $this->host = $_SERVER["HTTP_HOST"];
+        $this->directory = str_replace("index.php", "", $_SERVER["SCRIPT_NAME"]); // trailing slash
+        $this->url = $this->protocol . "://" . $this->host . $this->directory;
+
+        $this->requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
+
+        // $this->uploadPath = trim(Config::get("upload_folder"), "/") . "/";
+        $configManager = $this->container->get(Config::class);
+        $this->uploadPath = trim($configManager->get("upload_folder"), "/") . "/";
     }
 }

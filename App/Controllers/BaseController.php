@@ -3,19 +3,33 @@
 namespace App\Controllers;
 
 use App\Entities\User;
+use App\Lang;
+use App\Session;
 
 class BaseController
 {
     /**
-     * @var \App\Entities\User
+     * @var User
      */
     protected $user;
 
+    /**
+     * @var Lang
+     */
+    public $localization;
+
+    /**
+     * @var Session
+     */
+    public $session;
+
     protected $template = "default";
 
-    public function __construct(User $user)
+    public function __construct(User $user, Lang $localization, Session $session)
     {
-        $this->user = $user;
+        $this->user = $user; // logged in user
+        $this->localization = $localization;
+        $this->session = $session;
     }
 
     public function render(string $view, string $pageTitle = null, array $data = [])
@@ -75,7 +89,7 @@ class BaseController
         if ($pageTitle === null) {
             $pageTitle = str_replace("/", ".", $view) . ".pagetitle";
         }
-        $pageTitle = \App\Lang::get($pageTitle);
+        $pageTitle = $this->localization->get($pageTitle);
 
         if (!isset($data["post"])) {
             $data["post"] = [];

@@ -1,7 +1,0 @@
-messages:
-  -
-    type: "success"
-    content: "the success message"
-  -
-    type: "error"
-    content: "the error message"

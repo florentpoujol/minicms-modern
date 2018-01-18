@@ -7,6 +7,12 @@ use org\bovigo\vfs\vfsStream;
 class ConfigTest extends TestCase
 {
     private static $configFolder;
+
+    /**
+     * @var Config
+     */
+    private static $configManager;
+
     /**
      * @var \org\bovigo\vfs\vfsStreamDirectory
      */
@@ -22,15 +28,14 @@ class ConfigTest extends TestCase
         $configFile->withContent($content);
 
         self::$configFolder = $root->url()."/full/";
-        Config::$configFolder = self::$configFolder;
+        self::$configManager = new Config(self::$configFolder);
     }
 
     public function testLoad()
     {
-        self::assertFileExists(self::$configFolder."config.json");
-        self::assertAttributeEmpty("config", Config::class);
-        self::assertInternalType("boolean", Config::load());
-        self::assertAttributeNotEmpty("config", Config::class);
+        self::assertFileExists(self::$configFolder . "config.json");
+        self::assertInternalType("boolean", self::$configManager->load());
+        self::assertAttributeNotEmpty("config", self::$configManager);
     }
 
     /**
@@ -38,20 +43,20 @@ class ConfigTest extends TestCase
      */
     public function testGet()
     {
-        self::assertEquals(null, Config::get("nonexistentkey"));
-        self::assertEquals("defaultValue", Config::get("nonexistentkey", "defaultValue"));
-        self::assertEquals("localhost", Config::get("bd_host"));
+        self::assertEquals(null, self::$configManager->get("nonexistentkey"));
+        self::assertEquals("defaultValue", self::$configManager->get("nonexistentkey", "defaultValue"));
+        self::assertEquals("localhost", self::$configManager->get("bd_host"));
     }
 
     public function testSet()
     {
-        self::assertEquals(null, Config::get("nonexistentkey"));
-        Config::set("nonexistentkey", "avalue");
-        self::assertEquals("avalue", Config::get("nonexistentkey"));
+        self::assertEquals(null, self::$configManager->get("nonexistentkey"));
+        self::$configManager->set("nonexistentkey", "avalue");
+        self::assertEquals("avalue", self::$configManager->get("nonexistentkey"));
 
-        self::assertEquals("localhost", Config::get("bd_host"));
-        Config::set("bd_host", "127.0.0.1");
-        self::assertEquals("127.0.0.1", Config::get("bd_host"));
+        self::assertEquals("localhost", self::$configManager->get("bd_host"));
+        self::$configManager->set("bd_host", "127.0.0.1");
+        self::assertEquals("127.0.0.1", self::$configManager->get("bd_host"));
     }
 
     /**
@@ -59,21 +64,12 @@ class ConfigTest extends TestCase
      */
     public function testSave()
     {
-        self::assertInternalType("boolean", Config::save());
-
-        // flush the static $config array in the class by loading an empty file
-        $emptyConfig = vfsStream::newFile("empty/config.json")->at(self::$root);
-        $emptyConfig->withContent('{}');
-        Config::$configFolder = self::$root->url()."/empty/";
-        Config::load();
-
-        self::assertAttributeEmpty("config", Config::class); // check flushing
+        self::assertInternalType("boolean", self::$configManager->save());
 
         // reload
-        Config::$configFolder = self::$configFolder;
         self::assertFileExists(self::$configFolder."config.json");
-        Config::load();
-        self::assertEquals("avalue", Config::get("nonexistentkey"));
-        self::assertEquals("127.0.0.1", Config::get("bd_host"));
+        self::$configManager = new Config(self::$configFolder);
+        self::assertEquals("avalue", self::$configManager->get("nonexistentkey"));
+        self::assertEquals("127.0.0.1", self::$configManager->get("bd_host"));
     }
 }

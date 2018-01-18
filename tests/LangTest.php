@@ -7,6 +7,7 @@ use org\bovigo\vfs\vfsStream;
 class LangTest extends TestCase
 {
     private static $dictionaries;
+    private static $languageFolder = "";
 
     public static function setUpBeforeClass()
     {
@@ -35,67 +36,73 @@ class LangTest extends TestCase
         ';
         $fr->withContent($content);
 
-        self::$dictionaries["en"] = require $root->url()."/en.php";
-        self::$dictionaries["fr"] = require $root->url()."/fr.php";
-
-        Lang::$defaultLanguage = "en";
-        Lang::$currentLanguage = "fr";
-        Lang::$languageFolder = $root->url()."/";
+        self::$languageFolder = $root->url() . "/";
+        self::$dictionaries["en"] = require $root->url() . "/en.php";
+        self::$dictionaries["fr"] = require $root->url() . "/fr.php";
     }
 
     public function testLoad()
     {
-        self::assertAttributeEmpty("dictionaries", Lang::class);
+        $lang = new Lang();
+        $lang->languageFolder = self::$languageFolder;
 
-        self::assertTrue(Lang::load("en"));
-        self::assertAttributeContains(self::$dictionaries["en"], "dictionaries", Lang::class);
+        self::assertAttributeEmpty("dictionariesPerLocale", $lang);
 
-        self::assertTrue(Lang::load("fr"));
-        self::assertAttributeContains(self::$dictionaries["fr"], "dictionaries", Lang::class);
+        self::assertTrue($lang->load("en"));
+        self::assertAttributeContains(self::$dictionaries["en"], "dictionariesPerLocale", $lang);
 
-        self::assertFalse(Lang::load("de"));
+        self::assertTrue($lang->load("fr"));
+        self::assertAttributeContains(self::$dictionaries["fr"], "dictionariesPerLocale", $lang);
+
+        self::assertFalse($lang->load("de"));
     }
 
     public function testLang()
     {
+        $lang = new Lang();
+        $lang->languageFolder = self::$languageFolder;
+        $lang->currentLanguage = "fr";
+        $lang->load("en");
+        $lang->load("fr");
+
         self::assertEquals(
-            self::$dictionaries[Lang::$currentLanguage]["key"],
-            Lang::get("key")
+            self::$dictionaries[$lang->currentLanguage]["key"],
+            $lang->get("key")
         );
-        self::assertEquals("otherkey", Lang::get("otherkey")); // "otherkey" leads to an array, not a string
+        self::assertEquals("otherkey", $lang->get("otherkey")); // "otherkey" leads to an array, not a string
 
-        self::assertEquals("nonexistentkey", Lang::get("nonexistentkey"));
-        self::assertEquals("fr.nonexistentkey", Lang::get("fr.nonexistentkey"));
-        self::assertEquals("en.nonexistentkey", Lang::get("en.nonexistentkey"));
+        self::assertEquals("nonexistentkey", $lang->get("nonexistentkey"));
+        self::assertEquals("fr.nonexistentkey", $lang->get("fr.nonexistentkey"));
+        self::assertEquals("en.nonexistentkey", $lang->get("en.nonexistentkey"));
 
         self::assertEquals(
-            self::$dictionaries[Lang::$currentLanguage]["otherkey"]["nestedkey"],
-            Lang::get("otherkey.nestedkey")
+            self::$dictionaries[$lang->currentLanguage]["otherkey"]["nestedkey"],
+            $lang->get("otherkey.nestedkey")
         );
-        self::assertEquals("otherkey.nonexistentkey", Lang::get("otherkey.nonexistentkey"));
+        self::assertEquals("otherkey.nonexistentkey", $lang->get("otherkey.nonexistentkey"));
 
         self::assertEquals(
-            self::$dictionaries[Lang::$defaultLanguage]["onlyindefaultlangkey"],
-            Lang::get("onlyindefaultlangkey")
+            self::$dictionaries[$lang->defaultLanguage]["onlyindefaultlangkey"],
+            $lang->get("onlyindefaultlangkey")
         );
 
         self::assertEquals(
             self::$dictionaries["en"]["key"],
-            Lang::get("en.key")
+            $lang->get("en.key")
         );
         self::assertEquals(
             self::$dictionaries["fr"]["key"],
-            Lang::get("fr.key")
+            $lang->get("fr.key")
         );
-        self::assertEquals("de.key", Lang::get("de.key"));
+        self::assertEquals("de.key", $lang->get("de.key"));
 
         self::assertEquals(
             str_replace(
                 "{value}",
                 "Florent",
-                self::$dictionaries[Lang::$currentLanguage]["otherkey"]["nestedkey"]
+                self::$dictionaries[$lang->currentLanguage]["otherkey"]["nestedkey"]
             ),
-            Lang::get("otherkey.nestedkey", ["value" => "Florent"])
+            $lang->get("otherkey.nestedkey", ["value" => "Florent"])
         );
         self::assertEquals(
             str_replace(
@@ -103,14 +110,7 @@ class LangTest extends TestCase
                 "Nestor",
                 self::$dictionaries["en"]["onlyindefaultlangkey"]
             ),
-            Lang::get("onlyindefaultlangkey", ["value" => "Nestor"])
+            $lang->get("onlyindefaultlangkey", ["value" => "Nestor"])
         );
-    }
-
-    public static function tearDownAfterClass()
-    {
-        Lang::$currentLanguage = "en";
-        Lang::$languageFolder = __DIR__."/../languages/";
-        App\Lang::load("en", true);
     }
 }

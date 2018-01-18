@@ -4,45 +4,60 @@ namespace App;
 
 class Config
 {
-    public static $configFolder = __dir__ . "/../config/";
+    public $configFolder = __dir__ . "/../config/";
 
-    public static $config = [];
+    public $config = [];
+
+    public function __construct(string $configFolder = null)
+    {
+        if ($configFolder !== null) {
+            // during tests
+            $this->configFolder = $configFolder;
+        }
+
+        $this->load();
+    }
 
     /**
      * read the config file (JSON) then populate the $config array
      */
-    public static function load(): bool
+    public function load(): bool
     {
-        $path = self::$configFolder . "config.json";
+        $path = $this->configFolder . "config.json";
         if (file_exists($path)) {
             $jsonConfig = file_get_contents($path);
 
             if (is_string($jsonConfig)) {
-                self::$config = json_decode($jsonConfig, true);
+                $this->config = json_decode($jsonConfig, true);
                 return true;
             }
         }
         return false;
     }
 
+    public function fileExists(): bool
+    {
+        return file_exists($this->configFolder . "config.json");
+    }
+
     /**
      * Write the content of the $config array as JSON in a file
      * @return bool True on success, false otherwise.
      */
-    public static function save(): bool
+    public function save(): bool
     {
-        $jsonConfig = json_encode(self::$config, JSON_PRETTY_PRINT);
-        return (bool)file_put_contents(self::$configFolder . "config.json", $jsonConfig);
+        $jsonConfig = json_encode($this->config, JSON_PRETTY_PRINT);
+        return (bool)file_put_contents($this->configFolder . "config.json", $jsonConfig);
     }
 
     /**
      * @param mixed|null $defaultValue
      * @return mixed|null
      */
-    public static function get(string $key, $defaultValue = null)
+    public function get(string $key, $defaultValue = null)
     {
-        if (isset(self::$config[$key])) {
-            return self::$config[$key];
+        if (isset($this->config[$key])) {
+            return $this->config[$key];
         }
 
         return $defaultValue;
@@ -51,8 +66,8 @@ class Config
     /**
      * @param mixed $value
      */
-    public static function set(string $key, $value)
+    public function set(string $key, $value)
     {
-        self::$config[$key] = $value;
+        $this->config[$key] = $value;
     }
 }

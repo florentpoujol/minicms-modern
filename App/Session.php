@@ -2,43 +2,65 @@
 
 namespace App;
 
-class Session
+use StdCmp\Session\NativeSession;
+
+class Session extends NativeSession
 {
-    public static function getId()
+    /**
+     * @var App
+     */
+    public $helpers;
+
+    /**
+     * @var Lang
+     */
+    public $localization;
+
+    function __construct(Helpers $helpers, Lang $localization)
     {
-        return session_id();
+        $this->helpers = $helpers;
+        $this->localization = $localization;
+        // todo: only store the msg key in the session, not the whole message
+
+    }
+
+    public function createCSRFToken(string $requestName): string
+    {
+        $token = $this->helpers->getUniqueToken();
+        $this->set($requestName . "_csrf_token", $token);
+        $this->set($requestName . "_csrf_time", time());
+        return $token;
     }
 
     /**
-     * @param mixed|null $defaultValue
-     * @return mixed
+     * @param string $msg Either the message or a corresponding language keys (automatically prefixed with "messages.success")
+     * @param array $replacements Keys/values to be replaced in the message
      */
-    public static function get(string $key, $defaultValue = null)
+    public function addSuccess(string $msg, array $replacements = null)
     {
-        return isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue;
+        $msg = $this->localization->get("messages.success.$msg", $replacements);
+        $msg = preg_replace("/^messages\.success\./", "", $msg); // in case the msg isn't found
+        $this->addFlashMessage("flashSuccesses", $msg);
     }
 
     /**
-     * @param mixed $value
+     * @param string $msg Either the message or a corresponding language keys (automatically prefixed with "messages.success")
+     * @param array $replacements Keys/values to be replaced in the message
      */
-    public static function set(string $key, $value)
+    public function addError(string $msg, array $replacements = null)
     {
-        $_SESSION[$key] = $value;
+        $msg = $this->localization->get("messages.error.$msg", $replacements);
+        $msg = preg_replace("/^messages\.error\./", "", $msg);
+        $this->addFlashMessage("flashErrors", $msg);
     }
 
-    /**
-     * Deletes a single session value when its key is specified, or destroy the whole session.
-     * @param string $key
-     */
-    public static function destroy(string $key = null)
+    public function getSuccesses(): array
     {
-        if ($key === null) {
-            $_SESSION = [];
-            unset($_SESSION);
-            session_destroy();
-        } elseif (isset($_SESSION[$key])) {
-            $_SESSION[$key] = null;
-            unset($_SESSION[$key]);
-        }
+        return $this->getFlashMessages("flashSuccesses");
+    }
+
+    public function getErrors(): array
+    {
+        return $this->getFlashMessages("flashErrors");
     }
 }
