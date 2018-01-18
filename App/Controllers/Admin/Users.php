@@ -9,7 +9,7 @@ use App\Validate;
 
 class Users extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = User::getAll(["pageNumber" => $pageNumber]);
 
@@ -53,7 +53,7 @@ class Users extends AdminBaseController
 
                 if (is_object($user)) {
                     Messages::addSuccess("user.created");
-                    Route::redirect("admin/users/update/".$user->id);
+                    Route::redirect("admin/users/update/$user->id");
                 } else {
                     Messages::addError("db.createuser");
                 }
@@ -69,13 +69,13 @@ class Users extends AdminBaseController
         $this->render("users.update", "users.createnewuser", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $userId)
     {
-        if (! $this->user->isAdmin() && $id !== $this->user->id) {
-            Route::redirect("admin/users/update/".$this->user->id);
+        if (! $this->user->isAdmin() && $userId !== $this->user->id) {
+            Route::redirect("admin/users/update/$this->user->id");
         }
 
-        $user = User::get($id);
+        $user = User::get($userId);
         if ($user === false) {
             Messages::addError("user.unknown");
             Route::redirect("admin/users");
@@ -121,7 +121,7 @@ class Users extends AdminBaseController
                 if (is_object($user)) {
                     if ($user->update($post)) {
                         Messages::addSuccess("user.updated");
-                        Route::redirect("admin/users/update/".$user->id);
+                        Route::redirect("admin/users/update/$user->id");
                     } else {
                         Messages::addError("db.userupdated");
                     }

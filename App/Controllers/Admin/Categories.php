@@ -9,7 +9,7 @@ use App\Validate;
 
 class Categories extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = Category::getAll(["pageNumber" => $pageNumber]);
 
@@ -58,17 +58,17 @@ class Categories extends AdminBaseController
         $this->render("categories.update", "categories.createnewcategory", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $categoryId)
     {
-        $cat = Category::get($id);
-        if ($cat === false) {
+        $category = Category::get($categoryId);
+        if ($category === false) {
             Messages::addError("category.unknown");
             Route::redirect("admin/categories/read");
         }
 
         $data = [
             "action" => "update",
-            "post" => $cat->toArray()
+            "post" => $category->toArray()
         ];
         $this->render("categories.update", "categories.update", $data);
     }
@@ -83,12 +83,12 @@ class Categories extends AdminBaseController
         if (Validate::csrf("categoryupdate")) {
 
             if (Validate::category($post)) {
-                $cat = Category::get($post["id"]);
+                $category = Category::get($post["id"]);
 
-                if (is_object($cat)) {
-                    if ($cat->update($post)) {
+                if (is_object($category)) {
+                    if ($category->update($post)) {
                         Messages::addSuccess("category.updated");
-                        Route::redirect("admin/categories/update/".$cat->id);
+                        Route::redirect("admin/categories/update/".$category->id);
                     } else {
                         Messages::addError("db.categoryupdated");
                     }
@@ -111,9 +111,9 @@ class Categories extends AdminBaseController
     {
         $id = (int)$_POST["id"];
         if (Validate::csrf("categorydelete$id")) {
-            $cat = Category::get($id);
-            if (is_object($cat)) {
-                if ($cat->delete()) {
+            $category = Category::get($id);
+            if (is_object($category)) {
+                if ($category->delete()) {
                     Messages::addSuccess("category.deleted");
                 } else {
                     Messages::addError("category.deleting");

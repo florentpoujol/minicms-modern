@@ -14,10 +14,9 @@ class User extends Entity
     public $is_blocked;
 
     /**
-     * @param array $newUser
      * @return User|bool
      */
-    public static function create($newUser)
+    public static function create(array $newUser)
     {
         $query = self::$db->prepare("SELECT id FROM users");
         $query->execute();
@@ -44,7 +43,6 @@ class User extends Entity
     }
 
     /**
-     * Get all the posts created by that user
      * @return Post[]|bool
      */
     public function getPosts()
@@ -53,7 +51,6 @@ class User extends Entity
     }
 
     /**
-     * Get all the comments created by that user
      * @return Comment[]|bool
      */
     public function getComments()
@@ -69,11 +66,7 @@ class User extends Entity
         return Media::getAll(["user_id" => $this->id]);
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public function update($data)
+    public function update(array $data): bool
     {
         if (isset($data["password"])) {
             $password = $data["password"];
@@ -86,11 +79,7 @@ class User extends Entity
         return parent::update($data);
     }
 
-    /**
-     * @param string $token
-     * @return bool
-     */
-    public function updatePasswordToken($token)
+    public function updatePasswordToken(string $token): bool
     {
         $time = 0;
         if ($token !== "") {
@@ -103,11 +92,7 @@ class User extends Entity
         ]);
     }
 
-    /**
-     * @param string $password
-     * @return bool
-     */
-    public function updatePassword($password)
+    public function updatePassword(string $password): bool
     {
         return $this->update([
             "password_token" => "",
@@ -116,29 +101,17 @@ class User extends Entity
         ]);
     }
 
-    /**
-     * @param string $token
-     * @return bool
-     */
-    public function updateEmailToken($token)
+    public function updateEmailToken(string $token): bool
     {
         return $this->update(["email_token" => $token]);
     }
 
-    /**
-     * @param bool $block
-     * @return bool
-     */
-    public function block($block = true)
+    public function block(bool $block = true): bool
     {
         return $this->update(["is_blocked" => ($block ? 1 : 0)]);
     }
 
-    /**
-     * @param int $adminId The id of the admin user that delete this user
-     * @return bool
-     */
-    public function deleteByAdmin($adminId)
+    public function deleteByAdmin(int $adminUserId): bool
     {
         $rows = $this->getComments();
         foreach ($rows as $row) {
@@ -147,29 +120,29 @@ class User extends Entity
 
         $rows = array_merge($this->getPosts(), $this->getMedias());
         foreach ($rows as $row) {
-            $row->update(["user_id" => $adminId]);
+            $row->update(["user_id" => $adminUserId]);
         }
 
         return parent::delete();
     }
 
-    public function isAdmin()
+    public function isAdmin(): bool
     {
-        return ($this->role === "admin");
+        return $this->role === "admin";
     }
 
-    public function isWriter()
+    public function isWriter(): bool
     {
-        return ($this->role === "writer");
+        return $this->role === "writer";
     }
 
-    public function isCommenter()
+    public function isCommenter(): bool
     {
-        return ($this->role === "commenter");
+        return $this->role === "commenter";
     }
 
-    public function isBlocked()
+    public function isBlocked(): bool
     {
-        return ($this->is_blocked === 1);
+        return $this->is_blocked === 1;
     }
 }

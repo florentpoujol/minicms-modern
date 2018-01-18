@@ -2,37 +2,25 @@
 
 namespace App\Controllers;
 
+use App\Entities\User;
+
 class BaseController
 {
-    /*
-     * @var App\Entities\User
+    /**
+     * @var \App\Entities\User
      */
     protected $user;
 
     protected $template = "default";
 
-    /**
-     * BaseController constructor.
-     * @param \App\Entities\User $user
-     */
-    public function __construct($user)
+    public function __construct(User $user)
     {
         $this->user = $user;
     }
 
-    /*public function getIndex($idOrSlug = null)
+    public function render(string $view, string $pageTitle = null, array $data = [])
     {
-        $this->render("main", "site index");
-    }*/
-
-    /**
-     * @param string $view
-     * @param string $pageTitle
-     * @param array $data
-     */
-    public function render($view, $pageTitle = null, $data = [])
-    {
-        $viewContent = file_get_contents("../App/views/$view.php");
+        $viewContent = file_get_contents(__dir__ . "/../views/$view.php");
 
         // process the includes instruction
         $matches = [];
@@ -47,7 +35,7 @@ class BaseController
         }
 
         // includes the view's content inside the template
-        $content = file_get_contents("../App/views/templates/".$this->template.".php");
+        $content = file_get_contents(__dir__ . "/../views/templates/$this->template.php");
         $content = str_replace("{viewContent}", $viewContent, $content);
 
         // process template keywords
@@ -58,7 +46,7 @@ class BaseController
         ];
 
         foreach ($keywords as $search => $replacement) {
-            $content = preg_replace('/@'.$search.'/', '<?php '.$replacement.' ?>', $content);
+            $content = preg_replace("/@$search/", "<?php $replacement ?>", $content);
         }
 
         // process template functions
@@ -69,32 +57,32 @@ class BaseController
 
         foreach ($functions as $name => $funcData) {
             $matches = [];
-            preg_match_all("/{".$name." ([^}]+)}/", $content, $matches, PREG_SET_ORDER);
+            preg_match_all("/{" . "$name ([^}]+)}/", $content, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {
                 $content = str_replace(
                     $match[0],
-                    '<?php echo '.$funcData[0].'::'.$funcData[1].'("'.$match[1].'"); ?>',
+                    "<?= $funcData[0]::$funcData[1]" . '("' . $match[1] . '"); ?>',
                     $content
                 );
             }
         }
 
         // process template variables
-        $content = preg_replace("/{([a-zA-Z0-9:$>\[\]\(\)_\"'-]+)}/", '<?php echo htmlentities($1); ?>', $content);
+        $content = preg_replace("/{([a-zA-Z0-9:$>\[\]\(\)_\"'-]+)}/", "<?= htmlentities($1); ?>", $content);
 
         // exposes variables and data passed to the view
         if ($pageTitle === null) {
-            $pageTitle = str_replace("/", ".", $view).".pagetitle";
+            $pageTitle = str_replace("/", ".", $view) . ".pagetitle";
         }
         $pageTitle = \App\Lang::get($pageTitle);
 
-        if (! isset($data["post"])) {
+        if (!isset($data["post"])) {
             $data["post"] = [];
         }
         extract($data);
 
-        $tempPath = "../App/views/temp";
+        $tempPath = __dir__ . "/../views/temp";
         file_put_contents($tempPath, $content);
         require_once $tempPath;
         // alternatively, the content can just be passed to eval

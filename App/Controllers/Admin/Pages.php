@@ -9,7 +9,7 @@ use App\Validate;
 
 class Pages extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = Page::getAll(["pageNumber" => $pageNumber]);
 
@@ -47,7 +47,7 @@ class Pages extends AdminBaseController
 
                 if (is_object($page)) {
                     Messages::addSuccess("page.created");
-                    Route::redirect("admin/pages/update/".$page->id);
+                    Route::redirect("admin/pages/update/$page->id");
                 } else {
                     Messages::addError("page.create");
                 }
@@ -63,9 +63,9 @@ class Pages extends AdminBaseController
         $this->render("pages.update", "admin.page.create", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $pageId)
     {
-        $page = Page::get($id);
+        $page = Page::get($pageId);
         if ($page === false) {
             Messages::addError("page.unknown");
             Route::redirect("admin/pages/read");
@@ -98,7 +98,7 @@ class Pages extends AdminBaseController
                 if (is_object($page)) {
                     if ($page->update($post)) {
                         Messages::addSuccess("page.updated");
-                        Route::redirect("admin/pages/update/".$page->id);
+                        Route::redirect("admin/pages/update/$page->id");
                     } else {
                         Messages::addError("db.pageupdated");
                     }

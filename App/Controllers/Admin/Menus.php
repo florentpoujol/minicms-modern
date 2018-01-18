@@ -9,7 +9,7 @@ use App\Validate;
 
 class Menus extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = Menu::getAll(["pageNumber" => $pageNumber]);
 
@@ -49,7 +49,7 @@ class Menus extends AdminBaseController
 
                 if (is_object($menu)) {
                     Messages::addSuccess("menu.created");
-                    Route::redirect("admin/menus/update/".$menu->id);
+                    Route::redirect("admin/menus/update/$menu->id");
                 } else {
                     Messages::addError("menu.create");
                 }
@@ -65,9 +65,9 @@ class Menus extends AdminBaseController
         $this->render("menus.update", "admin.menu.create", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $menuId)
     {
-        $menu = Menu::get($id);
+        $menu = Menu::get($menuId);
         if ($menu === false) {
             Messages::addError("menu.unknown");
             Route::redirect("admin/menus/read");
@@ -98,7 +98,7 @@ class Menus extends AdminBaseController
                 if (is_object($menu)) {
                     if ($menu->update($post)) {
                         Messages::addSuccess("menu.updated");
-                        Route::redirect("admin/menus/update/".$menu->id);
+                        Route::redirect("admin/menus/update/$menu->id");
                     } else {
                         Messages::addError("db.pageupdated");
                     }

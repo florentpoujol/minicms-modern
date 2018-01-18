@@ -8,7 +8,7 @@ use App\Route;
 
 class Post extends Commentable
 {
-    public function getPost($postId)
+    public function getPost(int $postId)
     {
         $post = PostEntity::get($postId);
 
@@ -23,7 +23,7 @@ class Post extends Commentable
         $this->render("post", $post->title, $data);
     }
 
-    public function postPost($postId)
+    public function postPost(int $postId)
     {
         if (! isset($this->user)) {
             Messages::addError("user.mustbeloggedintopostcomment");

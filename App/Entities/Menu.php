@@ -8,10 +8,7 @@ class Menu extends Entity
     public $json_structure;
     public $structure = [];
 
-    /**
-     * @return array
-     */
-    public function getStructure()
+    public function getStructure(): array
     {
         return json_decode($this->json_structure, true);
     }
@@ -19,9 +16,8 @@ class Menu extends Entity
     /**
      * Remove items from structure where name and target are empty
      * @param array $structure The structure array, passed by reference
-     * @return array
      */
-    public static function cleanStructure($structure)
+    public static function cleanStructure($structure): array
     {
         for ($i = count($structure)-1; $i >= 0; $i--) {
             if (isset($structure[$i]["children"])) {
@@ -35,7 +31,10 @@ class Menu extends Entity
         return $structure;
     }
 
-    public static function create($data)
+    /**
+     * @return $this|false
+     */
+    public static function create(array $data)
     {
         $data["structure"] = self::cleanStructure($data["structure"]);
         $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
@@ -43,7 +42,7 @@ class Menu extends Entity
         return parent::create($data);
     }
 
-    public function update($data)
+    public function update(array $data): bool
     {
         $data["structure"] = self::cleanStructure($data["structure"]);
         $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
@@ -51,7 +50,7 @@ class Menu extends Entity
         return parent::update($data);
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         $array = parent::toArray();
         $array["structure"] = $this->getStructure();

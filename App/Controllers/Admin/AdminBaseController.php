@@ -2,15 +2,12 @@
 
 namespace App\Controllers\Admin;
 
+use App\Entities\User;
 use App\Route;
 
 class AdminBaseController extends \App\Controllers\BaseController
 {
-    /**
-     * AdminBaseController constructor.
-     * @param \App\Entities\User $user
-     */
-    function __construct($user)
+    function __construct(User $user)
     {
         parent::__construct($user);
 
@@ -38,7 +35,7 @@ class AdminBaseController extends \App\Controllers\BaseController
         }
     }
 
-    public function render($view, $pageTitle = null, $data = [])
+    public function render(string $view, string $pageTitle = null, array $data = [])
     {
         parent::render("admin/$view", $pageTitle, $data);
     }

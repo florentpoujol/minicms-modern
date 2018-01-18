@@ -2,8 +2,7 @@
 
 namespace App;
 
-require_once "../autoload.php";
-require_once "../vendor/autoload.php";
+require_once __dir__ . "/../vendor/autoload.php";
 
 $configLoaded = Config::load();
 

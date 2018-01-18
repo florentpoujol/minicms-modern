@@ -9,7 +9,7 @@ use App\Entities\User;
 
 class Login extends BaseController
 {
-    function __construct($user)
+    function __construct(User $user)
     {
         parent::__construct($user);
 
@@ -76,7 +76,6 @@ class Login extends BaseController
         $this->render("login", null, ["post" => $post]);
     }
 
-
     public function getLostPassword()
     {
         $this->render("lostpassword");
@@ -115,8 +114,7 @@ class Login extends BaseController
         $this->render("lostpassword", null, ["post" => $post]);
     }
 
-
-    public function getResetPassword($userId, $passwordToken)
+    public function getResetPassword(int $userId, string $passwordToken)
     {
         $user = User::get([
             "id" => $userId,
@@ -134,7 +132,7 @@ class Login extends BaseController
         }
     }
 
-    public function postResetPassword($userId, $passwordToken)
+    public function postResetPassword(int $userId, string $passwordToken)
     {
         $user = User::get([
             "id" => $userId,

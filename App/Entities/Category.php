@@ -7,38 +7,30 @@ class Category extends Entity
     public $slug;
     public $title;
 
-    /**
-     * @return string
-     */
-    protected static function getTableName()
+    protected static function getTableName(): string
     {
         return "categories";
     }
 
     /**
-     * @param array $params
      * @return Post[]|bool
      */
-    public function getPosts($params = [])
+    public function getPosts(array $whereConditions = [])
     {
-        $params = array_merge(["category_id" => $this->id], $params);
-        return Post::getAll($params);
+        $whereConditions = array_merge(["category_id" => $this->id], $whereConditions);
+        return Post::getAll($whereConditions);
     }
 
-    /**
-     * @return bool
-     */
-    public function delete()
+    public function delete(): bool
     {
         $posts = $this->getPosts();
         foreach ($posts as $post) {
             $post->delete();
         }
-
         return parent::delete();
     }
 
-    public function getLink($routeName = "category")
+    public function getLink(string $routeName = "category")
     {
         return parent::getLink($routeName);
     }

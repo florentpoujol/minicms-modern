@@ -4,16 +4,16 @@ namespace App;
 
 class Config
 {
-    public static $configFolder = __DIR__."/../config/";
+    public static $configFolder = __dir__ . "/../config/";
 
     public static $config = [];
 
     /**
      * read the config file (JSON) then populate the $config array
      */
-    public static function load()
+    public static function load(): bool
     {
-        $path = self::$configFolder."config.json";
+        $path = self::$configFolder . "config.json";
         if (file_exists($path)) {
             $jsonConfig = file_get_contents($path);
 
@@ -26,16 +26,20 @@ class Config
     }
 
     /**
-     * write the content of the $config array as JSON in a file
-     * @return true on success, false otherwise
+     * Write the content of the $config array as JSON in a file
+     * @return bool True on success, false otherwise.
      */
-    public static function save()
+    public static function save(): bool
     {
         $jsonConfig = json_encode(self::$config, JSON_PRETTY_PRINT);
-        return (bool)file_put_contents(self::$configFolder."config.json", $jsonConfig);
+        return (bool)file_put_contents(self::$configFolder . "config.json", $jsonConfig);
     }
 
-    public static function get($key, $defaultValue = null)
+    /**
+     * @param mixed|null $defaultValue
+     * @return mixed|null
+     */
+    public static function get(string $key, $defaultValue = null)
     {
         if (isset(self::$config[$key])) {
             return self::$config[$key];
@@ -44,7 +48,10 @@ class Config
         return $defaultValue;
     }
 
-    public static function set($key, $value)
+    /**
+     * @param mixed $value
+     */
+    public static function set(string $key, $value)
     {
         self::$config[$key] = $value;
     }

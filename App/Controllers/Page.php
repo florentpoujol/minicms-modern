@@ -8,7 +8,7 @@ use App\Route;
 
 class Page extends Commentable
 {
-    public function getPage($pageId)
+    public function getPage(int $pageId)
     {
         $page = PageEntity::get($pageId);
 
@@ -23,7 +23,7 @@ class Page extends Commentable
         $this->render("page", $page->title, $data);
     }
 
-    public function postPage($pageId)
+    public function postPage(int $pageId)
     {
         if (! isset($this->user)) {
             Messages::addError("user.mustbeloggedintopostcomment");

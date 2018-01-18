@@ -15,7 +15,7 @@ class Validate extends Database
      * @param string|array $patterns can be string or array of strings
      * @return bool true if all pattern(s) are found in the data, false otherwise
      */
-    public static function validate($data, $patterns)
+    public static function validate($data, $patterns): bool
     {
         if (! is_array($patterns)) {
             $patterns = [$patterns];
@@ -30,52 +30,64 @@ class Validate extends Database
         return true;
     }
 
-    public static function title($data)
+    /**
+     * @param mixed $data
+     */
+    public static function title(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_:,?!\. -]{2,}$/";
         return self::validate($data, $pattern);
     }
 
-    public static function name($data)
+    /**
+     * @param mixed $data
+     */
+    public static function name(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9-]{2,}$/";
         return self::validate($data, $pattern);
     }
 
-    public static function slug($data)
+    /**
+     * @param mixed $data
+     */
+    public static function slug(string $data): bool
     {
         $pattern = "/^[a-z]{1}[a-z0-9-]{1,}$/";
         return self::validate($data, $pattern);
     }
 
-    public static function email($data)
+    /**
+     * @param mixed $data
+     */
+    public static function email(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_\.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.-]+$/";
         return self::validate($data, $pattern);
     }
 
-    public static function password($data, $confirm = null)
+    /**
+     * @param mixed $data
+     */
+    public static function password(string $data, string $confirm = null): bool
     {
         $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
         $formatOK = self::validate($data, $patterns);
 
-        if (isset($confirm)) {
+        if ($confirm !== null) {
             return ($formatOK && $data === $confirm);
         }
-
         return $formatOK;
     }
 
     /**
      * Validate the CSRF token found in session with the one provided with the request
-     * @param string $request The name of the request
      * @param string $token The token provided with the request. If null, if will be found in $_POST based on the request name
      * @param int $timeLimit The validity duration of a token. Default 900 sec = 15 min
-     * @return bool
      */
-    public static function csrf($request, $token = null, $timeLimit = 900)
+    public static function csrf(string $requestName, string $token = null, int $timeLimit = 900): bool
     {
-        $tokenName = $request."_csrf_token";
+        $tokenName = $requestName . "_csrf_token";
 
         if ($token === null) {
             if (isset($_POST[$tokenName])) {
@@ -86,11 +98,11 @@ class Validate extends Database
         }
 
         if (Session::get($tokenName) === $token &&
-            time() < Session::get($request."_csrf_time") + $timeLimit)
+            time() < Session::get($requestName."_csrf_time") + $timeLimit)
         {
             unset($_POST[$tokenName]);
             Session::destroy($tokenName);
-            Session::destroy($request."_csrf_time");
+            Session::destroy($requestName."_csrf_time");
             return true;
         }
 
@@ -99,10 +111,9 @@ class Validate extends Database
 
     /**
      * Returns an array of only the specified keys from $_POST, casted to their desired types
-     * @param array $schema Assoc array containing the desired key and their wanted type
-     * @return array
+     * @param array $schema Assoc array containing the desired keys and their wanted type
      */
-    public static function sanitizePost($schema)
+    public static function sanitizePost(array $schema): array
     {
         $sanitizedPost = [];
 
@@ -132,13 +143,17 @@ class Validate extends Database
                     break;
 
                 case "checkbox":
-                    $value === "on" ? $value = 1 : $value = 0;
+                    $value = (int)($value === "on");
                     break;
 
                 case "array":
                     if (! is_array($value)) {
                         $value = (array)$value;
                     }
+                    break;
+
+                default:
+                    throw new \UnexpectedValueException("Unhandled type: $type");
                     break;
             }
 
@@ -150,10 +165,8 @@ class Validate extends Database
 
     /**
      * Check for all the user data (name, email, password if any, etc...)
-     * @param array $user
-     * @return bool
      */
-    public static function user($user)
+    public static function user(array $user): bool
     {
         $ok = true;
 
@@ -194,11 +207,7 @@ class Validate extends Database
         return $ok;
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public static function category($data)
+    public static function category(array $data): bool
     {
         $ok = true;
 
@@ -220,11 +229,7 @@ class Validate extends Database
         return $ok;
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public static function post($data)
+    public static function post(array $data): bool
     {
         $ok = true;
 
@@ -258,11 +263,7 @@ class Validate extends Database
         return $ok;
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public static function page($data)
+    public static function page(array $data): bool
     {
         $ok = true;
 
@@ -303,11 +304,7 @@ class Validate extends Database
         return $ok;
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public static function menu($data)
+    public static function menu(array $data): bool
     {
         $ok = true;
 
@@ -325,7 +322,7 @@ class Validate extends Database
         return $ok;
     }
 
-    public static function comment($data)
+    public static function comment(array $data): bool
     {
         $ok = true;
 
@@ -360,7 +357,7 @@ class Validate extends Database
         return $ok;
     }
 
-    public static function media($data)
+    public static function media(array $data): bool
     {
         $ok = true;
 

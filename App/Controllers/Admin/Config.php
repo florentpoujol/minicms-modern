@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Emails;
+use App\Entities\User;
 use App\Messages;
 use App\Route;
 use App\Config as AppConfig;
@@ -10,7 +11,7 @@ use App\Validate;
 
 class Config extends AdminBaseController
 {
-    public function __construct($user)
+    public function __construct(User $user)
     {
         parent::__construct($user);
         if (! $this->user->isAdmin()) {

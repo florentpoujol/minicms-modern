@@ -10,11 +10,9 @@ class Comment extends Entity
     public $page_id;
 
     /**
-     * @param int $id
-     * @param int $pageNumber
      * @return Comment[]|false
      */
-    public static function getAllForWriter($id, $pageNumber = null)
+    public static function getAllForWriter(int $id, int $pageNumber = null)
     {
         $limit = "";
         if ($pageNumber !== null) {
@@ -47,10 +45,9 @@ class Comment extends Entity
     }
 
     /**
-     * @param array $data
      * @return Comment|bool
      */
-    public static function create($data)
+    public static function create(array $data)
     {
         if (! isset($data["post_id"])) {
             $data["post_id"] = null;

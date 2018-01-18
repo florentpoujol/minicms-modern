@@ -9,7 +9,7 @@ use App\Validate;
 
 class Comments extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $params = ["pageNumber" => $pageNumber];
         $allRows = [];
@@ -39,9 +39,9 @@ class Comments extends AdminBaseController
         $this->render("comments.read", "admin.comment.readtitle", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $commentId)
     {
-        $comment = Comment::get($id);
+        $comment = Comment::get($commentId);
         if ($comment === false) {
             Messages::addError("comment.unknown");
             Route::redirect("admin/comments/read");
@@ -69,7 +69,7 @@ class Comments extends AdminBaseController
                 if (is_object($comment)) {
                     if ($comment->update($post)) {
                         Messages::addSuccess("comment.updated");
-                        Route::redirect("admin/comments/update/".$comment->id);
+                        Route::redirect("admin/comments/update/$comment->id");
                     } else {
                         Messages::addError("db.commentupdated");
                     }

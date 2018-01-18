@@ -1,13 +1,13 @@
 <?php
 
 namespace App;
+use App\Entities\User;
 
 /**
  * Class Route
  * Process the query strings.
  * There always be at least one : r for the route itself, see the $routes array.
  * Other query strings may be token, or page
- * @package App
  */
 class Route
 {
@@ -47,9 +47,9 @@ class Route
      * @param Entities\User $user The user, to pass to the controller. Null when user is guest
      * @return void
      */
-    public static function load($user)
+    public static function load(User $user)
     {
-        $r = isset($_GET["r"]) ? $_GET["r"] : "blog";
+        $r = $_GET["r"] ?? "blog";
 
         $routeName = "";
         $controllerArgs = [];
@@ -64,13 +64,13 @@ class Route
         }
 
         if ($routeName === "") {
-            // todo: properly redirect to 404
+            // todo: properly redirect to a 404 page
             echo "404";
             exit;
         }
 
-        $cb = function ($arg) { return is_numeric($arg) ? (int)$arg : $arg; };
-        $controllerArgs = array_map($cb, $controllerArgs);
+        $callback = function ($arg) { return is_numeric($arg) ? (int)$arg : $arg; };
+        $controllerArgs = array_map($callback, $controllerArgs);
 
         $controllerName = $routeName;
         $methodName = $routeName;
@@ -112,38 +112,20 @@ class Route
 
         $parts = explode("\\", $controllerName);
         $parts = array_map(function($val){ return ucfirst($val); }, $parts);
-        $controllerName = join("\\", $parts);
+
+        $controllerName = implode("\\", $parts);
         $controllerName = "\App\Controllers\\$controllerName";
         self::$controllerName = $controllerName;
 
-        $methodName = App::$requestMethod.$methodName;
+        $methodName = App::$requestMethod . $methodName;
         self::$methodName = $methodName;
 
         $controller = new $controllerName($user);
         $controller->{$methodName}(...$controllerArgs);
     }
 
-    public static function buildQueryString($route = "", ...$additionnalArgs)
+    public static function buildQueryString(string $route = ""): string
     {
-        /*if (isset(self::$routes[$route])) {
-            $route = self::$routes[$route];
-        }
-
-        $parts = explode("/", $route);
-        $id = 0;
-        foreach ($parts as $part) {
-            if (preg_match("/^(.+)$/", $part) === 1) {
-                $id++;
-                $replace = "";
-                if (isset($additionnalArgs[$id])) {
-                    $replace = $additionnalArgs[$id];
-                }
-                $route = str_replace($part, $replace, $route);
-            }
-        }
-
-        $route = trim($route, "/");*/
-
         if (Config::get("use_nice_url") !== true && $route !== "") {
             $route = "?r=$route";
         }
@@ -151,15 +133,15 @@ class Route
         return $route;
     }
 
-    public static function getURL($route = "")
+    public static function getURL(string $route = ""): string
     {
-        return App::$url.self::buildQueryString($route);
+        return App::$url . self::buildQueryString($route);
     }
 
-    public static function redirect($route = "")
+    public static function redirect(string $route = "")
     {
         Messages::save();
-        header("Location: ".self::getURL($route));
+        header("Location: " . self::getURL($route));
         exit;
     }
 

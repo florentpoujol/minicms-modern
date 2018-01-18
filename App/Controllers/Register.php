@@ -8,9 +8,10 @@ use App\Route;
 use App\Emails;
 use App\Entities\User;
 
-class Register extends BaseController
+class
+Register extends BaseController
 {
-    function __construct($user)
+    function __construct(User $user)
     {
         parent::__construct($user);
 
@@ -64,7 +65,7 @@ class Register extends BaseController
         $this->render("register", null, ["post" => $post]);
     }
 
-    public function getConfirmEmail($userId, $emailToken)
+    public function getConfirmEmail(int $userId, string $emailToken)
     {
         $user = User::get([
             "id" => $userId,

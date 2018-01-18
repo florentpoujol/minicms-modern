@@ -9,7 +9,7 @@ use App\Validate;
 
 class Posts extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = Post::getAll(["pageNumber" => $pageNumber]);
 
@@ -48,7 +48,7 @@ class Posts extends AdminBaseController
 
                 if (is_object($thePost)) {
                     Messages::addSuccess("post.created");
-                    Route::redirect("admin/posts/update/".$thePost->id);
+                    Route::redirect("admin/posts/update/$thePost->id");
                 } else {
                     Messages::addError("db.createpost");
                 }
@@ -64,9 +64,9 @@ class Posts extends AdminBaseController
         $this->render("posts.update", "posts.createnewcategory", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $userId)
     {
-        $thePost = Post::get($id);
+        $thePost = Post::get($userId);
         if ($thePost === false) {
             Messages::addError("post.unknown");
             Route::redirect("admin/posts/read");
@@ -99,7 +99,7 @@ class Posts extends AdminBaseController
                 if (is_object($thePost)) {
                     if ($thePost->update($post)) {
                         Messages::addSuccess("post.updated");
-                        Route::redirect("admin/posts/update/".$thePost->id);
+                        Route::redirect("admin/posts/update/$thePost->id");
                     } else {
                         Messages::addError("db.postupdated");
                     }

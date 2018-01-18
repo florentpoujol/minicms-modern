@@ -9,23 +9,34 @@ class Session
         return session_id();
     }
 
-    public static function get($key, $defaultValue = null)
+    /**
+     * @param mixed|null $defaultValue
+     * @return mixed
+     */
+    public static function get(string $key, $defaultValue = null)
     {
         return isset($_SESSION[$key]) ? $_SESSION[$key] : $defaultValue;
     }
 
-    public static function set($key, $value)
+    /**
+     * @param mixed $value
+     */
+    public static function set(string $key, $value)
     {
         $_SESSION[$key] = $value;
     }
 
-    public static function destroy($key = null)
+    /**
+     * Deletes a single session value when its key is specified, or destroy the whole session.
+     * @param string $key
+     */
+    public static function destroy(string $key = null)
     {
         if ($key === null) {
             $_SESSION = [];
             unset($_SESSION);
             session_destroy();
-        } else if (isset($_SESSION[$key])) {
+        } elseif (isset($_SESSION[$key])) {
             $_SESSION[$key] = null;
             unset($_SESSION[$key]);
         }

@@ -8,7 +8,7 @@ use App\Validate;
 
 class Commentable extends BaseController
 {
-    public function postComment($entityId)
+    public function postComment(int $entityId)
     {
         $schema = [
             "content" => "string"
@@ -23,7 +23,7 @@ class Commentable extends BaseController
         $post = Validate::sanitizePost($schema);
         $post["user_id"] = $this->user->id;
 
-        if (Validate::csrf("commentcreate".$this->user->id."_$entityId")) {
+        if (Validate::csrf("commentcreate" . $this->user->id . "_$entityId")) {
             if (Validate::comment($post)) {
                 $comment = Comment::create($post);
 

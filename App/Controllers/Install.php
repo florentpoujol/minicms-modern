@@ -9,7 +9,7 @@ use App\Validate;
 
 class Install extends BaseController
 {
-    public function checkCanInstall()
+    public function checkCanInstall(): bool
     {
         $ok = true;
         if (! is_writable(Config::$configFolder)) {

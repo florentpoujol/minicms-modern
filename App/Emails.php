@@ -2,11 +2,12 @@
 
 namespace App;
 
+use App\Entities\User;
 use PHPMailer;
 
 class Emails
 {
-    public static function send($to, $subject, $body)
+    public static function send(string $to, string $subject, string $body): bool
     {
         $formAddress = Config::get("mailer_from_address");
         $formName = Config::get("mailer_from_name");
@@ -50,7 +51,7 @@ class Emails
         return true;
     }
 
-    public static function sendConfirmEmail($user)
+    public static function sendConfirmEmail(User $user): bool
     {
         $subject = Lang::get("email.confirmemail.subject");
         $url = Route::getUrl("register/confirmemail/".$user->id."/".$user->email_token);
@@ -58,7 +59,7 @@ class Emails
         return self::send($user->email, $subject, $body);
     }
 
-    public static function sendChangePassword($user)
+    public static function sendChangePassword(User $user): bool
     {
         $subject = Lang::get("email.changepassword.subject");
         $url = Route::getURL("login/resetpassword/".$user->id."/".$user->password_token);
@@ -66,7 +67,7 @@ class Emails
         return self::send($user->email, $subject, $body);
     }
 
-    public static function sendTest($email)
+    public static function sendTest(string $email): bool
     {
         $subject = Lang::get("email.test.subject");
         $body = Lang::get("email.test.body");

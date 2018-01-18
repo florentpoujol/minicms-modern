@@ -12,10 +12,9 @@ class Media extends Entity
     public $user_id;
 
     /**
-     * @param string $fileSlug
      * @return bool|string
      */
-    public static function upload($fileSlug)
+    public static function upload(string $fileSlug)
     {
         $uploadPath = \App\App::$uploadPath;
         if (! is_writable($uploadPath)) {
@@ -55,7 +54,10 @@ class Media extends Entity
         return false;
     }
 
-    public static function create($data)
+    /**
+     * @return $this|bool
+     */
+    public static function create(array $data)
     {
         $fileName = self::upload($data["slug"]);
         if ($fileName !== false) {
@@ -65,13 +67,13 @@ class Media extends Entity
         return false;
     }
 
-    public function update($data)
+    public function update(array $data): bool
     {
         unset($data["filename"]);
         return parent::update($data);
     }
 
-    public function delete()
+    public function delete(): bool
     {
         $fileName = $this->filename;
         if (parent::delete()) {

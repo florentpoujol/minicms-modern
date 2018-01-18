@@ -9,7 +9,7 @@ use App\Route;
 
 class Category extends BaseController
 {
-    public function getCategory($categoryId, $pageNumber = 1)
+    public function getCategory(int $categoryId, int $pageNumber = 1)
     {
         $category = CategoryEntity::get($categoryId);
 

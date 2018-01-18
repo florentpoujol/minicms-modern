@@ -22,9 +22,10 @@ class Database
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    public static function connect($connexion = null)
+
+    public static function connect(\PDO $connection = null)
     {
-        if ($connexion === null) {
+        if ($connection === null) {
             $host = Config::get("db_host");
             $name = Config::get("db_name");
             $user = Config::get("db_user");
@@ -33,41 +34,38 @@ class Database
             try {
                 self::$db = new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, self::$pdoOptions);
             } catch (\Exception $e) {
-                echo "error connecting to the database <br>";
+                echo "Error connecting to the database: probably wrong host, username or password.<br>";
                 echo $e->getMessage();
-                exit();
+                exit;
             }
         } else {
-            self::$db = $connexion;
+            self::$db = $connection;
         }
     }
 
     /**
-     * @param string $host
-     * @param string $name
-     * @param string $user
-     * @param string $password
      * @return bool|PDO
      */
-    public static function testConnection($host, $name, $user, $password)
+    public static function testConnection(string $host, string $name, string $user, string $password)
     {
         // todo : validate host, name and user format
-        $conn = false;
         try {
-            $conn = new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, self::$pdoOptions);
+            return new PDO("mysql:host=$host;dbname=$name;charset=utf8", $user, $password, self::$pdoOptions);
         } catch (\Exception $e) {
             Messages::addError("Error connecting to the database: probably wrong host, username or password.");
             Messages::addError($e->getMessage());
-            $conn = false;
         }
-        return $conn;
+        return false;
     }
 
+
     /**
-     * @param PDO $db
+     * Attempt to create the database, its structure and to populate it during the site's install process
+     * @param array $dbConnectionInfo Array containing the connection information to the database.
+     * @param array $userInfo Array containing the information about the first user.
      * @return bool
      */
-    public static function install($configPost, $userPost)
+    public static function install(array $dbConnectionInfo, array $userInfo)
     {
         // things to do in order :
         // test connection to db
@@ -77,30 +75,37 @@ class Database
         // populate config and user
 
         $db = self::testConnection(
-            $configPost["db_host"],
-            $configPost["db_name"],
-            $configPost["db_user"],
-            $configPost["db_password"]
+            $dbConnectionInfo["db_host"],
+            $dbConnectionInfo["db_name"],
+            $dbConnectionInfo["db_user"],
+            $dbConnectionInfo["db_password"]
         );
 
         if ($db !== false) {
-            $success = $db->query("CREATE DATABASE IF NOT EXISTS `" . $configPost["db_name"] . "`");
+            $success = $db->exec("CREATE DATABASE IF NOT EXISTS `" . $dbConnectionInfo["db_name"] . "`");
             if ($success) {
-                $db->query("use `" . $configPost["db_name"] . "`");
+                $db->exec("use `" . $dbConnectionInfo["db_name"] . "`");
 
                 $sql = file_get_contents(self::$dbStructureFile);
-                $query = $db->prepare($sql);
-                $success = $query->execute();
+                $success = $db->exec($sql); // false on error, on success in this case
 
-                if ($success) {
-                    $user = User::create($userPost);
+                if ($success !== false) {
+                    $user = User::create($userInfo);
 
-                    $defaultMenu = [[
-                        "type" => "external",
-                        "name" => "Login",
-                        "target" => "?r=login",
-                        "children" => []
-                    ]];
+                    $defaultMenu = [
+                        [
+                            "type" => "external",
+                            "name" => "Login/Admin",
+                            "target" => "?r=admin",
+                            "children" => []
+                        ],
+                        [
+                            "type" => "external",
+                            "name" => "Logout",
+                            "target" => "?r=logout",
+                            "children" => []
+                        ]
+                    ];
                     $menu = [
                         "slug" => "defaultmenu",
                         "in_use" => 1,
@@ -124,18 +129,15 @@ class Database
     }
 
     /**
-     * @param string $value
-     * @param string $field
-     * @param string $table
-     * @return bool
+     * @param mixed $value
      */
-    public static function valueExistsInDB($value, $field, $table)
+    public static function valueExistsInDB($value, string $field, string $table): bool
     {
         $query = self::$db->prepare("SELECT id FROM $table WHERE $field = ?");
         $success = $query->execute([$value]);
 
         if ($success) {
-            return ($query->fetch() !== false);
+            return $query->fetch() !== false;
         }
         return false;
     }

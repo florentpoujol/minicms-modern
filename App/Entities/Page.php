@@ -39,7 +39,7 @@ class Page extends BasePage
         return [];
     }
 
-    public function update($data)
+    public function update(array $data): bool
     {
         if (isset($data["parent_page_id"]) && $data["parent_page_id"] <= 0) {
             $data["parent_page_id"] = null;
@@ -47,7 +47,7 @@ class Page extends BasePage
         return parent::update($data);
     }
 
-    public function delete()
+    public function delete(): bool
     {
         $children = $this->getChildren();
         foreach ($children as $child) {
@@ -57,7 +57,7 @@ class Page extends BasePage
         return parent::delete();
     }
 
-    public function getLink($routeName = "page")
+    public function getLink(string $routeName = "page")
     {
         return parent::getLink($routeName);
     }

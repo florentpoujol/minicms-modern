@@ -13,17 +13,14 @@ class BasePage extends Entity
 
     /**
      * Must be overridden in child classes
-     * @return array Empty array
+     * @return Comment[]|bool
      */
     public function getComments()
     {
         return [];
     }
 
-    /**
-     * @return bool
-     */
-    public function delete()
+    public function delete(): bool
     {
         $comments = $this->getComments();
         foreach ($comments as $comment) {
@@ -33,31 +30,21 @@ class BasePage extends Entity
         return parent::delete();
     }
 
-    /**
-     * @param int $charSize
-     * @return bool|string
-     */
-    public function getExcerpt($charSize = 500)
+    public function getExcerpt(int $characterCount = 500): string
     {
-        if ($charSize <= 0) {
-            $charSize = 500;
+        if ($characterCount <= 0) {
+            $characterCount = 500;
         }
-        return substr($this->content, 0, $charSize);
+        return substr($this->content, 0, $characterCount);
     }
 
-    /**
-     * @return bool
-     */
-    public function isPublished()
+    public function isPublished(): bool
     {
-        return ($this->published === 1);
+        return $this->published === 1;
     }
 
-    /**
-     * @return bool
-     */
-    public function allowComments()
+    public function allowComments(): bool
     {
-        return ($this->allow_comments === 1);
+        return $this->allow_comments === 1;
     }
 }

@@ -17,30 +17,34 @@ class Messages extends Database
 
     /**
      * @param string $msg Either the message or a corresponding language keys (automatically prefixed with "messages.success")
-     * @param array $params Keys/values to be replaced in the message
+     * @param array $replacements Keys/values to be replaced in the message
      */
-    public static function addSuccess($msg, $params = null)
+    public static function addSuccess(string $msg, array $replacements = null)
     {
-        $msg = Lang::get("messages.success.$msg", $params);
+        $msg = Lang::get("messages.success.$msg", $replacements);
         $msg = preg_replace("/^messages\.success\./", "", $msg); // in case the msg isn't found
         self::$successes[] = $msg;
     }
 
-    public static function addError($msg, $params = null)
+    /**
+     * @param string $msg Either the message or a corresponding language keys (automatically prefixed with "messages.success")
+     * @param array $replacements Keys/values to be replaced in the message
+     */
+    public static function addError(string $msg, array $replacements = null)
     {
-        $msg = Lang::get("messages.error.$msg", $params);
+        $msg = Lang::get("messages.error.$msg", $replacements);
         $msg = preg_replace("/^messages\.error\./", "", $msg);
         self::$errors[] = $msg;
     }
 
-    public static function getSuccesses()
+    public static function getSuccesses(): array
     {
         $temp = self::$successes;
         self::$successes = [];
         return $temp;
     }
 
-    public static function getErrors()
+    public static function getErrors(): array
     {
         $temp = self::$errors;
         self::$errors = [];
@@ -48,7 +52,8 @@ class Messages extends Database
     }
 
     // save leftover msg in database for retrival later
-    public static function save() {
+    public static function save()
+    {
         $query = self::$db->prepare("INSERT INTO messages(type, content, time, session_id) VALUES(:type, :content, :time, :session_id)");
         $params = [
             "type" => "success",
@@ -71,7 +76,8 @@ class Messages extends Database
     }
 
     // retrieve msg from DB, if any
-    public static function load() {
+    public static function load()
+    {
         $query = self::$db->prepare("SELECT * FROM messages WHERE session_id=?");
         $sessionId = Session::getId();
         $success = $query->execute([$sessionId]);

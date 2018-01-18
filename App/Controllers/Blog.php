@@ -8,7 +8,7 @@ use App\Route;
 
 class Blog extends BaseController
 {
-    public function getBlog($pageNumber = 1)
+    public function getBlog(int $pageNumber = 1)
     {
         $data = [
             "posts" => Post::getAll(["pageNumber" => $pageNumber]),

@@ -9,7 +9,7 @@ use App\Validate;
 
 class Medias extends AdminBaseController
 {
-    public function getRead($pageNumber = 1)
+    public function getRead(int $pageNumber = 1)
     {
         $allRows = Media::getAll(["pageNumber" => $pageNumber]);
 
@@ -47,7 +47,7 @@ class Medias extends AdminBaseController
 
                 if (is_object($media)) {
                     Messages::addSuccess("media.created");
-                    Route::redirect("admin/medias/update/".$media->id);
+                    Route::redirect("admin/medias/update/$media->id");
                 } else {
                     Messages::addError("media.create");
                 }
@@ -63,9 +63,9 @@ class Medias extends AdminBaseController
         $this->render("medias.update", "admin.media.create", $data);
     }
 
-    public function getUpdate($id)
+    public function getUpdate(int $mediaId)
     {
-        $media = Media::get($id);
+        $media = Media::get($mediaId);
         if ($media === false) {
             Messages::addError("media.unknown");
             Route::redirect("admin/medias/read");
@@ -104,7 +104,7 @@ class Medias extends AdminBaseController
                 if (is_object($media)) {
                     if ($media->update($post)) {
                         Messages::addSuccess("media.updated");
-                        Route::redirect("admin/medias/update/".$media->id);
+                        Route::redirect("admin/medias/update/$media->id");
                     } else {
                         Messages::addError("db.mediaupdated");
                     }

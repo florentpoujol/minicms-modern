@@ -7,20 +7,20 @@ class Form
     /**
      * @var string The name of the form, mostly used as prefix for CSRF protection
      */
-    private $name;
+    private $name = "";
 
     /**
      * @var array Assoc array used to prefill the inputs default values
      */
-    private $data;
+    private $data = [];
 
-    public function __construct($name, $data = [])
+    public function __construct(string $name, array $data = [])
     {
         $this->name = $name;
         $this->data = $data;
     }
 
-    public function open($target, $method = "POST", $forFileUpload = false)
+    public function open(string $target, string $method = "POST", bool $forFileUpload = false)
     {
         if ($forFileUpload) {
             $forFileUpload = ' enctype="multipart/form-data"';
@@ -31,7 +31,7 @@ class Form
         ';
     }
 
-    public function close($addCSRFProtection = true)
+    public function close(bool $addCSRFProtection = true)
     {
         if ($addCSRFProtection) {
             $this->hidden($this->name."_csrf_token", Security::createCSRFTokens($this->name));
@@ -48,7 +48,7 @@ class Form
      * May contains a "value" key, which override the value that may be found in the form's data.
      * May contains a "label" key, which may be a language keys (automatically prefixed with "formlabel").
      */
-    public function input($type, $name, $attributes = [])
+    public function input(string $type, string $name, array $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -123,31 +123,27 @@ class Form
         echo $content;
     }
 
-    public function text($name, $attributes = null)
+    public function text(string $name, array $attributes = null)
     {
         $this->input("text", $name, $attributes);
     }
 
-    public function number($name, $attributes = null)
+    public function number(string $name, array $attributes = null)
     {
         $this->input("number", $name, $attributes);
     }
 
-    public function email($name, $attributes = null)
+    public function email(string $name, array $attributes = null)
     {
         $this->input("email", $name, $attributes);
     }
 
-    public function password($name, $attributes = null)
+    public function password(string $name, array $attributes = null)
     {
         $this->input("password", $name, $attributes);
     }
 
-    /**
-     * @param $name
-     * @param array $attributes
-     */
-    public function file($name, $attributes = [])
+    public function file(string $name, array $attributes = [])
     {
         if (! isset($attributes["accept"])) {
             $attributes["accept"] = ".jpeg, .jpg, image/jpeg, .png, image/png, .pdf, application/pdf, .zip, application/zip";
@@ -155,22 +151,20 @@ class Form
         $this->input("file", $name, $attributes);
     }
 
-    public function hidden($name, $value)
+    public function hidden(string $name, string $value)
     {
         $this->input("hidden", $name, ["value" => $value]);
     }
 
-    public function submit($name = "", $value = "")
+    public function submit(string $name = "", string $value = "")
     {
         $this->input("submit", $name, ["value" => $value]);
     }
 
     /**
-     * @param string $name
-     * @param bool $isChecked
      * @param array|string $attributes
      */
-    public function checkbox($name, $isChecked = false, $attributes = [])
+    public function checkbox(string $name, bool $isChecked = false, $attributes = [])
     {
         if (is_string($attributes)) {
             $attributes = ["label" => $attributes];
@@ -188,7 +182,7 @@ class Form
         $this->input("checkbox", $name, $attributes);
     }
 
-    public function select($name, $options, $attributes = [])
+    public function select(string $name, array $options, array $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -263,11 +257,7 @@ class Form
         echo $content;
     }
 
-    /**
-     * @param string $name
-     * @param array $attributes
-     */
-    public function textarea($name, $attributes = [])
+    public function textarea(string $name, array $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -322,7 +312,7 @@ class Form
         echo $content;
     }
 
-    public function br($count = 1)
+    public function br(int $count = 1)
     {
         while ($count--) {
             echo "<br>

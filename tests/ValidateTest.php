@@ -41,7 +41,6 @@ class ValidateTest extends DatabaseTestCase
     {
         self::assertFalse(Validate::csrf("unknowrequest", "unknowtoken"));
         self::assertFalse(Validate::csrf("unknowrequest"));
-        self::assertFalse(Validate::csrf(null, null));
 
         $_SESSION["therequest_csrf_token"] = "thetoken";
         $_SESSION["therequest_csrf_time"] = time() - 60;
@@ -84,7 +83,7 @@ class ValidateTest extends DatabaseTestCase
             "str2" => "string",
             "bool" => "bool",
             "bool2" => "bool",
-            "nonexistentkey" => "str"
+            "nonexistentkey" => "string"
         ];
 
         $post = Validate::sanitizePost($schema);
@@ -105,7 +104,8 @@ class ValidateTest extends DatabaseTestCase
         self::assertInternalType("bool", $post["bool2"]);
 
         self::assertArrayHasKey("nonexistentkey", $post);
-        self::assertNull($post["nonexistentkey"]);
+        self::assertInternalType("string", $post["nonexistentkey"]);
+        self::assertSame("", $post["nonexistentkey"]);
 
         self::assertArrayNotHasKey("garbage", $post);
         self::assertArrayNotHasKey("garbage2", $post);
