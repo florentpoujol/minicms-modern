@@ -4,31 +4,12 @@ namespace App\Entities;
 
 class BasePage extends Entity
 {
-    // fields from DB
-    public $slug;
-    public $title;
-    public $content;
-    public $published;
-    public $allow_comments;
-
-    /**
-     * Must be overridden in child classes
-     * @return Comment[]|bool
-     */
-    public function getComments()
-    {
-        return [];
-    }
-
-    public function delete(): bool
-    {
-        $comments = $this->getComments();
-        foreach ($comments as $comment) {
-            $comment->delete();
-        }
-
-        return parent::delete();
-    }
+    public $slug = "";
+    public $title = "";
+    public $content = "";
+    public $published = -1;
+    public $allow_comments = -1;
+    public $user_id = -1;
 
     public function getExcerpt(int $characterCount = 500): string
     {

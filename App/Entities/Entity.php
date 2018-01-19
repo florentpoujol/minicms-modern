@@ -4,7 +4,7 @@ namespace App\Entities;
 
 class Entity
 {
-    public $id;
+    public $id = -1;
     public $title = ""; // not all entities have a title, but it is used below (in getLink())
     public $creation_datetime;
 

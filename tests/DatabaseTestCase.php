@@ -5,7 +5,12 @@ namespace Tests;
 use App\Database;
 use App\Entities\Entity;
 use App\Entities\Repositories\Category;
+use App\Entities\Repositories\Comment;
+use App\Entities\Repositories\Media;
+use App\Entities\Repositories\Menu;
+use App\Entities\Repositories\Page;
 use App\Entities\Repositories\Post;
+use App\Entities\Repositories\User;
 use PDO;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
@@ -31,7 +36,26 @@ abstract class DatabaseTestCase extends BaseTestCase
      * @var Post
      */
     protected $postRepo;
-
+    /**
+     * @var Page
+     */
+    protected $pageRepo;
+    /**
+     * @var Comment
+     */
+    protected $commentRepo;
+    /**
+     * @var User
+     */
+    protected $userRepo;
+    /**
+     * @var Media
+     */
+    protected $mediaRepo;
+    /**
+     * @var Menu
+     */
+    protected $menuRepo;
 
     final public function getConnection()
     {
@@ -50,9 +74,29 @@ abstract class DatabaseTestCase extends BaseTestCase
 
         $this->categoryRepo = $this->container->get(Category::class);
         $this->postRepo = $this->container->get(Post::class);
+        $this->pageRepo = $this->container->get(Page::class);
+        $this->commentRepo = $this->container->get(Comment::class);
+        $this->mediaRepo = $this->container->get(Media::class);
+        $this->menuRepo = $this->container->get(Menu::class);
+        $this->userRepo = $this->container->get(User::class);
 
         $this->categoryRepo->postRepo = $this->postRepo;
-        $this->postRepo->postRepo = $this->categoryRepo;
+
+        $this->postRepo->categoryRepo = $this->categoryRepo;
+        $this->postRepo->userRepo = $this->userRepo;
+        $this->postRepo->commentRepo = $this->commentRepo;
+
+        $this->pageRepo->userRepo = $this->userRepo;
+        $this->pageRepo->commentRepo = $this->commentRepo;
+
+        $this->commentRepo->pageRepo = $this->pageRepo;
+        $this->commentRepo->postRepo = $this->postRepo;
+        $this->commentRepo->userRepo = $this->userRepo;
+
+        $this->userRepo->postRepo = $this->postRepo;
+        $this->userRepo->pageRepo = $this->pageRepo;
+        $this->userRepo->commentRepo = $this->commentRepo;
+        $this->userRepo->mediaRepo = $this->mediaRepo;
 
         return $this->createDefaultDBConnection(self::$pdo, $GLOBALS["DB_NAME"]);
     }

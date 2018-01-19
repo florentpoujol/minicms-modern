@@ -1,77 +1,79 @@
 <?php
 
+namespace Tests;
+
+use App\Entities\Post;
 use App\Entities\User;
 use App\Entities\Comment;
 
-class UserTest extends DatabaseTestCase
+class UserRepoTest extends DatabaseTestCase
 {
     public function testGet()
     {
-        $user = User::get(["id" => 999]);
+        $user = $this->userRepo->get(["id" => 999]);
         self::assertInternalType("bool", $user);
         self::assertEquals(false, $user);
 
-        $user = User::get(["id" => 1]);
+        $user = $this->userRepo->get(["id" => 1]);
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(true, $user->isAdmin());
         self::assertEquals(false, $user->isWriter());
 
-
-        $user = User::get(["role" => "writer"]);
+        $user = $this->userRepo->get(["role" => "writer"]);
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(true, $user->isWriter());
         self::assertEquals(false, $user->isCommenter());
 
-        $user = User::get(["id" => 2, "role" => "commenter"]);
+        $user = $this->userRepo->get(["id" => 2, "role" => "commenter"]);
         self::assertEquals(false, $user);
 
-        $user = User::get(["id" => 3, "role" => "commenter"]); // condition == AND
+        $user = $this->userRepo->get(["id" => 3, "role" => "commenter"]); // condition == AND
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(true, $user->isCommenter());
     }
 
     public function testGetAll()
     {
-        $users = User::getAll(["role" => "whatever"]);
+        $users = $this->userRepo->getAll(["role" => "whatever"]);
         self::assertInternalType("array", $users);
         self::assertEmpty($users);
 
-        $users = User::getAll();
+        $users = $this->userRepo->getAll();
         self::assertCount(3, $users);
         self::assertContainsOnlyInstancesOf(User::class, $users);
 
-        $users = User::getAll(["role" => "writer"]);
+        $users = $this->userRepo->getAll(["role" => "writer"]);
         self::assertCount(1, $users);
         self::assertContainsOnlyInstancesOf(User::class, $users);
     }
 
     public function testCountAll()
     {
-        self::assertEquals(3, User::countAll());
+        self::assertEquals(3, $this->userRepo->countAll());
     }
 
     public function testGetResources()
     {
-        $users = User::getAll();
+        $users = $this->userRepo->getAll();
         $admin = $users[0];
         $writer = $users[1];
         $commenter = $users[2];
 
-        $posts = $admin->getPosts();
+        $posts = $this->userRepo->getPosts($admin);
         self::assertCount(2, $posts);
-        self::assertContainsOnlyInstancesOf(App\Entities\Post::class, $posts);
-        self::assertEmpty(0, $admin->getComments());
+        self::assertContainsOnlyInstancesOf(Post::class, $posts);
+        self::assertEmpty(0, $this->userRepo->getComments($admin));
 
-        self::assertEmpty(0, $writer->getPosts());
+        self::assertEmpty(0, $this->userRepo->getPosts($writer));
 
-        $comments = $writer->getComments();
+        $comments = $this->userRepo->getComments($writer);
         self::assertCount(1, $comments);
-        self::assertContainsOnlyInstancesOf(App\Entities\Comment::class, $comments);
+        self::assertContainsOnlyInstancesOf(Comment::class, $comments);
 
-        self::assertEmpty(0, $commenter->getPosts());
-        $comments = $commenter->getComments();
+        self::assertEmpty(0, $this->userRepo->getPosts($commenter));
+        $comments = $this->userRepo->getComments($commenter);
         self::assertCount(2, $comments);
-        self::assertContainsOnlyInstancesOf(App\Entities\Comment::class, $comments);
+        self::assertContainsOnlyInstancesOf(Comment::class, $comments);
     }
 
     public function testCreate()
@@ -83,18 +85,18 @@ class UserTest extends DatabaseTestCase
             "password" => "azerty"
         ];
 
-        $user = User::create($newUser);
+        $user = $this->userRepo->create($newUser);
         self::assertInstanceOf(User::class, $user);
 
-        $sameUser = User::get(["id" => $user->id]);
+        $sameUser = $this->userRepo->get(["id" => $user->id]);
         self::assertEquals($user, $sameUser);
-        $otherUser = User::get(["id" => 1]);
+        $otherUser = $this->userRepo->get(["id" => 1]);
         self::assertNotEquals($user, $otherUser);
 
         self::assertNotEmpty($user->email_token);
 
-        self::assertEquals(4, User::countAll());
-        self::assertCount(2, User::getAll(["role" => "admin"]));
+        self::assertEquals(4, $this->userRepo->countAll());
+        self::assertCount(2, $this->userRepo->getAll(["role" => "admin"]));
     }
 
     public function testUpdate()
@@ -106,51 +108,51 @@ class UserTest extends DatabaseTestCase
             "password" => "azerty"
         ];
 
-        $user = User::create($newUser);
+        $user = $this->userRepo->create($newUser);
         self::assertNotEmpty($user->email_token);
 
-        self::assertTrue($user->updateEmailToken(""));
+        self::assertTrue($this->userRepo->updateEmailToken($user, ""));
         self::assertEmpty($user->email_token);
 
         self::assertEmpty($user->password_token);
         self::assertEquals(0, $user->password_change_time);
-        self::assertTrue($user->updatePasswordToken("newtoken"));
+        self::assertTrue($this->userRepo->updatePasswordToken($user, "newtoken"));
         self::assertEquals("newtoken", $user->password_token);
         $time = time();
         self::assertGreaterThan($time - 1, $user->password_change_time);
         self::assertLessThan($time + 1, $user->password_change_time);
 
         self::assertTrue(password_verify("azerty", $user->password_hash));
-        self::assertTrue($user->updatePassword("qwerty"));
+        self::assertTrue($this->userRepo->updatePassword($user, "qwerty"));
         self::assertTrue(password_verify("qwerty", $user->password_hash));
         self::assertEmpty($user->password_token);
         self::assertEquals(0, $user->password_change_time);
 
         self::assertEquals(0, $user->is_blocked);
         self::assertFalse($user->isBlocked());
-        self::assertTrue($user->block());
+        self::assertTrue($this->userRepo->block($user));
         self::assertEquals(1, $user->is_blocked);
         self::assertTrue($user->isBlocked());
-        self::assertTrue($user->block(false));
+        self::assertTrue($this->userRepo->block($user, false));
         self::assertEquals(0, $user->is_blocked);
         self::assertFalse($user->isBlocked());
     }
 
     public function testDelete()
     {
-        $user = User::get(["id" => 2]); // the writer, who has 1 comment and 2 pages
+        $user = $this->userRepo->get(["id" => 2]); // the writer, who has 1 comment and 2 pages
 
-        self::assertCount(1, Comment::getAll(["user_id" => 2]));
-        self::assertEquals(3, Comment::countAll());
+        self::assertCount(1, $this->commentRepo->getAll(["user_id" => 2]));
+        self::assertEquals(3, $this->commentRepo->countAll());
 
-        $user->deleteByAdmin(1);
+        $this->userRepo->deleteByAdmin($user, 1);
 
-        self::assertFalse(User::get(["id" => 2]));
+        self::assertFalse($this->userRepo->get(["id" => 2]));
 
-        self::assertCount(0, Comment::getAll(["user_id" => 2]));
-        self::assertEquals(2, Comment::countAll());
+        self::assertCount(0, $this->commentRepo->getAll(["user_id" => 2]));
+        self::assertEquals(2, $this->commentRepo->countAll());
 
-        self::assertNull($user->id);
-        self::assertNull($user->name);
+        // self::assertNull($user->id);
+        // self::assertNull($user->name);
     }
 }

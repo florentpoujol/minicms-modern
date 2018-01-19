@@ -49,7 +49,8 @@ class App
         $this->requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
 
         // $this->uploadPath = trim(Config::get("upload_folder"), "/") . "/";
-        $configManager = $this->container->get(Config::class);
-        $this->uploadPath = trim($configManager->get("upload_folder"), "/") . "/";
+        $config = $this->container->get(Config::class);
+        $this->uploadPath = trim($config->get("upload_folder"), "/") . "/";
+        $config->set("upload_path", $this->uploadPath);
     }
 }

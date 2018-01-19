@@ -7,6 +7,7 @@ use App\Database;
 use App\Entities\Entity as BaseEntity;
 use App\Entities\Category as CategoryEntity;
 use App\Entities\Post as PostEntity;
+use App\Session;
 
 class Category extends Entity
 {
@@ -15,11 +16,10 @@ class Category extends Entity
      */
     public $postRepo;
 
-    public function __construct(Database $database, Config $config)
+    public function __construct(Database $database, Config $config, Session $session)
     {
-        parent::__construct($database, $config);
+        parent::__construct($database, $config, $session);
         $this->tableName = "categories";
-        // $this->postRepo = $postRepo;
     }
 
     /**
@@ -39,6 +39,15 @@ class Category extends Entity
     }
 
     /**
+     * @return PostEntity[]|bool
+     */
+    public function getPosts(BaseEntity $entity, array $whereConditions = [])
+    {
+        $whereConditions = array_merge(["category_id" => $entity->id], $whereConditions);
+        return $this->postRepo->getAll($whereConditions);
+    }
+
+    /**
      * @return CategoryEntity|false
      */
     public function create(array $data)
@@ -46,24 +55,15 @@ class Category extends Entity
         return parent::create($data);
     }
 
+    /**
+     * @param CategoryEntity $category
+     */
     public function delete($category): bool
     {
         if (parent::delete($category)) {
-            $posts = $this->getPosts($category);
-            foreach ($posts as $post) {
-                $this->postRepo->delete($post);
-            }
+            $this->postRepo->deleteMany(["category_id" => $category->id]);
             return true;
         }
         return false;
-    }
-
-    /**
-     * @return PostEntity[]|bool
-     */
-    public function getPosts(BaseEntity $entity, array $whereConditions = [])
-    {
-        $whereConditions = array_merge(["category_id" => $entity->id], $whereConditions);
-        return $this->postRepo->getAll($whereConditions);
     }
 }

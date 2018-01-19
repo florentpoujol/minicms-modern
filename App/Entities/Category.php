@@ -4,7 +4,7 @@ namespace App\Entities;
 
 class Category extends Entity
 {
-    public $slug;
+    public $slug = "";
 
     public function getLink(string $routeName = "category")
     {

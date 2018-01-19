@@ -15,6 +15,7 @@ class Post extends Entity
      * @var Category
      */
     public $categoryRepo;
+
     /**
      * @var Comment
      */
@@ -24,14 +25,6 @@ class Post extends Entity
      * @var User
      */
     public $userRepo;
-
-    public function __construct(Database $database, Config $config)
-    {
-        parent::__construct($database, $config);
-        // $this->categoryRepo = $categoryRepo;
-        // $this->commentRepo = $CommentRepo;
-        // $this->userRepo = $userRepo;
-    }
 
     /**
      * @return PostEntity|false
@@ -81,13 +74,13 @@ class Post extends Entity
         return parent::create($data);
     }
 
+    /**
+     * @param PostEntity $post
+     */
     public function delete($post): bool
     {
         if (parent::delete($post)) {
-            /*$comments = $this->getComments($post);
-            foreach ($comments as $comment) {
-                $this->commentRepo->delete($comment);
-            }*/
+            $this->commentRepo->deleteMany(["post_id" => $post->id]);
             return true;
         }
         return false;

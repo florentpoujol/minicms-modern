@@ -4,9 +4,10 @@ namespace App\Entities;
 
 class Menu extends Entity
 {
-    public $name;
-    public $json_structure;
+    public $title = "";
+    public $json_structure = "[]";
     public $structure = [];
+    public $in_use = -1;
 
     public function getStructure(): array
     {
@@ -31,23 +32,9 @@ class Menu extends Entity
         return $structure;
     }
 
-    /**
-     * @return $this|false
-     */
-    public static function create(array $data)
+    public function isInUse(): bool
     {
-        $data["structure"] = self::cleanStructure($data["structure"]);
-        $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
-        unset($data["structure"]);
-        return parent::create($data);
-    }
-
-    public function update(array $data): bool
-    {
-        $data["structure"] = self::cleanStructure($data["structure"]);
-        $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
-        unset($data["structure"]);
-        return parent::update($data);
+        return $this->in_use === 1;
     }
 
     public function toArray(): array

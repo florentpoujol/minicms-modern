@@ -4,6 +4,7 @@ namespace App\Entities\Repositories;
 
 use App\Config;
 use App\Database;
+use App\Session;
 use App\Entities\Entity as BaseEntity;
 use PDO;
 
@@ -12,26 +13,29 @@ class Entity
     /**
      * @var Database
      */
-    public $database;
+    protected $database;
 
     /**
      * @var Config
      */
     protected $config;
 
-    protected $className = "";
+    /**
+     * @var Session
+     */
+    protected $session;
 
+    protected $entityClassName = "";
     protected $tableName = "";
 
-    public function __construct(Database $database, Config $config)
+    public function __construct(Database $database, Config $config, Session $session)
     {
         $this->database = $database;
         $this->config = $config;
+        $this->session = $session;
 
-        $this->className = str_replace("\Repositories", "", get_called_class());
-
-        $entityName = str_replace("App\Entities\\", "", $this->className);
-
+        $this->entityClassName = str_replace("\Repositories", "", get_called_class());
+        $entityName = str_replace("App\Entities\\", "", $this->entityClassName);
         $this->tableName = strtolower($entityName) . "s";
     }
 
@@ -53,7 +57,7 @@ class Entity
             ->execute();
 
         if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, $this->className);
+            $query->setFetchMode(PDO::FETCH_CLASS, $this->entityClassName);
             return $query->fetch();
         }
         return false;
@@ -91,7 +95,7 @@ class Entity
             ->execute();
 
         if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, $this->className);
+            $query->setFetchMode(PDO::FETCH_CLASS, $this->entityClassName);
             return $query->fetchAll();
         }
         return false;
@@ -151,6 +155,19 @@ class Entity
         return $success;
     }
 
+    public function updateMany(array $newData, array $whereConditions): bool
+    {
+        $builder = $this->database->getQueryBuilder()
+            ->update($newData)
+            ->inTable($this->tableName);
+
+        foreach ($whereConditions as $field => $value) {
+            $builder->where($field, $value);
+        }
+
+        return $builder->execute();
+    }
+
     public function delete($entity): bool
     {
         $success = $this->database->getQueryBuilder()
@@ -160,12 +177,20 @@ class Entity
             ->execute();
 
         if ($success) {
-            $props = get_object_vars($entity);
-            $entity->isDeleted = true;
-            /*foreach ($props as $field => $value) {
+            /*$props = get_object_vars($entity);
+            foreach ($props as $field => $value) {
                 $entity->{$field} = null;
             }*/
+            $entity->isDeleted = true;
         }
         return $success;
+    }
+
+    public function deleteMany(array $whereConditions): bool
+    {
+        return $this->database->getQueryBuilder()
+            ->delete()->fromTable($this->tableName)
+            ->where($whereConditions)
+            ->execute();
     }
 }

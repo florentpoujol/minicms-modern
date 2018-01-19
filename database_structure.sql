@@ -41,6 +41,20 @@ CREATE TABLE `medias` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Table structure for table `menus`
+--
+
+DROP TABLE IF EXISTS `menus`;
+CREATE TABLE `menus` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `structure` TEXT NOT NULL,
+  `creation_datetime` datetime NOT NULL,
+  `in_use` TINYINT(4) UNSIGNED DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
 -- Table structure for table `pages`
 --
 
@@ -51,6 +65,7 @@ CREATE TABLE `pages` (
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
   `parent_page_id` int(10) UNSIGNED DEFAULT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
   `creation_datetime` datetime NOT NULL,
   `published` tinyint(4) UNSIGNED DEFAULT 1,
   `allow_comments` tinyint(4) UNSIGNED DEFAULT 1,

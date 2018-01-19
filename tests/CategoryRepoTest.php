@@ -2,9 +2,10 @@
 
 namespace Tests;
 
-use App\Entities\Category as Category;
+use App\Entities\Category;
+use App\Entities\Post;
 
-class CategoryTest extends DatabaseTestCase
+class CategoryRepoTest extends DatabaseTestCase
 {
 
     function testGet()
@@ -12,13 +13,13 @@ class CategoryTest extends DatabaseTestCase
         $category = $this->categoryRepo->get(["slug" => "category-1"]);
         self::assertInstanceOf(Category::class, $category);
 
-        // $posts = $category->getPosts();
-        // self::assertCount(1, $posts);
-        // self::assertContainsOnlyInstancesOf(Post::class, $posts);
+        $posts = $this->categoryRepo->getPosts($category);
+        self::assertCount(1, $posts);
+        self::assertContainsOnlyInstancesOf(Post::class, $posts);
 
-        $cats = $this->categoryRepo->getAll();
-        self::assertContainsOnlyInstancesOf(Category::class, $cats);
-        self::assertCount(2, $cats);
+        $categories = $this->categoryRepo->getAll();
+        self::assertContainsOnlyInstancesOf(Category::class, $categories);
+        self::assertCount(2, $categories);
         self::assertEquals(2, $this->categoryRepo->countAll());
     }
 
@@ -53,12 +54,10 @@ class CategoryTest extends DatabaseTestCase
         $posts = $this->categoryRepo->getPosts($category);
         self::assertCount(1, $posts);
 
-        $categoryId = $category->id;
         self::assertTrue($this->categoryRepo->delete($category));
 
         // self::assertNull($category->slug);
         self::assertCount(0, $this->categoryRepo->getPosts($category));
-        // self::assertCount(0, $this->postRepo->getAll(["category_id" => $categoryId]));
 
         self::assertFalse($this->postRepo->get($posts[0]->id));
     }

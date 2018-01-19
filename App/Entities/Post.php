@@ -4,8 +4,7 @@ namespace App\Entities;
 
 class Post extends BasePage
 {
-    public $user_id;
-    public $category_id;
+    public $category_id = -1;
 
     public function getLink(string $routeName = "post")
     {
