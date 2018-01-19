@@ -2,10 +2,12 @@
 
 namespace Tests;
 
-use App\Config;
 use App\Database;
-use App\Session;
+use App\Entities\Entity;
+use App\Entities\Repositories\Category;
+use App\Entities\Repositories\Post;
 use PDO;
+use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 
 abstract class DatabaseTestCase extends BaseTestCase
@@ -18,40 +20,45 @@ abstract class DatabaseTestCase extends BaseTestCase
     /**
      * @var Database
      */
-    static private $db;
+    protected $database;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
-    private $conn = null;
+    /**
+     * @var Category
+     */
+    protected $categoryRepo;
+
+    /**
+     * @var Post
+     */
+    protected $postRepo;
+
 
     final public function getConnection()
     {
-        if ($this->conn === null) {
-            if (self::$pdo == null) {
-                $options = [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-                    PDO::ATTR_EMULATE_PREPARES   => false,
-                ];
+        if (self::$pdo === null) {
+            $options = [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ];
 
-                self::$pdo = new PDO($GLOBALS["DB_DSN"], $GLOBALS["DB_USER"], $GLOBALS["DB_PASSWORD"], $options);
-
-                self::$db = new Database($this->config, $this->session);
-                self::$db->pdo = self::$pdo;
-            }
-
-            $this->conn = $this->createDefaultDBConnection(self::$pdo, $GLOBALS["DB_NAME"]);
+            self::$pdo = new PDO($GLOBALS["DB_DSN"], $GLOBALS["DB_USER"], $GLOBALS["DB_PASSWORD"], $options);
         }
 
-        return $this->conn;
+        $this->database = $this->container->get(Database::class);
+        $this->database->pdo = self::$pdo;
+
+        $this->categoryRepo = $this->container->get(Category::class);
+        $this->postRepo = $this->container->get(Post::class);
+
+        $this->categoryRepo->postRepo = $this->postRepo;
+        $this->postRepo->postRepo = $this->categoryRepo;
+
+        return $this->createDefaultDBConnection(self::$pdo, $GLOBALS["DB_NAME"]);
     }
 
     public function getDataSet()
     {
-        /*$thing =
-            new \PHPUnit\DbUnit\DataSet\YamlDataSet(
-                __dir__ . "/mainDataSet.yml"
-            );
-        return $thing;*/
-        return null;
+        return new YamlDataSet(__dir__ . "/testsDataSet.yml");
     }
 }

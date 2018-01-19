@@ -30,7 +30,9 @@ if (!$config->fileExists()) {
 
 $db = $container->get(Database::class);
 $db->connect();
+
 Entity::$db = $db;
+Entity::$config = $config;
 
 $container->set(QueryBuilder::class, function () use ($db) {
     return new QueryBuilder($db->pdo);

@@ -42,10 +42,8 @@ abstract class BaseTestCase extends TestCase
      */
     protected $validator;
 
-    public function __construct(string $name = null, array $data = [], string $dataName = '')
+    protected function setUp()
     {
-        parent::__construct($name, $data, $dataName);
-
         $this->container = new DIContainer();
 
         $this->config = $this->container->get(Config::class);

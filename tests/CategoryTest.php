@@ -1,61 +1,65 @@
 <?php
 
-use App\Entities\Category;
-use App\Entities\Post;
+namespace Tests;
+
+use App\Entities\Category as Category;
 
 class CategoryTest extends DatabaseTestCase
 {
+
     function testGet()
     {
-        $cat = Category::get(["slug" => "category-1"]);
-        self::assertInstanceOf(Category::class, $cat);
+        $category = $this->categoryRepo->get(["slug" => "category-1"]);
+        self::assertInstanceOf(Category::class, $category);
 
-        $posts = $cat->getPosts();
-        self::assertCount(1, $posts);
-        self::assertContainsOnlyInstancesOf(Post::class, $posts);
+        // $posts = $category->getPosts();
+        // self::assertCount(1, $posts);
+        // self::assertContainsOnlyInstancesOf(Post::class, $posts);
 
-        $cats = Category::getAll();
+        $cats = $this->categoryRepo->getAll();
         self::assertContainsOnlyInstancesOf(Category::class, $cats);
         self::assertCount(2, $cats);
-        self::assertEquals(2, Category::countAll());
+        self::assertEquals(2, $this->categoryRepo->countAll());
     }
 
     function testCreate()
     {
-        self::assertEquals(2, Category::countAll());
+        self::assertEquals(2, $this->categoryRepo->countAll());
 
         $data = [
             "slug" => "category3",
             "title" => "Category 3",
         ];
-        $cat = Category::create($data);
-        self::assertInstanceOf(Category::class, $cat);
-        self::assertEquals("category3", $cat->slug);
-        self::assertEquals(3, Category::countAll());
+        $category = $this->categoryRepo->create($data);
+        self::assertInstanceOf(Category::class, $category);
+        self::assertEquals("category3", $category->slug);
+        self::assertEquals(3, $this->categoryRepo->countAll());
     }
 
     function testUpdate()
     {
-        $cat = Category::get(1);
-        self::assertEquals("Category 1", $cat->title);
+        $category = $this->categoryRepo->get(1);
+        self::assertEquals("Category 1", $category->title);
 
-        self::assertTrue($cat->update(["title" => "NewCategoryName"]));
-        self::assertEquals("NewCategoryName", $cat->title);
-        self::assertEquals("NewCategoryName", Category::get(1)->title);
+        self::assertTrue($this->categoryRepo->update($category, ["title" => "NewCategoryName"]));
+        self::assertEquals("NewCategoryName", $category->title);
+        self::assertEquals("NewCategoryName", $this->categoryRepo->get(1)->title);
     }
 
     function testDelete()
     {
-        $cat = Category::get(1);
-        self::assertEquals("category-1", $cat->slug);
-        $posts = $cat->getPosts();
+        $category = $this->categoryRepo->get(1);
+        self::assertEquals("category-1", $category->slug);
+        $posts = $this->categoryRepo->getPosts($category);
         self::assertCount(1, $posts);
 
-        self::assertTrue($cat->delete());
+        $categoryId = $category->id;
+        self::assertTrue($this->categoryRepo->delete($category));
 
-        self::assertNull($cat->slug);
-        self::assertCount(0, $cat->getPosts());
+        // self::assertNull($category->slug);
+        self::assertCount(0, $this->categoryRepo->getPosts($category));
+        // self::assertCount(0, $this->postRepo->getAll(["category_id" => $categoryId]));
 
-        self::assertFalse(Post::get($posts[0]->id));
+        self::assertFalse($this->postRepo->get($posts[0]->id));
     }
 }

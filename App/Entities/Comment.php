@@ -20,7 +20,7 @@ class Comment extends Entity
             if ($pageNumber < 0) {
                 $pageNumber = 0;
             }
-            $itemsPerPage = \App\Config::get("items_per_page");
+            $itemsPerPage = self::$config->get("items_per_page");
 
             $offset = $pageNumber * $itemsPerPage;
             $limit = " LIMIT $offset, $itemsPerPage";
