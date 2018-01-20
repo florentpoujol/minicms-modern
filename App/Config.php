@@ -4,28 +4,20 @@ namespace App;
 
 class Config
 {
-    public $configFolder = __dir__ . "/../config/";
+    public $configFile = __dir__ . "/../config/config.json";
 
     public $config = [];
-
-    public function __construct(string $configFolder = null)
-    {
-        if ($configFolder !== null) {
-            // during tests
-            $this->configFolder = $configFolder;
-        }
-
-        $this->load();
-    }
 
     /**
      * read the config file (JSON) then populate the $config array
      */
-    public function load(): bool
+    public function load(string $configFile = null): bool
     {
-        $path = $this->configFolder . "config.json";
-        if (file_exists($path)) {
-            $jsonConfig = file_get_contents($path);
+        if ($configFile === null) {
+            $configFile = $this->configFile;
+        }
+        if (file_exists($configFile)) {
+            $jsonConfig = file_get_contents($configFile);
 
             if (is_string($jsonConfig)) {
                 $this->config = json_decode($jsonConfig, true);
@@ -37,7 +29,7 @@ class Config
 
     public function fileExists(): bool
     {
-        return file_exists($this->configFolder . "config.json");
+        return file_exists($this->configFile);
     }
 
     /**
@@ -47,7 +39,7 @@ class Config
     public function save(): bool
     {
         $jsonConfig = json_encode($this->config, JSON_PRETTY_PRINT);
-        return (bool)file_put_contents($this->configFolder . "config.json", $jsonConfig);
+        return (bool)file_put_contents($this->configFile, $jsonConfig);
     }
 
     /**
@@ -59,7 +51,6 @@ class Config
         if (isset($this->config[$key])) {
             return $this->config[$key];
         }
-
         return $defaultValue;
     }
 
