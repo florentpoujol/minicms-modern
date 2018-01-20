@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Entities\User;
 use App\Messages;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Users extends AdminBaseController
@@ -18,7 +18,7 @@ class Users extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => User::countAll(),
-                "queryString" => Route::buildQueryString("admin/users/read/")
+                "queryString" => Router::getQueryString("admin/users/read/")
             ]
         ];
         $this->render("users.read", "users.pagetitle", $data);
@@ -27,7 +27,7 @@ class Users extends AdminBaseController
     public function getCreate()
     {
         if ($this->user->isWriter()) {
-            Route::redirect("admin/users/read");
+            Router::redirect("admin/users/read");
         }
 
         $this->render("users.update", "users.createnewuser", ["action" => "create"]);
@@ -36,7 +36,7 @@ class Users extends AdminBaseController
     public function postCreate()
     {
         if ($this->user->isWriter()) {
-            Route::redirect("admin/users/read");
+            Router::redirect("admin/users/read");
         }
 
         $post = Validator::sanitizePost([
@@ -53,7 +53,7 @@ class Users extends AdminBaseController
 
                 if (is_object($user)) {
                     Messages::addSuccess("user.created");
-                    Route::redirect("admin/users/update/$user->id");
+                    Router::redirect("admin/users/update/$user->id");
                 } else {
                     Messages::addError("db.createuser");
                 }
@@ -72,13 +72,13 @@ class Users extends AdminBaseController
     public function getUpdate(int $userId)
     {
         if (! $this->user->isAdmin() && $userId !== $this->user->id) {
-            Route::redirect("admin/users/update/$this->user->id");
+            Router::redirect("admin/users/update/$this->user->id");
         }
 
         $user = User::get($userId);
         if ($user === false) {
             Messages::addError("user.unknown");
-            Route::redirect("admin/users");
+            Router::redirect("admin/users");
         }
 
         $data = [
@@ -121,7 +121,7 @@ class Users extends AdminBaseController
                 if (is_object($user)) {
                     if ($user->update($post)) {
                         Messages::addSuccess("user.updated");
-                        Route::redirect("admin/users/update/$user->id");
+                        Router::redirect("admin/users/update/$user->id");
                     } else {
                         Messages::addError("db.userupdated");
                     }
@@ -169,6 +169,6 @@ class Users extends AdminBaseController
             }
         }
 
-        Route::redirect("admin/users/read");
+        Router::redirect("admin/users/read");
     }
 }

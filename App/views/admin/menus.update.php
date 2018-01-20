@@ -4,7 +4,7 @@ use \App\Entities\Menu;
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 @if ($action === "update")
 Menu id: {$post["id"]} <br>
@@ -16,7 +16,7 @@ $str = "admin/menus/$action";
 if ($action === "update") {
     $str .= "/".$post["id"];
 }
-$form->open(\App\Route::buildQueryString($str));
+$form->open($router->getQueryString($str));
 
 $form->text("name", "name");
 

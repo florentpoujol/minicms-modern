@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <a href="{queryString admin/posts/create}">{lang post.createlink}</a> <br>
 <br>
@@ -41,7 +41,7 @@
         <td>
             <?php
             $form = new \App\Form("postdelete".$row->id);
-            $form->open(\App\Route::buildQueryString("admin/posts/delete"));
+            $form->open($router->getQueryString("admin/posts/delete"));
             $form->hidden("id", $row->id);
             $form->submit("", "Delete");
             $form->close();
@@ -51,4 +51,4 @@
     @endforeach
 </table>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

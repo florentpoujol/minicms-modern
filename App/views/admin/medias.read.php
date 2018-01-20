@@ -1,6 +1,6 @@
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <a href="{queryString admin/medias/create}">{lang media.createlink}</a> <br>
 <br>
@@ -44,7 +44,7 @@
         <td>
             <?php
             $form = new \App\Form("mediadelete".$row->id);
-            $form->open(\App\Route::buildQueryString("admin/medias/delete"));
+            $form->open($router->getQueryString("admin/medias/delete"));
             $form->hidden("id", $row->id);
             $form->submit("", "Delete");
             $form->close();

@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <table>
     <tr>
@@ -56,7 +56,7 @@
         <td>
             <?php
             $form = new \App\Form("commentdelete".$row->id);
-            $form->open(\App\Route::buildQueryString("admin/comments/delete"));
+            $form->open($router->getQueryString("admin/comments/delete"));
             $form->hidden("id", $row->id);
             $form->submit("", "Delete");
             $form->close();
@@ -67,4 +67,4 @@
     @endforeach
 </table>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

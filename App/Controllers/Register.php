@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Messages;
 use App\Validator;
-use App\Route;
+use App\Router;
 use App\Emails;
 use App\Entities\User;
 
@@ -17,7 +17,7 @@ Register extends BaseController
 
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            Route::redirect("admin");
+            Router::redirect("admin");
         }
     }
 
@@ -52,7 +52,7 @@ Register extends BaseController
 
                     if (Emails::sendConfirmEmail($user)) {
                         Messages::addSuccess("email.confirmemail");
-                        Route::redirect("login");
+                        Router::redirect("login");
                     }
                 } else {
                     Messages::addError("db.createuser");
@@ -75,13 +75,13 @@ Register extends BaseController
         if ($emailToken !== "" && $user !== false) {
             if ($user->update(["email_token" => ""]))  {
                 Messages::addSuccess("user.emailconfirmed");
-                Route::redirect("login");
+                Router::redirect("login");
             } else {
                 Messages::addError("db.updateemailtoken");
             }
         } else {
             Messages::addError("user.unauthorized");
-            Route::redirect();
+            Router::redirect();
         }
     }
 
@@ -102,11 +102,11 @@ Register extends BaseController
                     if ($user->email_token !== "") {
                         if (Emails::sendConfirmEmail($user)) {
                             Messages::addSuccess("email.confirmemail");
-                            Route::redirect("login");
+                            Router::redirect("login");
                         }
                     } else {
                         Messages::addError("user.alreadyactivated");
-                        Route::redirect("login");
+                        Router::redirect("login");
                     }
                 } else {
                     Messages::addError("user.unknow");

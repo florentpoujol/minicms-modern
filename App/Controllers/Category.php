@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Entities\Category as CategoryEntity;
 use App\Entities\Post;
 use App\Messages;
-use App\Route;
+use App\Router;
 
 class Category extends BaseController
 {
@@ -15,7 +15,7 @@ class Category extends BaseController
 
         if ($category === false) {
             Messages::addError("category.unknow");
-            Route::redirect("blog");
+            Router::redirect("blog");
         }
 
         $data = [
@@ -24,7 +24,7 @@ class Category extends BaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Post::countAll(["category_id" => $categoryId]),
-                "queryString" => Route::buildQueryString("category/$categoryId")
+                "queryString" => Router::getQueryString("category/$categoryId")
             ]
         ];
         $this->render("category", "Category: $category->title", $data);

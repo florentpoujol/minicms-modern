@@ -6,6 +6,7 @@ use App\Entities\Repositories\Post as PostRepo;
 use App\Entities\Repositories\Comment as CommentRepo;
 use App\Entities\Repositories\Category as CategoryRepo;
 use App\Entities\Repositories\User as UserRepo;
+use App\Router;
 
 class Post extends BasePage
 {
@@ -28,8 +29,9 @@ class Post extends BasePage
      */
     protected $categoryRepo;
 
-    public function __construct(PostRepo $postRepo, CommentRepo $commentRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
+    public function __construct(Router $router, PostRepo $postRepo, CommentRepo $commentRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
     {
+        parent::__construct($router);
         $this->commentRepo = $commentRepo;
         $this->categoryRepo = $categoryRepo;
         $this->userRepo = $userRepo;

@@ -8,7 +8,7 @@ if (! is_writable($uploadPath)) {
 }
 ?>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 @if ($action === "update")
 Media id: {$post["id"]} <br>
@@ -20,7 +20,7 @@ $str = "admin/medias/$action";
 if ($action === "update") {
     $str .= "/".$post["id"];
 }
-$form->open(\App\Route::buildQueryString($str), "post", true);
+$form->open($router->getQueryString($str), "post", true);
 
 $form->text("slug", "slug");
 

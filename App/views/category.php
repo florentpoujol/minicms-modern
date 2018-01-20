@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <div>
     <h2>Posts</h2>
@@ -20,4 +20,4 @@
     @endif
 </div>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

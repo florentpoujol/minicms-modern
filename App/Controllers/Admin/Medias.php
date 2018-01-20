@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Media;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Medias extends AdminBaseController
@@ -17,7 +17,7 @@ class Medias extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Media::countAll(),
-                "queryString" => Route::buildQueryString("admin/medias/read")
+                "queryString" => Router::getQueryString("admin/medias/read")
             ]
         ];
         $this->render("medias.read", "admin.media.readtitle", $data);
@@ -46,7 +46,7 @@ class Medias extends AdminBaseController
 
                 if (is_object($media)) {
                     Messages::addSuccess("media.created");
-                    Route::redirect("admin/medias/update/$media->id");
+                    Router::redirect("admin/medias/update/$media->id");
                 } else {
                     Messages::addError("media.create");
                 }
@@ -67,12 +67,12 @@ class Medias extends AdminBaseController
         $media = Media::get($mediaId);
         if ($media === false) {
             Messages::addError("media.unknown");
-            Route::redirect("admin/medias/read");
+            Router::redirect("admin/medias/read");
         }
 
         if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
             Messages::addError("user.notallowed");
-            Route::redirect("admin/medias/read");
+            Router::redirect("admin/medias/read");
         }
 
         $data = [
@@ -97,13 +97,13 @@ class Medias extends AdminBaseController
 
                 if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
                     Messages::addError("user.notallowed");
-                    Route::redirect("admin/medias/read");
+                    Router::redirect("admin/medias/read");
                 }
 
                 if (is_object($media)) {
                     if ($media->update($post)) {
                         Messages::addSuccess("media.updated");
-                        Route::redirect("admin/medias/update/$media->id");
+                        Router::redirect("admin/medias/update/$media->id");
                     } else {
                         Messages::addError("db.mediaupdated");
                     }
@@ -144,6 +144,6 @@ class Medias extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/medias/read");
+        Router::redirect("admin/medias/read");
     }
 }

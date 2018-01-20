@@ -54,7 +54,7 @@ class Emails
     public static function sendConfirmEmail(User $user): bool
     {
         $subject = Lang::get("email.confirmemail.subject");
-        $url = Route::getUrl("register/confirmemail/".$user->id."/".$user->email_token);
+        $url = Router::getUrl("register/confirmemail/".$user->id."/".$user->email_token);
         $body = Lang::get("email.confirmemail.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
     }
@@ -62,7 +62,7 @@ class Emails
     public static function sendChangePassword(User $user): bool
     {
         $subject = Lang::get("email.changepassword.subject");
-        $url = Route::getURL("login/resetpassword/".$user->id."/".$user->password_token);
+        $url = Router::getURL("login/resetpassword/".$user->id."/".$user->password_token);
         $body = Lang::get("email.changepassword.body", ["url" => $url]);
         return self::send($user->email, $subject, $body);
     }

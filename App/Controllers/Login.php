@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Messages;
 use App\Validator;
-use App\Route;
+use App\Router;
 use App\Entities\User;
 
 class Login extends BaseController
@@ -15,7 +15,7 @@ class Login extends BaseController
 
         if (isset($this->user)) {
             Messages::addError("user.alreadyloggedin");
-            Route::redirect("admin");
+            Router::redirect("admin");
         }
     }
 
@@ -56,14 +56,14 @@ class Login extends BaseController
                             \App\Session::set("minicms_modern_auth", $this->user->id);
                             Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
 
-                            Route::redirect("admin");
+                            Router::redirect("admin");
 
                         } else {
                             Messages::addError("user.wrongpassword");
                         }
                     } else {
                         Messages::addError("user.notactivated");
-                        Route::redirect("register/resendconfirmationemail");
+                        Router::redirect("register/resendconfirmationemail");
                     }
                 } else {
                     Messages::addError("user.unknow");
@@ -128,7 +128,7 @@ class Login extends BaseController
             $this->render("resetpassword", null, ["userName" => $user->name]);
         } else {
             Messages::addError("user.unauthorized");
-            Route::redirect(); // todo: properly redirect to 301 page, same for places
+            Router::redirect(); // todo: properly redirect to 301 page, same for places
         }
     }
 
@@ -154,7 +154,7 @@ class Login extends BaseController
 
                 if ($success) {
                     Messages::addSuccess("passwordchanged");
-                    Route::redirect("login");
+                    Router::redirect("login");
                 } else {
                     Messages::addError("db.resetpassword");
                 }
@@ -165,7 +165,7 @@ class Login extends BaseController
             $this->render("resetpassword", null, ["userName" => $user->name]);
         } else {
             Messages::addError("unauthorized");
-            Route::redirect();
+            Router::redirect();
         }
     }
 }

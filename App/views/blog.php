@@ -7,11 +7,11 @@
     <h2>Categories</h2>
     <ul>
     @if (count($categories) > 0)
-        @foreach ($categories as $cat)
-        <li><?= $cat->getLink() ?></li>
+        @foreach ($categories as $category)
+        <li><?= $category->getLink() ?></li>
         @endforeach
     @else
-        <li>No categories yet</li>
+        <li>No category yet</li>
     @endif
     </ul>
 </div>

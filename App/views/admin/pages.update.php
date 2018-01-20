@@ -4,7 +4,7 @@ use \App\Entities\Page;
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 @if ($action === "update")
 Page id: {$post["id"]} <br>
@@ -16,7 +16,7 @@ $str = "admin/pages/$action";
 if ($action === "update") {
     $str .= "/".$post["id"];
 }
-$form->open(\App\Route::buildQueryString($str));
+$form->open(\App\Router::getQueryString($str));
 
 $form->text("slug", "slug");
 $form->text("title", "title");

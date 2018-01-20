@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Entities\Menu;
 use App\Messages;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Menus extends AdminBaseController
@@ -18,7 +18,7 @@ class Menus extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Menu::countAll(),
-                "queryString" => Route::buildQueryString("admin/menu/read")
+                "queryString" => Router::getQueryString("admin/menu/read")
             ]
         ];
         $this->render("menus.read", "admin.menu.readtitle", $data);
@@ -49,7 +49,7 @@ class Menus extends AdminBaseController
 
                 if (is_object($menu)) {
                     Messages::addSuccess("menu.created");
-                    Route::redirect("admin/menus/update/$menu->id");
+                    Router::redirect("admin/menus/update/$menu->id");
                 } else {
                     Messages::addError("menu.create");
                 }
@@ -70,7 +70,7 @@ class Menus extends AdminBaseController
         $menu = Menu::get($menuId);
         if ($menu === false) {
             Messages::addError("menu.unknown");
-            Route::redirect("admin/menus/read");
+            Router::redirect("admin/menus/read");
         }
 
         $data = [
@@ -98,7 +98,7 @@ class Menus extends AdminBaseController
                 if (is_object($menu)) {
                     if ($menu->update($post)) {
                         Messages::addSuccess("menu.updated");
-                        Route::redirect("admin/menus/update/$menu->id");
+                        Router::redirect("admin/menus/update/$menu->id");
                     } else {
                         Messages::addError("db.pageupdated");
                     }
@@ -137,6 +137,6 @@ class Menus extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/menus/read");
+        Router::redirect("admin/menus/read");
     }
 }

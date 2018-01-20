@@ -1,13 +1,13 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <p>Password are only updated when their fields are filled.</p>
 <?php
 $form = new \App\Form("config", $config);
 
-$form->open(\App\Route::buildQueryString("admin/config"));
+$form->open($router->getQueryString("admin/config"));
 ?>
 <h2>Site</h2>
 <?php

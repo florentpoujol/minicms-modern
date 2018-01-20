@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Entities\Page;
 use App\Messages;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Pages extends AdminBaseController
@@ -18,7 +18,7 @@ class Pages extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Page::countAll(),
-                "queryString" => Route::buildQueryString("admin/pages/read")
+                "queryString" => Router::getQueryString("admin/pages/read")
             ]
         ];
         $this->render("pages.read", "admin.page.readtitle", $data);
@@ -47,7 +47,7 @@ class Pages extends AdminBaseController
 
                 if (is_object($page)) {
                     Messages::addSuccess("page.created");
-                    Route::redirect("admin/pages/update/$page->id");
+                    Router::redirect("admin/pages/update/$page->id");
                 } else {
                     Messages::addError("page.create");
                 }
@@ -68,7 +68,7 @@ class Pages extends AdminBaseController
         $page = Page::get($pageId);
         if ($page === false) {
             Messages::addError("page.unknown");
-            Route::redirect("admin/pages/read");
+            Router::redirect("admin/pages/read");
         }
 
         $data = [
@@ -98,7 +98,7 @@ class Pages extends AdminBaseController
                 if (is_object($page)) {
                     if ($page->update($post)) {
                         Messages::addSuccess("page.updated");
-                        Route::redirect("admin/pages/update/$page->id");
+                        Router::redirect("admin/pages/update/$page->id");
                     } else {
                         Messages::addError("db.pageupdated");
                     }
@@ -137,6 +137,6 @@ class Pages extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/pages/read");
+        Router::redirect("admin/pages/read");
     }
 }

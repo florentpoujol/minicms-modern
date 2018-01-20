@@ -10,14 +10,20 @@ class Renderer
      */
     protected $lang;
 
+    /**
+     * @var Config
+     */
+    public $config;
+
     protected $viewFolder = __dir__ . "/views";
 
-    public function __construct(Lang $lang)
+    public function __construct(Lang $lang, Config $config)
     {
         $this->lang = $lang;
+        $this->config = $config;
     }
 
-    public function render(string $template, string $view, string $pageTitle = null, array $data = [])
+    protected function getContent(string $template, string $view)
     {
         $viewContent = file_get_contents($this->viewFolder . "/$view.php");
 
@@ -71,12 +77,14 @@ class Renderer
         // process template variables
         $content = preg_replace("/{([a-zA-Z0-9:$>\[\]\(\)_\"'-]+)}/", "<?= htmlentities($1); ?>", $content);
 
-        // exposes variables and data passed to the view
-        if ($pageTitle === null) {
-            $pageTitle = str_replace("/", ".", $view) . ".pagetitle";
-        }
-        $pageTitle = $this->lang->get($pageTitle);
+        return $content;
+    }
 
+    public function render(string $template, string $view, array $data = [])
+    {
+        $content = $this->getContent($template, $view);
+
+        // exposes variables and data passed to the view
         if (!isset($data["post"])) {
             $data["post"] = [];
         }

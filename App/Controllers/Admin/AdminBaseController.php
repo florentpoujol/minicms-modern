@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Entities\User;
-use App\Route;
+use App\Router;
 
 class AdminBaseController extends BaseController
 {
@@ -18,22 +18,21 @@ class AdminBaseController extends BaseController
         if (
             $user->isCommenter() &&
             (
-                (strpos(strtolower(Route::$controllerName), "users") !== false &&
-                    strpos(strtolower(Route::$methodName), "update") === false)
+                (strpos(strtolower($this->router->controllerName), "users") !== false &&
+                    strpos(strtolower($this->router->methodName), "update") === false)
                 ||
-                (strpos(strtolower(Route::$controllerName), "comments") !== false &&
-                    strpos(strtolower(Route::$methodName), "read") === false)
+                (strpos(strtolower($this->router->controllerName), "comments") !== false &&
+                    strpos(strtolower($this->router->methodName), "read") === false)
             )
-        )
-        {
-            Route::redirect("admin/users/update/$user->id");
+        ) {
+            $this->router->redirect("admin/users/update/$user->id");
         }
 
         $this->user = $user;
     }
 
-    public function render(string $view, string $pageTitle = null, array $data = [])
+    public function render(string $view, array $data = null)
     {
-        parent::render("admin/$view", $pageTitle, $data);
+        parent::render("admin/$view", $data);
     }
 }

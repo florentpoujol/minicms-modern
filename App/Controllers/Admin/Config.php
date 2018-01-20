@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Emails;
 use App\Entities\User;
-use App\Route;
+use App\Router;
 use App\Config as AppConfig;
 use App\Validator;
 
@@ -14,7 +14,7 @@ class Config extends AdminBaseController
     {
         parent::__construct($user);
         if (! $this->user->isAdmin()) {
-            Route::redirect("admin");
+            Router::redirect("admin");
         }
 
         if (! is_writable(AppConfig::$configFolder."config.json")) {
@@ -78,7 +78,7 @@ class Config extends AdminBaseController
 
                 if (AppConfig::save()) {
                     Messages::addSuccess("config.saved");
-                    Route::redirect("admin/config");
+                    Router::redirect("admin/config");
                 } else {
                     Messages::addError("config.save");
                 }

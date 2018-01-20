@@ -16,6 +16,5 @@
     "use_nice_url": false,
     "allow_comments": true,
     "allow_registration": true,
-    "items_per_page": 2,
-    "upload_folder": "uploads"
+    "items_per_page": 2
 }

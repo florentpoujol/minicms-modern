@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\App;
+use App\Router;
 
 class Entity
 {
@@ -11,6 +12,16 @@ class Entity
     public $id = -1;
     public $title = ""; // not all entities have a title, but it is used below (in getLink())
     public $creation_datetime;
+
+    /**
+     * @var Router
+     */
+    public $router;
+
+    public function __construct(Router $router)
+    {
+        $this->router = $router;
+    }
 
     public static function createHydrated($data)
     {
@@ -57,7 +68,7 @@ class Entity
 
     public function getLink(string $routeName)
     {
-        return '<a href="' . \App\Route::getURL("$routeName/$this->id") . '">' . $this->title . '</a>';
+        return '<a href="' . $this->router->getURL("$routeName/$this->id") . '">' . $this->title . '</a>';
     }
 
     public function toArray(): array

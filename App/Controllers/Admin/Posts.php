@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Entities\Post;
 use App\Messages;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Posts extends AdminBaseController
@@ -18,7 +18,7 @@ class Posts extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Post::countAll(),
-                "queryString" => Route::buildQueryString("admin/posts/read/")
+                "queryString" => Router::getQueryString("admin/posts/read/")
             ]
         ];
         $this->render("posts.read", "posts.pagetitle", $data);
@@ -48,7 +48,7 @@ class Posts extends AdminBaseController
 
                 if (is_object($thePost)) {
                     Messages::addSuccess("post.created");
-                    Route::redirect("admin/posts/update/$thePost->id");
+                    Router::redirect("admin/posts/update/$thePost->id");
                 } else {
                     Messages::addError("db.createpost");
                 }
@@ -69,7 +69,7 @@ class Posts extends AdminBaseController
         $thePost = Post::get($userId);
         if ($thePost === false) {
             Messages::addError("post.unknown");
-            Route::redirect("admin/posts/read");
+            Router::redirect("admin/posts/read");
         }
 
         $data = [
@@ -99,7 +99,7 @@ class Posts extends AdminBaseController
                 if (is_object($thePost)) {
                     if ($thePost->update($post)) {
                         Messages::addSuccess("post.updated");
-                        Route::redirect("admin/posts/update/$thePost->id");
+                        Router::redirect("admin/posts/update/$thePost->id");
                     } else {
                         Messages::addError("db.postupdated");
                     }
@@ -138,6 +138,6 @@ class Posts extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/posts/read");
+        Router::redirect("admin/posts/read");
     }
 }

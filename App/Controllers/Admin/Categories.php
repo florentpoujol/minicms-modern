@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Category;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Categories extends AdminBaseController
@@ -17,7 +17,7 @@ class Categories extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => Category::countAll(),
-                "queryString" => Route::buildQueryString("admin/categories/read")
+                "queryString" => Router::getQueryString("admin/categories/read")
             ]
         ];
         $this->render("categories.read", "categories.pagetitle", $data);
@@ -41,7 +41,7 @@ class Categories extends AdminBaseController
 
                 if (is_object($cat)) {
                     Messages::addSuccess("categories.created");
-                    Route::redirect("admin/categories/update/".$cat->id);
+                    Router::redirect("admin/categories/update/".$cat->id);
                 } else {
                     Messages::addError("db.createcategory");
                 }
@@ -62,7 +62,7 @@ class Categories extends AdminBaseController
         $category = Category::get($categoryId);
         if ($category === false) {
             Messages::addError("category.unknown");
-            Route::redirect("admin/categories/read");
+            Router::redirect("admin/categories/read");
         }
 
         $data = [
@@ -87,7 +87,7 @@ class Categories extends AdminBaseController
                 if (is_object($category)) {
                     if ($category->update($post)) {
                         Messages::addSuccess("category.updated");
-                        Route::redirect("admin/categories/update/".$category->id);
+                        Router::redirect("admin/categories/update/".$category->id);
                     } else {
                         Messages::addError("db.categoryupdated");
                     }
@@ -124,6 +124,6 @@ class Categories extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/categories/read");
+        Router::redirect("admin/categories/read");
     }
 }

@@ -1,13 +1,13 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 Comment id: {$post["id"]} <br>
 <?php
 $form = new \App\Form("commentupdate", $post);
 
-$form->open(\App\Route::buildQueryString("admin/comments/update/".$post["id"]));
+$form->open($router->getQueryString("admin/comments/update/".$post["id"]));
 
 $form->textarea("content", ["rows" => 5, "label" => "content"]);
 

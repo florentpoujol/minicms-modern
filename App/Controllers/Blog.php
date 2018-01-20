@@ -2,14 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Entities\Repositories\Category as CategoryRepo;
 use App\Entities\Repositories\Post as PostRepo;
 use App\Lang;
 use App\Renderer;
-use App\Route;
+use App\Router;
 use App\Session;
 use App\Validator;
-use StdCmp\Router\Router;
 
 class Blog extends BaseController
 {
@@ -24,11 +24,10 @@ class Blog extends BaseController
     public $categoryRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer,
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
         PostRepo $potRepo, CategoryRepo $categoryRepo
-    )
-    {
-        parent::__construct($lang, $session, $validator, $router, $renderer);
+    ) {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
         $this->potRepo = $potRepo;
         $this->categoryRepo = $categoryRepo;
     }
@@ -41,11 +40,10 @@ class Blog extends BaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => $this->potRepo->countAll(),
-                // "queryString" => Route::buildQueryString("blog")
-                "queryString" => ""
+                "queryString" => $this->router->getQueryString("blog"),
             ]
         ];
 
-        $this->render("blog", "Blog", $data);
+        $this->render("blog", $data);
     }
 }

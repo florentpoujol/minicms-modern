@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Entities\Entity;
+use App\Entities\Repositories\User;
 use StdCmp\DI\DIContainer;
 use StdCmp\QueryBuilder\QueryBuilder;
 
@@ -22,21 +23,20 @@ $app = new App($container);
 $container->set(App::class, $app);
 
 $session = $container->get(Session::class);
+
+$router = $container->get(Router::class);
 // end setup container
 
 if (!$config->fileExists()) {
-    Route::toInstall();
+    $router->toInstall();
     exit;
 }
 
 $db = $container->get(Database::class);
 $db->connect();
 
-$container->set(QueryBuilder::class, function () use ($db) {
-    return new QueryBuilder($db->pdo);
-});
-
 $session->start();
+
 
 // check if user is logged in
 /**
@@ -47,11 +47,12 @@ $user = null;
 $userId = $session->get("minicms_modern_auth");
 
 if ($userId !== null) {
-    $user = Entities\User::get(["id" => (int)$userId]);
+    $userRepo = $container->get(User::class);
+    $user = $userRepo->get(["id" => (int)$userId]);
 
     if ($user === false) {
-        Route::logout();
+        $router->logout();
     }
 }
 
-Route::load($user);
+$router->load($user);

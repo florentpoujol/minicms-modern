@@ -3,7 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\Comment;
-use App\Route;
+use App\Router;
 use App\Validator;
 
 class Comments extends AdminBaseController
@@ -32,7 +32,7 @@ class Comments extends AdminBaseController
             "pagination" => [
                 "pageNumber" => $pageNumber,
                 "itemsCount" => $count,
-                "queryString" => Route::buildQueryString("admin/comments/read")
+                "queryString" => Router::getQueryString("admin/comments/read")
             ]
         ];
         $this->render("comments.read", "admin.comment.readtitle", $data);
@@ -43,7 +43,7 @@ class Comments extends AdminBaseController
         $comment = Comment::get($commentId);
         if ($comment === false) {
             Messages::addError("comment.unknown");
-            Route::redirect("admin/comments/read");
+            Router::redirect("admin/comments/read");
         }
 
         $data = [
@@ -68,7 +68,7 @@ class Comments extends AdminBaseController
                 if (is_object($comment)) {
                     if ($comment->update($post)) {
                         Messages::addSuccess("comment.updated");
-                        Route::redirect("admin/comments/update/$comment->id");
+                        Router::redirect("admin/comments/update/$comment->id");
                     } else {
                         Messages::addError("db.commentupdated");
                     }
@@ -107,6 +107,6 @@ class Comments extends AdminBaseController
             Messages::addError("csrffail");
         }
 
-        Route::redirect("admin/comments/read");
+        Router::redirect("admin/comments/read");
     }
 }

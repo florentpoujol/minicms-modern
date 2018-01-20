@@ -11,8 +11,8 @@
 
 <?php
 $entity = $post;
-$queryString = App\Route::buildQueryString("post/$post->id")
+$queryString = $router->getQueryString("post/$post->id")
 //  the include message is here because my "template system" does not support nested includes...
 ?>
-{include ../App/views/messages.php}
-{include ../App/views/comment.php}
+{include messages.php}
+{include comment.php}

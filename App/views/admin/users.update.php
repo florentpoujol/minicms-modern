@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 @if ($action === "update")
 User id: {$post["id"]} <br>
@@ -13,7 +13,7 @@ $str = "admin/users/$action";
 if ($action === "update") {
     $str .= "/".$post["id"];
 }
-$form->open(\App\Route::buildQueryString($str));
+$form->open($router->getQueryString($str));
 
     $form->text("name", "name");
     $form->email("email", "email");

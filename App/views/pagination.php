@@ -1,5 +1,5 @@
 <?php
-$pageCount = ceil($pagination["itemsCount"] / \App\Config::get("items_per_page"));
+$pageCount = ceil($pagination["itemsCount"] / $config->get("items_per_page"));
 $pagination['queryString'] = rtrim($pagination['queryString'], "/")."/";
 ?>
 <br>

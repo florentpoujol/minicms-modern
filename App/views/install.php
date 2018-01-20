@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <?php
 $form = new App\Form("install", $post);

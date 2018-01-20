@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 @if ($this->user->isAdmin())
 <a href="{queryString admin/users/create}">{lang users.createlink}</a> <br>
@@ -53,7 +53,7 @@
         <td>
         <?php
         $form = new \App\Form("userdelete".$row->id);
-        $form->open(\App\Route::buildQueryString("admin/users/delete"));
+        $form->open($router->getQueryString("admin/users/delete"));
         $form->hidden("id", $row->id);
         $form->submit("", "Delete");
         $form->close();
@@ -64,4 +64,4 @@
     @endforeach
 </table>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

@@ -1,11 +1,11 @@
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <?php
 $form = new App\Form("login", $post);
 
-$form->open(App\Route::buildQueryString("login"));
+$form->open($router->getQueryString("login"));
     $form->text("login_name", "Name:");
     $form->password("login_password", "Password:");
     $form->submit("", "Login");

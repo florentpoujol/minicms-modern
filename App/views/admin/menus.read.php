@@ -1,7 +1,7 @@
 
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <a href="{queryString admin/menus/create}">{lang menu.createlink}</a> <br>
 <br>
@@ -25,7 +25,7 @@
         <td>
             <?php
             $form = new \App\Form("menudelete".$row->id);
-            $form->open(\App\Route::buildQueryString("admin/menus/delete"));
+            $form->open($router->getQueryString("admin/menus/delete"));
             $form->hidden("id", $row->id);
             $form->submit("", "Delete");
             $form->close();
@@ -35,4 +35,4 @@
     @endforeach
 </table>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

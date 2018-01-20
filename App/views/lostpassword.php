@@ -1,6 +1,6 @@
 <h1>{$pageTitle}</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <p>If you forgot your password, you can fill the form below, we will send an email so that you can change your password.</p>
 

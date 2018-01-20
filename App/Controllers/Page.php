@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Entities\Page as PageEntity;
 use App\Messages;
-use App\Route;
+use App\Router;
 
 class Page extends Commentable
 {
@@ -14,7 +14,7 @@ class Page extends Commentable
 
         if ($page === false) {
             Messages::addError("page.unknow");
-            Route::redirect("blog");
+            Router::redirect("blog");
         }
 
         $data = [
@@ -27,14 +27,14 @@ class Page extends Commentable
     {
         if (! isset($this->user)) {
             Messages::addError("user.mustbeloggedintopostcomment");
-            Route::redirect("page/$pageId");
+            Router::redirect("page/$pageId");
         }
 
         $page = PageEntity::get($pageId);
 
         if ($page === false) {
             Messages::addError("page.unknow");
-            Route::redirect("blog");
+            Router::redirect("blog");
         }
 
         $data = [
