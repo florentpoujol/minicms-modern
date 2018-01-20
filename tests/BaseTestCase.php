@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\App;
 use App\Config;
 use App\Helpers;
 use App\Lang;
@@ -45,6 +46,7 @@ abstract class BaseTestCase extends TestCase
     protected function setUp()
     {
         $this->container = new DIContainer();
+        App::$container = $this->container;
 
         $this->config = $this->container->get(Config::class);
         $this->session = $this->container->get(Session::class);

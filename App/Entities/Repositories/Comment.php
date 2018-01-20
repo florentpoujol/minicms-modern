@@ -2,31 +2,11 @@
 
 namespace App\Entities\Repositories;
 
-use App\Config;
-use App\Database;
-use App\Entities\Post as PostEntity;
-use App\Entities\Page as PageEntity;
 use App\Entities\Comment as CommentEntity;
 use App\Entities\User as UserEntity;
-use PDO;
 
 class Comment extends Entity
 {
-    /**
-     * @var User
-     */
-    public $userRepo;
-
-    /**
-     * @var Post
-     */
-    public $postRepo;
-
-    /**
-     * @var Page
-     */
-    public $pageRepo;
-
     /**
      * @return CommentEntity|false
      */
@@ -41,30 +21,6 @@ class Comment extends Entity
     public function getAll(array $params = [])
     {
         return parent::getAll($params);
-    }
-
-    /**
-     * @return UserEntity|bool
-     */
-    public function getUser(CommentEntity $comment)
-    {
-        return $this->userRepo->get($comment->user_id);
-    }
-
-    /**
-     * @return PostEntity|bool
-     */
-    public function getPost(CommentEntity $comment)
-    {
-        return $this->postRepo->get($comment->post_id);
-    }
-
-    /**
-     * @return PageEntity|bool
-     */
-    public function getPage(CommentEntity $comment)
-    {
-        return $this->pageRepo->get($comment->page_id);
     }
 
     /**
@@ -98,7 +54,7 @@ class Comment extends Entity
         ]);
 
         if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, CommentEntity::class);
+            $query->setFetchMode(\PDO::FETCH_CLASS, CommentEntity::class);
             return $query->fetchAll();
         }
         return false;

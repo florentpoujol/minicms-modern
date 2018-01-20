@@ -2,10 +2,10 @@
 
 namespace App\Entities\Repositories;
 
+use App\Config;
+use App\Database;
 use App\Entities\Page as PageEntity;
-use App\Entities\Comment as CommentEntity;
-use App\Entities\User as UserEntity;
-use PDO;
+use App\Session;
 
 class Page extends Entity
 {
@@ -14,10 +14,11 @@ class Page extends Entity
      */
     public $commentRepo;
 
-    /**
-     * @var User
-     */
-    public $userRepo;
+    public function __construct(Database $database, Config $config, Session $session, Comment $commentRepo)
+    {
+        parent::__construct($database, $config, $session);
+        $this->commentRepo = $commentRepo;
+    }
 
     /**
      * @return PageEntity|false
@@ -44,39 +45,6 @@ class Page extends Entity
             return $this->get($page->parent_page_id);
         }
         return null;
-    }
-
-    /**
-     * @return PageEntity[]|bool
-     */
-    public function getChildren(PageEntity $page)
-    {
-        $query = $this->database->getQueryBuilder()
-            ->select()->fromTable("pages")
-            ->where("parent_page_id", $page->id)
-            ->execute();
-
-        if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, PageEntity::class);
-            return $query->fetchAll();
-        }
-        return false;
-    }
-
-    /**
-     * @return UserEntity|bool
-     */
-    public function getUser(PageEntity $page)
-    {
-        return $this->userRepo->get($page->id);
-    }
-
-    /**
-     * @return CommentEntity[]|bool
-     */
-    public function getComments(PageEntity $page)
-    {
-        return $this->commentRepo->getAll(["page_id" => $page->id]);
     }
 
     /**

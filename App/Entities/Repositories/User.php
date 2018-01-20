@@ -2,12 +2,11 @@
 
 namespace App\Entities\Repositories;
 
-use App\Entities\Comment as CommentEntity;
-use App\Entities\Page as PageEntity;
-use App\Entities\Post as PostEntity;
-use App\Entities\Media as MediaEntity;
+use App\Config;
+use App\Database;
 use App\Entities\User as UserEntity;
 use App\Helpers;
+use App\Session;
 
 class User extends Entity
 {
@@ -31,6 +30,17 @@ class User extends Entity
      */
     public $mediaRepo;
 
+    public function __construct(
+        Database $database, Config $config, Session $session,
+        Comment $commentRepo, Page $pageRepo, Post $postRepo, Media $mediaRepo)
+    {
+        parent::__construct($database, $config, $session);
+        $this->commentRepo = $commentRepo;
+        $this->pageRepo = $pageRepo;
+        $this->postRepo = $postRepo;
+        $this->mediaRepo = $mediaRepo;
+    }
+
     /**
      * @return UserEntity|false
      */
@@ -45,38 +55,6 @@ class User extends Entity
     public function getAll(array $params = [])
     {
         return parent::getAll($params);
-    }
-
-    /**
-     * @return CommentEntity[]|bool
-     */
-    public function getComments(UserEntity $user)
-    {
-        return $this->commentRepo->getAll(["user_id" => $user->id]);
-    }
-
-    /**
-     * @return PostEntity[]|bool
-     */
-    public function getPosts(UserEntity $user)
-    {
-        return $this->postRepo->getAll(["user_id" => $user->id]);
-    }
-
-    /**
-     * @return PageEntity[]|bool
-     */
-    public function getPages(UserEntity $user)
-    {
-        return $this->pageRepo->getAll(["user_id" => $user->id]);
-    }
-
-    /**
-     * @return MediaEntity[]|bool
-     */
-    public function getMedias(UserEntity $user)
-    {
-        return $this->mediaRepo->getAll(["user_id" => $user->id]);
     }
 
     /**

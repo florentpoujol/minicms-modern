@@ -28,13 +28,13 @@ class App
     public $uploadPath = "";
 
     /**
-     * @var ContainerInterface
+     * @var DIContainer
      */
-    public $container;
+    public static $container;
 
-    public function __construct($container)
+    public function __construct(DIContainer $container)
     {
-        $this->container = $container;
+        self::$container = $container;
 
         $this->setupRequestInfo();
     }
@@ -49,7 +49,7 @@ class App
         $this->requestMethod = strtolower($_SERVER["REQUEST_METHOD"]);
 
         // $this->uploadPath = trim(Config::get("upload_folder"), "/") . "/";
-        $config = $this->container->get(Config::class);
+        $config = self::$container->get(Config::class);
         $this->uploadPath = trim($config->get("upload_folder"), "/") . "/";
         $config->set("upload_path", $this->uploadPath);
     }

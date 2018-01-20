@@ -2,13 +2,14 @@
 
 namespace App\Controllers\Admin;
 
+use App\Controllers\BaseController;
 use App\Entities\User;
 use App\Lang;
 use App\Route;
 use App\Session;
 use App\Validator;
 
-class AdminBaseController extends \App\Controllers\BaseController
+class AdminBaseController extends BaseController
 {
     function __construct(User $user, Lang $localization, Session $session, Validator $validator)
     {

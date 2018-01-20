@@ -4,27 +4,21 @@ namespace App\Entities\Repositories;
 
 use App\Config;
 use App\Database;
-use App\Entities\Category as CategoryEntity;
 use App\Entities\Post as PostEntity;
-use App\Entities\Comment as CommentEntity;
-use App\Entities\User as UserEntity;
+use App\Session;
 
 class Post extends Entity
 {
-    /**
-     * @var Category
-     */
-    public $categoryRepo;
-
     /**
      * @var Comment
      */
     public $commentRepo;
 
-    /**
-     * @var User
-     */
-    public $userRepo;
+    public function __construct(Database $database, Config $config, Session $session, Comment $commentRepo)
+    {
+        parent::__construct($database, $config, $session);
+        $this->commentRepo = $commentRepo;
+    }
 
     /**
      * @return PostEntity|false
@@ -40,30 +34,6 @@ class Post extends Entity
     public function getAll(array $params = [])
     {
         return parent::getAll($params);
-    }
-
-    /**
-     * @return User|bool
-     */
-    public function getUser(PostEntity $post)
-    {
-        return $this->userRepo->get($post->id);
-    }
-
-    /**
-     * @return CategoryEntity|bool
-     */
-    public function getCategory(PostEntity $entity)
-    {
-        return $this->categoryRepo->get($entity->id);
-    }
-
-    /**
-     * @return CommentEntity[]|bool
-     */
-    public function getComments(PostEntity $post)
-    {
-        return $this->commentRepo->getAll(["post_id" => $post->id]);
     }
 
     /**
@@ -85,6 +55,4 @@ class Post extends Entity
         }
         return false;
     }
-
-
 }

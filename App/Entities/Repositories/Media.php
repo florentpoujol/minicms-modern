@@ -2,16 +2,10 @@
 
 namespace App\Entities\Repositories;
 
-use App\Entities\User as UserEntity;
 use App\Entities\Media as MediaEntity;
 
 class Media extends Entity
 {
-    /**
-     * @var User
-     */
-    public $userRepo;
-
     /**
      * @return MediaEntity|false
      */
@@ -26,14 +20,6 @@ class Media extends Entity
     public function getAll(array $params = [])
     {
         return parent::getAll($params);
-    }
-
-    /**
-     * @return UserEntity|bool
-     */
-    public function getUser(MediaEntity $media)
-    {
-        return $this->userRepo->get($media->id);
     }
 
     /**

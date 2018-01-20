@@ -13,7 +13,7 @@ class CategoryRepoTest extends DatabaseTestCase
         $category = $this->categoryRepo->get(["slug" => "category-1"]);
         self::assertInstanceOf(Category::class, $category);
 
-        $posts = $this->categoryRepo->getPosts($category);
+        $posts = $category->getPosts();
         self::assertCount(1, $posts);
         self::assertContainsOnlyInstancesOf(Post::class, $posts);
 
@@ -42,7 +42,7 @@ class CategoryRepoTest extends DatabaseTestCase
         $category = $this->categoryRepo->get(1);
         self::assertEquals("Category 1", $category->title);
 
-        self::assertTrue($this->categoryRepo->update($category, ["title" => "NewCategoryName"]));
+        self::assertTrue($category->update(["title" => "NewCategoryName"]));
         self::assertEquals("NewCategoryName", $category->title);
         self::assertEquals("NewCategoryName", $this->categoryRepo->get(1)->title);
     }
@@ -51,13 +51,13 @@ class CategoryRepoTest extends DatabaseTestCase
     {
         $category = $this->categoryRepo->get(1);
         self::assertEquals("category-1", $category->slug);
-        $posts = $this->categoryRepo->getPosts($category);
+        $posts = $category->getPosts();
         self::assertCount(1, $posts);
 
-        self::assertTrue($this->categoryRepo->delete($category));
+        self::assertTrue($category->delete());
 
         // self::assertNull($category->slug);
-        self::assertCount(0, $this->categoryRepo->getPosts($category));
+        self::assertCount(0, $category->getPosts());
 
         self::assertFalse($this->postRepo->get($posts[0]->id));
     }

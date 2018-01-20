@@ -2,6 +2,7 @@
 
 namespace App\Entities\Repositories;
 
+use App\App;
 use App\Config;
 use App\Database;
 use App\Session;
@@ -56,9 +57,8 @@ class Entity
             ->{$whereFunction}($whereConditions)
             ->execute();
 
-        if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, $this->entityClassName);
-            return $query->fetch();
+        if ($query !== false && ($result = $query->fetch()) !== false) {
+            return $this->entityClassName::hydrate($result);
         }
         return false;
     }
@@ -95,8 +95,11 @@ class Entity
             ->execute();
 
         if ($query !== false) {
-            $query->setFetchMode(PDO::FETCH_CLASS, $this->entityClassName);
-            return $query->fetchAll();
+            $results = [];
+            foreach ($query->fetchAll() as $result) {
+                $results[] = $this->entityClassName::hydrate($result);
+            }
+            return $results;
         }
         return false;
     }
@@ -113,7 +116,7 @@ class Entity
             ->execute();
 
         if ($query !== false) {
-            return (int)$query->fetch()->{"COUNT(*)"};
+            return (int)$query->fetch()["COUNT(*)"];
         }
         return false;
     }
@@ -141,18 +144,11 @@ class Entity
     {
         unset($data["id"]);
 
-        $success = $this->database->getQueryBuilder()
+        return $this->database->getQueryBuilder()
             ->update($data)
             ->inTable($this->tableName)
             ->where("id", $entity->id)
             ->execute();
-
-        if ($success) {
-            foreach ($data as $field => $value) {
-                $entity->{$field} = $value;
-            }
-        }
-        return $success;
     }
 
     public function updateMany(array $newData, array $whereConditions): bool

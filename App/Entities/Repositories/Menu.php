@@ -2,7 +2,6 @@
 
 namespace App\Entities\Repositories;
 
-use App\Entities\User as UserEntity;
 use App\Entities\Menu as MenuEntity;
 
 class Menu extends Entity

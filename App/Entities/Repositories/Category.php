@@ -4,9 +4,7 @@ namespace App\Entities\Repositories;
 
 use App\Config;
 use App\Database;
-use App\Entities\Entity as BaseEntity;
 use App\Entities\Category as CategoryEntity;
-use App\Entities\Post as PostEntity;
 use App\Session;
 
 class Category extends Entity
@@ -16,10 +14,11 @@ class Category extends Entity
      */
     public $postRepo;
 
-    public function __construct(Database $database, Config $config, Session $session)
+    public function __construct(Database $database, Config $config, Session $session, Post $postRepo)
     {
         parent::__construct($database, $config, $session);
         $this->tableName = "categories";
+        $this->postRepo = $postRepo;
     }
 
     /**
@@ -36,15 +35,6 @@ class Category extends Entity
     public function getAll(array $params = [])
     {
         return parent::getAll($params);
-    }
-
-    /**
-     * @return PostEntity[]|bool
-     */
-    public function getPosts(BaseEntity $entity, array $whereConditions = [])
-    {
-        $whereConditions = array_merge(["category_id" => $entity->id], $whereConditions);
-        return $this->postRepo->getAll($whereConditions);
     }
 
     /**
