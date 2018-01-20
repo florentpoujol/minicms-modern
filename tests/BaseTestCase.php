@@ -6,6 +6,7 @@ use App\App;
 use App\Config;
 use App\Helpers;
 use App\Lang;
+use App\Renderer;
 use App\Session;
 use App\Validator;
 use PHPUnit\Framework\TestCase;
@@ -43,17 +44,38 @@ abstract class BaseTestCase extends TestCase
      */
     protected $validator;
 
+    /**
+     * @var Renderer
+     */
+    protected $renderer;
+
     protected function setUp()
     {
         $this->container = new DIContainer();
         App::$container = $this->container;
 
-        $this->config = $this->container->get(Config::class);
+        $this->config = new Config();
+        $this->config->load(__dir__ . "/testsConfig.json");
+        $this->container->set(Config::class, $this->config);
+
         $this->session = $this->container->get(Session::class);
         $this->helpers = $this->container->get(Helpers::class);
         $this->validator = $this->container->get(Validator::class);
 
         $this->lang = $this->container->get(Lang::class);
         $this->lang->load("en");
+
+        $this->renderer = $this->container->get(Renderer::class);
+    }
+
+    protected function getControllerOutput($controller, string $method, array ...$args)
+    {
+        ob_start();
+        if (empty($args)) {
+            $controller->{$method}();
+        } else {
+            $controller->{$method}(...$args);
+        }
+        return ob_get_clean();
     }
 }

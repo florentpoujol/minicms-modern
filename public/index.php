@@ -13,9 +13,10 @@ require __dir__ . "/../../standard-components/vendor/autoload.php"; // todo: rem
 $container = new DIContainer();
 
 $config = $container->get(Config::class);
+$config->load();
 
-$localization = $container->get(Lang::class);
-$localization->load($localization->currentLanguage); // let's imagine $currentLanguage has been changed based on config value or navigator language
+$lang = $container->get(Lang::class);
+$lang->load($lang->currentLanguage); // let's imagine $currentLanguage has been changed based on config value or navigator language
 
 $app = new App($container);
 $container->set(App::class, $app);
@@ -30,9 +31,6 @@ if (!$config->fileExists()) {
 
 $db = $container->get(Database::class);
 $db->connect();
-
-Entity::$db = $db;
-Entity::$config = $config;
 
 $container->set(QueryBuilder::class, function () use ($db) {
     return new QueryBuilder($db->pdo);

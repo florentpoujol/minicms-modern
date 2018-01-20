@@ -1,7 +1,7 @@
 
 <h1>Blog</h1>
 
-{include ../App/views/messages.php}
+{include messages.php}
 
 <div id="categories">
     <h2>Categories</h2>
@@ -33,4 +33,4 @@
     @endif
 </div>
 
-{include ../App/views/pagination.php}
+{include pagination.php}

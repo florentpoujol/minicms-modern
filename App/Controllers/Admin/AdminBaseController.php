@@ -4,39 +4,32 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Entities\User;
-use App\Lang;
 use App\Route;
-use App\Session;
-use App\Validator;
 
 class AdminBaseController extends BaseController
 {
-    function __construct(User $user, Lang $localization, Session $session, Validator $validator)
+    protected $template = "defaultAdmin";
+
+    public function setLoggedInUser(User $user)
     {
-        parent::__construct($user, $localization, $session, $validator);
-
-        if (! isset($this->user)) {
-            Route::redirect("login");
-        }
-
-        $this->template = "defaultAdmin";
-
         // prevent commenters to access anything other than
         // - its user update page
         // - the list of its comments
         if (
-            $this->user->isCommenter() &&
+            $user->isCommenter() &&
             (
                 (strpos(strtolower(Route::$controllerName), "users") !== false &&
-                strpos(strtolower(Route::$methodName), "update") === false)
+                    strpos(strtolower(Route::$methodName), "update") === false)
                 ||
                 (strpos(strtolower(Route::$controllerName), "comments") !== false &&
-                strpos(strtolower(Route::$methodName), "read") === false)
+                    strpos(strtolower(Route::$methodName), "read") === false)
             )
         )
         {
-            Route::redirect("admin/users/update/".$this->user->id);
+            Route::redirect("admin/users/update/$user->id");
         }
+
+        $this->user = $user;
     }
 
     public function render(string $view, string $pageTitle = null, array $data = [])
