@@ -5,7 +5,7 @@ namespace Tests;
 use App\Entities\Category;
 use App\Entities\Post;
 
-class CategoryRepoTest extends DatabaseTestCase
+class CategoryTest extends DatabaseTestCase
 {
 
     function testGet()

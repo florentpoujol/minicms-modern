@@ -16,7 +16,7 @@ class Post extends BasePage
     /**
      * @var PostRepo
      */
-    public $postRepo;
+    protected $postRepo;
 
     /**
      * @var CommentRepo
@@ -26,7 +26,7 @@ class Post extends BasePage
     /**
      * @var CategoryRepo
      */
-    public $categoryRepo;
+    protected $categoryRepo;
 
     public function __construct(PostRepo $postRepo, CommentRepo $commentRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
     {

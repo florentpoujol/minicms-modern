@@ -6,7 +6,7 @@ use App\Entities\Post;
 use App\Entities\Category;
 use App\Entities\Comment;
 
-class PostRepoTest extends DatabaseTestCase
+class PostTest extends DatabaseTestCase
 {
     public function testGet()
     {

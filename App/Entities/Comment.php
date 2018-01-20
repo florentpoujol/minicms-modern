@@ -19,17 +19,17 @@ class Comment extends Entity
     /**
      * @var CommentRepo
      */
-    public $commentRepo;
+    protected $commentRepo;
 
     /**
      * @var PageRepo
      */
-    public $pageRepo;
+    protected $pageRepo;
 
     /**
      * @var PostRepo
      */
-    public $postRepo;
+    protected $postRepo;
 
     public function __construct(CommentRepo $commentRepo, PageRepo $pageRepo, PostRepo $postRepo, UserRepo $userRepo)
     {

@@ -12,7 +12,7 @@ class Category extends Entity
     /**
      * @var Post
      */
-    public $postRepo;
+    protected $postRepo;
 
     public function __construct(Database $database, Config $config, Session $session, Post $postRepo)
     {

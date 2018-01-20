@@ -7,7 +7,6 @@ use App\App;
 class Entity
 {
     public $isDeleted = false;
-    protected $entityName = "entity";
 
     public $id = -1;
     public $title = ""; // not all entities have a title, but it is used below (in getLink())

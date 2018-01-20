@@ -5,7 +5,7 @@ namespace Tests;
 use App\Entities\Page;
 use App\Entities\Comment;
 
-class PageRepoTest extends DatabaseTestCase
+class PageTest extends DatabaseTestCase
 {
     public function testGet()
     {

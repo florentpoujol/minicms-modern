@@ -42,7 +42,7 @@ class User extends Entity
     /**
      * @var MediaRepo
      */
-    public $mediaRepo;
+    protected $mediaRepo;
 
     public function __construct(UserRepo $userRepo, PostRepo $postRepo, PageRepo $pageRepo, CommentRepo $commentRepo, MediaRepo $mediaRepo)
     {

@@ -12,7 +12,7 @@ class Page extends Entity
     /**
      * @var Comment
      */
-    public $commentRepo;
+    protected $commentRepo;
 
     public function __construct(Database $database, Config $config, Session $session, Comment $commentRepo)
     {

@@ -17,12 +17,12 @@ class Media extends Entity
     /**
      * @var MediaRepo
      */
-    public $mediaRepo;
+    protected $mediaRepo;
 
     /**
      * @var Config
      */
-    public $config;
+    protected $config;
 
     public function __construct(MediaRepo $mediaRepo, UserRepo $userRepo, Config $config)
     {

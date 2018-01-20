@@ -13,22 +13,22 @@ class User extends Entity
     /**
      * @var Comment
      */
-    public $commentRepo;
+    protected $commentRepo;
 
     /**
      * @var Page
      */
-    public $pageRepo;
+    protected $pageRepo;
 
     /**
      * @var Post
      */
-    public $postRepo;
+    protected $postRepo;
 
     /**
      * @var Media
      */
-    public $mediaRepo;
+    protected $mediaRepo;
 
     public function __construct(
         Database $database, Config $config, Session $session,
