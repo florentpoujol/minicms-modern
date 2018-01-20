@@ -37,27 +37,27 @@ class CommentRepoTest extends DatabaseTestCase
     public function testGetResources()
     {
         $comment = $this->commentRepo->get(["id" => 1]);
-        $user = $this->commentRepo->getUser($comment);
+        $user = $comment->getUser();
         self::assertInstanceOf(User::class, $user);
-        $post = $this->commentRepo->getPost($comment);
+        $post = $comment->getPost();
         self::assertInstanceOf(Post::class, $post);
-        self::assertFalse($this->commentRepo->getPage($comment));
+        self::assertFalse($comment->getPage());
 
         $comment = $this->commentRepo->get(["id" => 2]);
-        $sameUser = $this->commentRepo->getUser($comment);
+        $sameUser = $comment->getUser();
         self::assertInstanceOf(User::class, $sameUser);
         self::assertEquals($user, $sameUser);
-        $page = $this->commentRepo->getPage($comment);
+        $page = $comment->getPage();
         self::assertInstanceOf(Page::class, $page);
     }
 
     public function testCreate()
     {
         $user = $this->userRepo->get(["id" => 2]);
-        $userComments = $this->userRepo->getComments($user);
+        $userComments = $user->getComments();
 
         $page = $this->pageRepo->get(["id" => 1]);
-        $pageComments = $this->pageRepo->getComments($page);
+        $pageComments = $page->getComments();
 
         $commentCount = $this->commentRepo->countAll();
 
@@ -69,11 +69,11 @@ class CommentRepoTest extends DatabaseTestCase
         $comment = $this->commentRepo->create($newComment);
         self::assertInstanceOf(Comment::class, $comment);
         self::assertEquals(2, $comment->user_id);
-        self::assertEquals(1, $this->commentRepo->getPage($comment)->id);
+        self::assertEquals(1, $comment->getPage()->id);
 
         self::assertGreaterThan($commentCount, $this->commentRepo->countAll());
-        self::assertGreaterThan(count($pageComments), count($this->pageRepo->getComments($page)));
-        self::assertGreaterThan(count($userComments), count($this->userRepo->getComments($user)));
+        self::assertGreaterThan(count($pageComments), count($page->getComments()));
+        self::assertGreaterThan(count($userComments), count($user->getComments()));
     }
 
     public function testDelete()
@@ -87,6 +87,6 @@ class CommentRepoTest extends DatabaseTestCase
 
         // self::assertNull($comment->id);
         $user = $this->userRepo->get(["id" => 3]);
-        self::assertCount(1, $this->userRepo->getComments($user));
+        self::assertCount(1, $user->getComments());
     }
 }

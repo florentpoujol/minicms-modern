@@ -54,8 +54,11 @@ class Comment extends Entity
         ]);
 
         if ($query !== false) {
-            $query->setFetchMode(\PDO::FETCH_CLASS, CommentEntity::class);
-            return $query->fetchAll();
+            $results = [];
+            foreach ($query->fetchAll() as $result) {
+                $results[] = $this->entityClassName::hydrate($result);
+            }
+            return $results;
         }
         return false;
     }

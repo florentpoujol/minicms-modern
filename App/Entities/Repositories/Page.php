@@ -37,17 +37,6 @@ class Page extends Entity
     }
 
     /**
-     * @return PageEntity|bool|null
-     */
-    public function getParent(PageEntity $page)
-    {
-        if ($page->parent_page_id !== null) {
-            return $this->get($page->parent_page_id);
-        }
-        return null;
-    }
-
-    /**
      * @return PageEntity|false
      */
     public function create(array $data)

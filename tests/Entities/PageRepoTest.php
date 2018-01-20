@@ -20,17 +20,17 @@ class PageRepoTest extends DatabaseTestCase
     {
         $page = $this->pageRepo->get(1);
 
-        $children = $this->pageRepo->getChildren($page);
+        $children = $page->getChildren();
         self::assertCount(1, $children);
         self::assertContainsOnlyInstancesOf(Page::class, $children);
         self::assertEquals("otherpage", $children[0]->slug);
         self::assertEquals(1, $children[0]->parent_page_id);
 
-        $parent = $this->pageRepo->getParent($children[0]);
+        $parent = $children[0]->getParent();
         self::assertInstanceOf(Page::class, $parent);
         self::assertEquals(1, $parent->id);
 
-        $comments = $this->pageRepo->getComments($page);
+        $comments = $page->getComments();
         self::assertContainsOnlyInstancesOf(Comment::class, $comments);
         self::assertCount(1, $comments);
     }
@@ -65,7 +65,7 @@ class PageRepoTest extends DatabaseTestCase
             "content" => "the new content",
             "allow_comments" => 0
         ];
-        self::assertTrue($this->pageRepo->update($page, $newData));
+        self::assertTrue($page->update($newData));
         self::assertEquals("the new content", $page->content);
         self::assertFalse($page->allowComments());
     }
@@ -85,24 +85,24 @@ class PageRepoTest extends DatabaseTestCase
         $page = $this->pageRepo->get(1);
 
         self::assertEquals(1, $page->id);
-        self::assertCount(2, $this->pageRepo->getChildren($page));
-        $page3Parent = $this->pageRepo->getParent($page3);
+        self::assertCount(2, $page->getChildren());
+        $page3Parent = $page3->getParent();
         self::assertInstanceOf(Page::class, $page3Parent);
         self::assertEquals(1, $page3->parent_page_id);
         self::assertEquals(1, $page3Parent->id);
-        self::assertCount(1, $this->pageRepo->getComments($page));
-        $comment = $this->pageRepo->getComments($page)[0];
+        self::assertCount(1, $page->getComments());
+        $comment = $page->getComments()[0];
 
         self::assertTrue($this->pageRepo->delete($page));
 
         $page3 = $this->pageRepo->get(3);
-        $page3Parent = $this->pageRepo->getParent($page3);
+        $page3Parent = $page3->getParent();
 
         // self::assertNull($page->id);
         self::assertNull($page3->parent_page_id);
         self::assertNull($page3Parent);
-        self::assertCount(0, $this->pageRepo->getChildren($page));
-        self::assertCount(0, $this->pageRepo->getComments($page));
+        self::assertCount(0, $page->getChildren());
+        self::assertCount(0, $page->getComments());
         self::assertCount(0, $this->commentRepo->getAll(["page_id" => 1]));
     }
 }

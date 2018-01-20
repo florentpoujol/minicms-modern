@@ -4,7 +4,6 @@ namespace Tests;
 
 use App\Entities\Post;
 use App\Entities\Category;
-use App\Entities\User;
 use App\Entities\Comment;
 
 class PostRepoTest extends DatabaseTestCase
@@ -22,11 +21,11 @@ class PostRepoTest extends DatabaseTestCase
     {
         $post = $this->postRepo->get(1);
 
-        $cat = $this->postRepo->getCategory($post);
-        self::assertInstanceOf(Category::class, $cat);
-        self::assertEquals("category-1", $cat->slug);
+        $category = $post->getCategory();
+        self::assertInstanceOf(Category::class, $category);
+        self::assertEquals("category-1", $category->slug);
 
-        $comments = $this->postRepo->getComments($post);
+        $comments = $post->getComments();
         self::assertContainsOnlyInstancesOf(Comment::class, $comments);
         self::assertCount(2, $comments);
     }
@@ -35,9 +34,9 @@ class PostRepoTest extends DatabaseTestCase
     {
         self::assertEquals(2, $this->postRepo->countAll());
         $category = $this->categoryRepo->get(1);
-        self::assertCount(1, $this->categoryRepo->getPosts($category));
+        self::assertCount(1, $category->getPosts());
         $user = $this->userRepo->get(1);
-        self::assertCount(2, $this->userRepo->getPosts($user));
+        self::assertCount(2, $user->getPosts());
 
         $data = [
             "slug" => "third-post",
@@ -52,8 +51,8 @@ class PostRepoTest extends DatabaseTestCase
         $post = $this->postRepo->create($data);
         self::assertInstanceOf(Post::class, $post);
         self::assertEquals(3, $this->postRepo->countAll());
-        self::assertCount(2, $this->categoryRepo->getPosts($category));
-        self::assertCount(3, $this->userRepo->getPosts($user));
+        self::assertCount(2, $category->getPosts());
+        self::assertCount(3, $user->getPosts());
         self::assertEquals(3, $post->id);
         self::assertEquals("the third post content", $post->content);
     }
@@ -68,7 +67,7 @@ class PostRepoTest extends DatabaseTestCase
             "content" => "the new content",
             "published" => 0
         ];
-        self::assertTrue($this->postRepo->update($post, $newData));
+        self::assertTrue($post->update($newData));
         self::assertEquals("the new content", $post->content);
         self::assertFalse($post->isPublished());
     }
@@ -79,17 +78,17 @@ class PostRepoTest extends DatabaseTestCase
         $user = $this->userRepo->get(1);
         $category = $this->categoryRepo->get(1);
 
-        self::assertCount(2, $this->userRepo->getPosts($user));
+        self::assertCount(2, $user->getPosts());
         self::assertEquals(1, $post->id);
-        self::assertCount(1, $this->categoryRepo->getPosts($category));
-        self::assertCount(2, $this->postRepo->getComments($post));
+        self::assertCount(1, $category->getPosts());
+        self::assertCount(2, $post->getComments());
 
         self::assertTrue($this->postRepo->delete($post));
 
-        self::assertCount(1, $this->userRepo->getPosts($user));
+        self::assertCount(1, $user->getPosts());
         // self::assertNull($post->id);
-        self::assertCount(0, $this->categoryRepo->getPosts($category));
-        self::assertEmpty($this->postRepo->getComments($post));
+        self::assertCount(0, $category->getPosts());
+        self::assertEmpty($post->getComments());
         self::assertEmpty($this->commentRepo->getAll(["post_id" => 1]));
     }
 }

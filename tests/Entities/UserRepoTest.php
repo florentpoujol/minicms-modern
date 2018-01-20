@@ -59,19 +59,19 @@ class UserRepoTest extends DatabaseTestCase
         $writer = $users[1];
         $commenter = $users[2];
 
-        $posts = $this->userRepo->getPosts($admin);
+        $posts = $admin->getPosts($admin);
         self::assertCount(2, $posts);
         self::assertContainsOnlyInstancesOf(Post::class, $posts);
-        self::assertEmpty(0, $this->userRepo->getComments($admin));
+        self::assertEmpty(0, $admin->getComments());
 
-        self::assertEmpty(0, $this->userRepo->getPosts($writer));
+        self::assertEmpty(0, $writer->getPosts());
 
-        $comments = $this->userRepo->getComments($writer);
+        $comments = $writer->getComments();
         self::assertCount(1, $comments);
         self::assertContainsOnlyInstancesOf(Comment::class, $comments);
 
-        self::assertEmpty(0, $this->userRepo->getPosts($commenter));
-        $comments = $this->userRepo->getComments($commenter);
+        self::assertEmpty(0, $commenter->getPosts());
+        $comments = $commenter->getComments();
         self::assertCount(2, $comments);
         self::assertContainsOnlyInstancesOf(Comment::class, $comments);
     }
@@ -111,29 +111,29 @@ class UserRepoTest extends DatabaseTestCase
         $user = $this->userRepo->create($newUser);
         self::assertNotEmpty($user->email_token);
 
-        self::assertTrue($this->userRepo->updateEmailToken($user, ""));
+        self::assertTrue($user->updateEmailToken(""));
         self::assertEmpty($user->email_token);
 
         self::assertEmpty($user->password_token);
         self::assertEquals(0, $user->password_change_time);
-        self::assertTrue($this->userRepo->updatePasswordToken($user, "newtoken"));
+        self::assertTrue($user->updatePasswordToken("newtoken"));
         self::assertEquals("newtoken", $user->password_token);
         $time = time();
         self::assertGreaterThan($time - 1, $user->password_change_time);
         self::assertLessThan($time + 1, $user->password_change_time);
 
         self::assertTrue(password_verify("azerty", $user->password_hash));
-        self::assertTrue($this->userRepo->updatePassword($user, "qwerty"));
+        self::assertTrue($user->updatePassword("qwerty"));
         self::assertTrue(password_verify("qwerty", $user->password_hash));
         self::assertEmpty($user->password_token);
         self::assertEquals(0, $user->password_change_time);
 
         self::assertEquals(0, $user->is_blocked);
         self::assertFalse($user->isBlocked());
-        self::assertTrue($this->userRepo->block($user));
+        self::assertTrue($user->block());
         self::assertEquals(1, $user->is_blocked);
         self::assertTrue($user->isBlocked());
-        self::assertTrue($this->userRepo->block($user, false));
+        self::assertTrue($user->block(false));
         self::assertEquals(0, $user->is_blocked);
         self::assertFalse($user->isBlocked());
     }

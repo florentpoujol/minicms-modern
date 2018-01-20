@@ -2,26 +2,39 @@
 
 namespace App\Entities;
 
-use App\App;
-use App\Messages;
+use App\Config;
+use App\Entities\Repositories\Media as MediaRepo;
+use App\Entities\Repositories\User as UserRepo;
 
 class Media extends Entity
 {
+    use UserOwnedTrait;
+
     public $slug = "";
     public $filename = "";
     public $user_id = -1;
 
-     public function update(array $data): bool
+    /**
+     * @var MediaRepo
+     */
+    public $mediaRepo;
+
+    /**
+     * @var Config
+     */
+    public $config;
+
+    public function __construct(MediaRepo $mediaRepo, UserRepo $userRepo, Config $config)
     {
-        unset($data["filename"]);
-        return parent::update($data);
+        $this->userRepo = $userRepo;
+        $this->mediaRepo = $mediaRepo;
+        $this->config = $config;
     }
 
     public function delete(): bool
     {
-        $fileName = $this->filename;
         if (parent::delete()) {
-            $path = __dir__ . "/../../public/" . App::$uploadPath . $fileName;
+            $path = $this->config->get("upload_path") . $this->filename;
             if (file_exists($path)) {
                 unlink($path);
             }
@@ -29,5 +42,4 @@ class Media extends Entity
         }
         return false;
     }
-
 }

@@ -2,9 +2,55 @@
 
 namespace App\Entities;
 
+use App\Entities\Repositories\Post as PostRepo;
+use App\Entities\Repositories\Comment as CommentRepo;
+use App\Entities\Repositories\Category as CategoryRepo;
+use App\Entities\Repositories\User as UserRepo;
+
 class Post extends BasePage
 {
+    use UserOwnedTrait;
+
     public $category_id = -1;
+
+    /**
+     * @var PostRepo
+     */
+    public $postRepo;
+
+    /**
+     * @var CommentRepo
+     */
+    protected $commentRepo;
+
+    /**
+     * @var CategoryRepo
+     */
+    public $categoryRepo;
+
+    public function __construct(PostRepo $postRepo, CommentRepo $commentRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
+    {
+        $this->commentRepo = $commentRepo;
+        $this->categoryRepo = $categoryRepo;
+        $this->userRepo = $userRepo;
+        $this->postRepo = $postRepo;
+    }
+
+    /**
+     * @return Category|false
+     */
+    public function getCategory()
+    {
+        return $this->categoryRepo->get(["id" => $this->category_id]);
+    }
+
+    /**
+     * @return Comment[]|false
+     */
+    public function getComments()
+    {
+        return $this->commentRepo->getAll(["post_id" => $this->id]);
+    }
 
     public function getLink(string $routeName = "post")
     {

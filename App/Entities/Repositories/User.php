@@ -92,51 +92,12 @@ class User extends Entity
         if (isset($data["password"])) {
             $password = $data["password"];
             if ($password !== "") {
-                $this->updatePassword($user, $password);
+                $user->updatePassword($password);
             }
             unset($data["password"]);
             unset($data["password_confirmation"]);
         }
         return parent::update($user, $data);
-    }
-
-    /**
-     * @param UserEntity $user
-     */
-    public function updatePasswordToken($user, string $token): bool
-    {
-        return $this->update($user, [
-            "password_token" => $token,
-            "password_change_time" => $token !== "" ? time() : 0,
-        ]);
-    }
-
-    /**
-     * @param UserEntity $user
-     */
-    public function updatePassword($user, string $password): bool
-    {
-        return $this->update($user, [
-            "password_token" => "",
-            "password_change_time" => 0,
-            "password_hash" => password_hash($password, PASSWORD_DEFAULT)
-        ]);
-    }
-
-    /**
-     * @param UserEntity $user
-     */
-    public function updateEmailToken($user, string $token): bool
-    {
-        return $this->update($user, ["email_token" => $token]);
-    }
-
-    /**
-     * @param UserEntity $user
-     */
-    public function block($user, bool $block = true): bool
-    {
-        return $this->update($user, ["is_blocked" => (int)$block]);
     }
 
     /**

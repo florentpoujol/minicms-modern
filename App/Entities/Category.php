@@ -33,26 +33,6 @@ class Category extends Entity
         return $this->postRepo->getAll(["category_id" => $this->id]);
     }
 
-    public function update(array $newData): bool
-    {
-        $success = $this->categoryRepo->update($this, $newData);
-        if ($success) {
-            foreach ($newData as $field => $value) {
-                $this->{$field} = $value;
-            }
-        }
-        return $success;
-    }
-
-    public function delete(): bool
-    {
-        if ($this->categoryRepo->delete($this)) {
-            parent::delete();
-            return true;
-        }
-        return false;
-    }
-
     public function getLink(string $routeName = "category")
     {
         return parent::getLink($routeName);

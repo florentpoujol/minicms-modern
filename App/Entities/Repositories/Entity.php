@@ -2,12 +2,10 @@
 
 namespace App\Entities\Repositories;
 
-use App\App;
 use App\Config;
 use App\Database;
 use App\Session;
 use App\Entities\Entity as BaseEntity;
-use PDO;
 
 class Entity
 {
@@ -58,7 +56,7 @@ class Entity
             ->execute();
 
         if ($query !== false && ($result = $query->fetch()) !== false) {
-            return $this->entityClassName::hydrate($result);
+            return $this->entityClassName::createHydrated($result);
         }
         return false;
     }
@@ -97,7 +95,7 @@ class Entity
         if ($query !== false) {
             $results = [];
             foreach ($query->fetchAll() as $result) {
-                $results[] = $this->entityClassName::hydrate($result);
+                $results[] = $this->entityClassName::createHydrated($result);
             }
             return $results;
         }
