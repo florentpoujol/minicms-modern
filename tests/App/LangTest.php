@@ -8,7 +8,7 @@ use org\bovigo\vfs\vfsStream;
 
 class LangTest extends TestCase
 {
-    private static $dictionaries;
+    private static $dictionaries = [];
     private static $languageFolder = "";
 
     public static function setUpBeforeClass()
@@ -45,60 +45,58 @@ class LangTest extends TestCase
 
     public function testLoad()
     {
-        $lang = new Lang();
-        $lang->languageFolder = self::$languageFolder;
+        $lang = new Lang(self::$languageFolder);
 
-        self::assertAttributeEmpty("dictionariesPerLocale", $lang);
+        $this->assertAttributeEmpty("dictionariesPerLocale", $lang);
 
-        self::assertTrue($lang->load("en"));
-        self::assertAttributeContains(self::$dictionaries["en"], "dictionariesPerLocale", $lang);
+        $this->assertTrue($lang->load("en"));
+        $this->assertAttributeContains(self::$dictionaries["en"], "dictionariesPerLocale", $lang);
 
-        self::assertTrue($lang->load("fr"));
-        self::assertAttributeContains(self::$dictionaries["fr"], "dictionariesPerLocale", $lang);
+        $this->assertTrue($lang->load("fr"));
+        $this->assertAttributeContains(self::$dictionaries["fr"], "dictionariesPerLocale", $lang);
 
-        self::assertFalse($lang->load("de"));
+        $this->assertFalse($lang->load("de"));
     }
 
     public function testLang()
     {
-        $lang = new Lang();
-        $lang->languageFolder = self::$languageFolder;
+        $lang = new Lang(self::$languageFolder);
         $lang->currentLanguage = "fr";
         $lang->load("en");
         $lang->load("fr");
 
-        self::assertEquals(
+        $this->assertEquals(
             self::$dictionaries[$lang->currentLanguage]["key"],
             $lang->get("key")
         );
-        self::assertEquals("otherkey", $lang->get("otherkey")); // "otherkey" leads to an array, not a string
+        $this->assertEquals("otherkey", $lang->get("otherkey")); // "otherkey" leads to an array, not a string
 
-        self::assertEquals("nonexistentkey", $lang->get("nonexistentkey"));
-        self::assertEquals("fr.nonexistentkey", $lang->get("fr.nonexistentkey"));
-        self::assertEquals("en.nonexistentkey", $lang->get("en.nonexistentkey"));
+        $this->assertEquals("nonexistentkey", $lang->get("nonexistentkey"));
+        $this->assertEquals("fr.nonexistentkey", $lang->get("fr.nonexistentkey"));
+        $this->assertEquals("en.nonexistentkey", $lang->get("en.nonexistentkey"));
 
-        self::assertEquals(
+        $this->assertEquals(
             self::$dictionaries[$lang->currentLanguage]["otherkey"]["nestedkey"],
             $lang->get("otherkey.nestedkey")
         );
-        self::assertEquals("otherkey.nonexistentkey", $lang->get("otherkey.nonexistentkey"));
+        $this->assertEquals("otherkey.nonexistentkey", $lang->get("otherkey.nonexistentkey"));
 
-        self::assertEquals(
+        $this->assertEquals(
             self::$dictionaries[$lang->defaultLanguage]["onlyindefaultlangkey"],
             $lang->get("onlyindefaultlangkey")
         );
 
-        self::assertEquals(
+        $this->assertEquals(
             self::$dictionaries["en"]["key"],
             $lang->get("en.key")
         );
-        self::assertEquals(
+        $this->assertEquals(
             self::$dictionaries["fr"]["key"],
             $lang->get("fr.key")
         );
-        self::assertEquals("de.key", $lang->get("de.key"));
+        $this->assertEquals("de.key", $lang->get("de.key"));
 
-        self::assertEquals(
+        $this->assertEquals(
             str_replace(
                 "{value}",
                 "Florent",
@@ -106,7 +104,7 @@ class LangTest extends TestCase
             ),
             $lang->get("otherkey.nestedkey", ["value" => "Florent"])
         );
-        self::assertEquals(
+        $this->assertEquals(
             str_replace(
                 "{value}",
                 "Nestor",

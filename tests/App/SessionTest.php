@@ -8,54 +8,48 @@ class SessionTest extends BaseTestCase
 {
     public function testId()
     {
-        self::assertInternalType("string", $this->session->getId());
-        self::assertNotEmpty($this->session->getId());
-        self::assertEquals($this->session->getId(), $this->session->getId());
+        $this->assertInternalType("string", $this->session->getId());
+        $this->assertNotEmpty($this->session->getId());
+        $this->assertEquals($this->session->getId(), $this->session->getId());
     }
 
     public function testGet()
     {
-        self::assertEquals(null, $this->session->get("nonExistentKey"));
-        self::assertEquals("defaultvalue", $this->session->get("nonExistentKey", "defaultvalue"));
+        $this->assertEquals(null, $this->session->get("nonExistentKey"));
+        $this->assertEquals("defaultvalue", $this->session->get("nonExistentKey", "defaultvalue"));
 
         $_SESSION["thekey"] = 10;
-        self::assertEquals(10, $this->session->get("thekey"));
-        self::assertEquals(10, $this->session->get("thekey", "defaultvalue"));
+        $this->assertEquals(10, $this->session->get("thekey"));
+        $this->assertEquals(10, $this->session->get("thekey", "defaultvalue"));
     }
 
-    /**
-     * @depends testGet
-     */
     public function testSet()
     {
-        self::assertEquals(null, $this->session->get("nonExistentKey"));
+        $this->assertEquals(null, $this->session->get("nonExistentKey"));
         $this->session->set("nonExistentKey", true);
-        self::assertEquals(true, $this->session->get("nonExistentKey"));
+        $this->assertEquals(true, $this->session->get("nonExistentKey"));
     }
 
-    /**
-     * @depends testSet
-     */
     public function testDestroy()
     {
-        self::assertEquals(true, $this->session->get("nonExistentKey"));
+        $this->assertEquals(true, $this->session->get("nonExistentKey"));
         $this->session->delete("nonExistentKey");
-        self::assertEquals(null, $this->session->get("nonExistentKey"));
+        $this->assertEquals(null, $this->session->get("nonExistentKey"));
         $this->session->delete("nonExistentKey"); // test doesn't throw error
 
-        self::assertNotEmpty($_SESSION);
-        self::assertFalse(empty($_SESSION));
+        $this->assertNotEmpty($_SESSION);
+        $this->assertFalse(empty($_SESSION));
         $this->session->destroy();
-        self::assertTrue(empty($_SESSION));
-        self::assertEmpty($this->session->getId());
+        $this->assertTrue(empty($_SESSION));
+        $this->assertEmpty($this->session->getId());
     }
 
     public function testUniqueToken()
     {
         $helpers = new Helpers();
-        self::assertNotEquals($helpers->getUniqueToken(), $helpers->getUniqueToken(), "two calls returns the same value");
-        self::assertNotEquals($helpers->getUniqueToken(30), $helpers->getUniqueToken(30), "two calls (with specified length) returns the same value");
-        self::assertEquals(30, strlen($helpers->getUniqueToken(30)), "the returned string is no of the specified length"); // /!\ not true for all lengths ! (ie: 25 will return length of 24)
+        $this->assertNotEquals($helpers->getUniqueToken(), $helpers->getUniqueToken(), "two calls returns the same value");
+        $this->assertNotEquals($helpers->getUniqueToken(30), $helpers->getUniqueToken(30), "two calls (with specified length) returns the same value");
+        $this->assertEquals(30, strlen($helpers->getUniqueToken(30)), "the returned string is no of the specified length"); // /!\ not true for all lengths ! (ie: 25 will return length of 24)
     }
 
     public function testCSRFTokensCreation()
@@ -63,21 +57,21 @@ class SessionTest extends BaseTestCase
         $token1 = $this->session->createCSRFToken("request1");
         $token2 = $this->session->createCSRFToken("request2");
 
-        self::assertNotEquals($token1, $token2, "the two returned tokens should not be the same");
+        $this->assertNotEquals($token1, $token2, "the two returned tokens should not be the same");
 
-        self::assertArrayHasKey("request1_csrf_token", $_SESSION, "the session is missing the token key for request1");
-        self::assertArrayHasKey("request1_csrf_time", $_SESSION, "the session is missing the time key for request1");
-        self::assertEquals($token1, $_SESSION["request1_csrf_token"], "the returned token is not the same as the one stored in session for request1");
-        self::assertInternalType("int", $_SESSION["request1_csrf_time"], "the time stored in session is not an int for request1");
+        $this->assertArrayHasKey("request1_csrf_token", $_SESSION, "the session is missing the token key for request1");
+        $this->assertArrayHasKey("request1_csrf_time", $_SESSION, "the session is missing the time key for request1");
+        $this->assertEquals($token1, $_SESSION["request1_csrf_token"], "the returned token is not the same as the one stored in session for request1");
+        $this->assertInternalType("int", $_SESSION["request1_csrf_time"], "the time stored in session is not an int for request1");
 
-        self::assertArrayHasKey("request2_csrf_token", $_SESSION, "the session is missing the token key for request2");
-        self::assertArrayHasKey("request2_csrf_time", $_SESSION, "the session is missing the time key for request2");
-        self::assertEquals($token2, $_SESSION["request2_csrf_token"], "the returned token is not the same as the one stored in session for request2");
-        self::assertInternalType("int", $_SESSION["request2_csrf_time"], "the time stored in session is not an int for request2");
+        $this->assertArrayHasKey("request2_csrf_token", $_SESSION, "the session is missing the token key for request2");
+        $this->assertArrayHasKey("request2_csrf_time", $_SESSION, "the session is missing the time key for request2");
+        $this->assertEquals($token2, $_SESSION["request2_csrf_token"], "the returned token is not the same as the one stored in session for request2");
+        $this->assertInternalType("int", $_SESSION["request2_csrf_time"], "the time stored in session is not an int for request2");
 
         $token3 = $this->session->createCSRFToken("request2");
-        self::assertNotEquals($token2, $_SESSION["request2_csrf_token"], "the session token for request2 is still the same");
-        self::assertEquals($token3, $_SESSION["request2_csrf_token"], "the returned token3 is not the same as the one stored in session for request2");
+        $this->assertNotEquals($token2, $_SESSION["request2_csrf_token"], "the session token for request2 is still the same");
+        $this->assertEquals($token3, $_SESSION["request2_csrf_token"], "the returned token3 is not the same as the one stored in session for request2");
     }
 
     public function testFlashSuccesses()
@@ -87,9 +81,9 @@ class SessionTest extends BaseTestCase
         $this->session->addSuccess("user.loggedin", ["username" => "Florent"]);
 
         $msgs = $this->session->getSuccesses();
-        self::assertEmpty($this->session->getSuccesses());
-        self::assertNotEmpty($msgs);
-        self::assertCount(3, $msgs);
+        $this->assertEmpty($this->session->getSuccesses());
+        $this->assertNotEmpty($msgs);
+        $this->assertCount(3, $msgs);
 
         $expected = [
             "the success message",
@@ -98,7 +92,7 @@ class SessionTest extends BaseTestCase
         ];
 
         foreach ($msgs as $id => $msg) {
-            self::assertEquals($expected[$id], $msg);
+            $this->assertEquals($expected[$id], $msg);
         }
     }
 
@@ -109,9 +103,9 @@ class SessionTest extends BaseTestCase
         $this->session->addError("user.unknownwithfield", ["field" => "name", "value" => "Florent"]);
 
         $msgs = $this->session->getErrors();
-        self::assertEmpty($this->session->getErrors());
-        self::assertNotEmpty($msgs);
-        self::assertCount(3, $msgs);
+        $this->assertEmpty($this->session->getErrors());
+        $this->assertNotEmpty($msgs);
+        $this->assertCount(3, $msgs);
 
         $expected = [
             "the error message",
@@ -120,7 +114,7 @@ class SessionTest extends BaseTestCase
         ];
 
         foreach ($msgs as $id => $msg) {
-            self::assertEquals($expected[$id], $msg);
+            $this->assertEquals($expected[$id], $msg);
         }
     }
 }

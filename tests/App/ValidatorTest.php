@@ -110,11 +110,4 @@ class ValidatorTest extends BaseTestCase
         self::assertArrayNotHasKey("garbage", $post);
         self::assertArrayNotHasKey("garbage2", $post);
     }
-
-    /*public function testValueExistsInField()
-    {
-        self::assertTrue($this->validator->valueExistsInDB("Admin", "name", "users"));
-        self::assertFalse($this->validator->valueExistsInDB("category-3", "slug", "categories"));
-        self::assertTrue($this->validator->valueExistsInDB(1, "parent_page_id", "pages"));
-    }*/
 }

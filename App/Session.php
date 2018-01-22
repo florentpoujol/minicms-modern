@@ -7,21 +7,20 @@ use StdCmp\Session\NativeSession;
 class Session extends NativeSession
 {
     /**
-     * @var App
+     * @var Helpers
      */
     public $helpers;
 
     /**
      * @var Lang
      */
-    public $localization;
+    public $lang;
 
-    function __construct(Helpers $helpers, Lang $localization)
+    function __construct(Helpers $helpers, Lang $lang)
     {
         $this->helpers = $helpers;
-        $this->localization = $localization;
+        $this->lang = $lang;
         // todo: only store the msg key in the session, not the whole message
-
     }
 
     public function createCSRFToken(string $requestName): string
@@ -38,7 +37,7 @@ class Session extends NativeSession
      */
     public function addSuccess(string $msg, array $replacements = null)
     {
-        $msg = $this->localization->get("messages.success.$msg", $replacements);
+        $msg = $this->lang->get("messages.success.$msg", $replacements);
         $msg = preg_replace("/^messages\.success\./", "", $msg); // in case the msg isn't found
         $this->addFlashMessage("flashSuccesses", $msg);
     }
@@ -49,7 +48,7 @@ class Session extends NativeSession
      */
     public function addError(string $msg, array $replacements = null)
     {
-        $msg = $this->localization->get("messages.error.$msg", $replacements);
+        $msg = $this->lang->get("messages.error.$msg", $replacements);
         $msg = preg_replace("/^messages\.error\./", "", $msg);
         $this->addFlashMessage("flashErrors", $msg);
     }

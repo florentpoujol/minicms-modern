@@ -4,6 +4,7 @@ namespace App;
 
 use App\Entities\Entity;
 use App\Entities\Repositories\User;
+use PHPMailer;
 use StdCmp\DI\DIContainer;
 use StdCmp\QueryBuilder\QueryBuilder;
 
@@ -14,10 +15,9 @@ require __dir__ . "/../../standard-components/vendor/autoload.php"; // todo: rem
 $container = new DIContainer();
 
 $config = $container->get(Config::class);
-$config->load();
 
 $lang = $container->get(Lang::class);
-$lang->load($lang->currentLanguage); // let's imagine $currentLanguage has been changed based on config value or navigator language
+$lang->load("en"); // let's imagine "en" has been changed based on config value or navigator language
 
 $app = new App($container);
 $container->set(App::class, $app);
@@ -25,12 +25,15 @@ $container->set(App::class, $app);
 $session = $container->get(Session::class);
 
 $router = $container->get(Router::class);
+
 // end setup container
 
 if (!$config->fileExists()) {
     $router->toInstall();
     exit;
 }
+
+$config->load();
 
 $db = $container->get(Database::class);
 $db->connect();

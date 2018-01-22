@@ -5,6 +5,16 @@ namespace App;
 class Form
 {
     /**
+     * @var Session
+     */
+    public $session;
+
+    /**
+     * @var Lang
+     */
+    public $lang;
+
+    /**
      * @var string The name of the form, mostly used as prefix for CSRF protection
      */
     private $name = "";
@@ -14,7 +24,13 @@ class Form
      */
     private $data = [];
 
-    public function __construct(string $name, array $data = [])
+    public function __construct(Session $session, Lang $lang)
+    {
+        $this->session = $session;
+        $this->lang = $lang;
+    }
+
+    public function setup(string $name, array $data = [])
     {
         $this->name = $name;
         $this->data = $data;
@@ -34,7 +50,7 @@ class Form
     public function close(bool $addCSRFProtection = true)
     {
         if ($addCSRFProtection) {
-            $this->hidden($this->name."_csrf_token", Security::createCSRFTokens($this->name));
+            $this->hidden($this->name."_csrf_token", $this->session->createCSRFToken($this->name));
         }
 
         echo '</form>
@@ -64,11 +80,11 @@ class Form
         $content = "";
 
         if ($label !== "") {
-            $tmpLabel = Lang::get("formlabel.$label");
+            $tmpLabel = $this->lang->get("formlabel.$label");
             if ($tmpLabel !== "formlabel.$label") {
                 $label = $tmpLabel;
             } else {
-                $tmpLabel = Lang::get($label);
+                $tmpLabel = $this->lang->get($label);
                 if ($tmpLabel !== $label) {
                     $label = $tmpLabel;
                 }
@@ -198,11 +214,11 @@ class Form
         $content = "";
 
         if ($label !== "") {
-            $tmpLabel = Lang::get("formlabel.$label");
+            $tmpLabel = $this->lang->get("formlabel.$label");
             if ($tmpLabel !== "formlabel.$label") {
                 $label = $tmpLabel;
             } else {
-                $tmpLabel = Lang::get($label);
+                $tmpLabel = $this->lang->get($label);
                 if ($tmpLabel !== $label) {
                     $label = $tmpLabel;
                 }
@@ -273,11 +289,11 @@ class Form
         $content = "";
 
         if ($label !== "") {
-            $tmpLabel = Lang::get("formlabel.$label");
+            $tmpLabel = $this->lang->get("formlabel.$label");
             if ($tmpLabel !== "formlabel.$label") {
                 $label = $tmpLabel;
             } else {
-                $tmpLabel = Lang::get($label);
+                $tmpLabel = $this->lang->get($label);
                 if ($tmpLabel !== $label) {
                     $label = $tmpLabel;
                 }

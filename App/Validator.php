@@ -7,27 +7,33 @@ use App\Entities\Page;
 use App\Entities\Post;
 use App\Entities\User;
 
-class Validator extends Database
+class Validator
 {
     /**
      * @var Session
      */
-    public $session;
+    protected $session;
 
-    public function __construct(Session $session)
+    /**
+     * @var Database
+     */
+    protected $database;
+
+    public function __construct(Session $session, Database $database)
     {
         $this->session = $session;
+        $this->database = $database;
     }
 
     /**
-     * check the data against the patterns
+     * Check the data against the provided patterns
      * @param mixed $data
      * @param string|array $patterns can be string or array of strings
-     * @return bool true if all pattern(s) are found in the data, false otherwise
+     * @return bool True if all pattern(s) are found in the data, false otherwise
      */
     public function validate($data, $patterns): bool
     {
-        if (! is_array($patterns)) {
+        if (!is_array($patterns)) {
             $patterns = [$patterns];
         }
 
@@ -36,49 +42,33 @@ class Validator extends Database
                 return false;
             }
         }
-
         return true;
     }
 
-    /**
-     * @param mixed $data
-     */
     public function title(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_:,?!\. -]{2,}$/";
         return $this->validate($data, $pattern);
     }
 
-    /**
-     * @param mixed $data
-     */
     public function name(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9-]{2,}$/";
         return $this->validate($data, $pattern);
     }
 
-    /**
-     * @param mixed $data
-     */
     public function slug(string $data): bool
     {
         $pattern = "/^[a-z]{1}[a-z0-9-]{1,}$/";
         return $this->validate($data, $pattern);
     }
 
-    /**
-     * @param mixed $data
-     */
     public function email(string $data): bool
     {
         $pattern = "/^[a-zA-Z0-9_\.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9\.-]+$/";
         return $this->validate($data, $pattern);
     }
 
-    /**
-     * @param mixed $data
-     */
     public function password(string $data, string $confirm = null): bool
     {
         $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
@@ -97,25 +87,24 @@ class Validator extends Database
      */
     public function csrf(string $requestName, string $token = null, int $timeLimit = 900): bool
     {
-        $tokenName = $requestName . "_csrf_token";
+        $tokenKey = $requestName . "_csrf_token";
+        $timeKey = $requestName . "_csrf_time";
 
         if ($token === null) {
-            if (isset($_POST[$tokenName])) {
-                $token = $_POST[$tokenName];
-            } else {
+            if (!isset($_POST[$tokenKey])) {
                 return false;
             }
+            $token = $_POST[$tokenKey];
         }
 
-        if ($this->session->get($tokenName) === $token &&
-            time() < $this->session->get($requestName . "_csrf_time") + $timeLimit)
+        if ($this->session->get($tokenKey) === $token &&
+            time() < $this->session->get($timeKey) + $timeLimit)
         {
-            unset($_POST[$tokenName]);
-            $this->session->delete($tokenName);
-            $this->session->delete($requestName . "_csrf_time");
+            unset($_POST[$tokenKey]);
+            $this->session->delete($tokenKey);
+            $this->session->delete($timeKey);
             return true;
         }
-
         return false;
     }
 
@@ -135,31 +124,23 @@ class Validator extends Database
 
             switch ($type) {
                 case "int":
-                    if (! is_int($value)) {
-                        $value = (int)$value;
-                    }
+                    $value = (int)$value;
                     break;
 
                 case "bool":
-                    if (! is_bool($value)) {
-                        $value = (bool)$value;
-                    }
+                    $value = (bool)$value;
                     break;
 
                 case "string":
-                    if (! is_string($value)) {
-                        $value = strval($value);
-                    }
+                    $value = (string)$value;
                     break;
 
                 case "checkbox":
-                    $value = (int)($value === "on");
+                    $value = (int)($value === "on"); // when checkbox is not checked, $value will actually be null ($key not present in $_POST
                     break;
 
                 case "array":
-                    if (! is_array($value)) {
-                        $value = (array)$value;
-                    }
+                    $value = (array)$value;
                     break;
 
                 default:
@@ -185,7 +166,7 @@ class Validator extends Database
             $this->session->addError("fieldvalidation.name");
         }
 
-        if (! isset($user["id"]) && $this->valueExistsInDB($user["name"], "name", "users")) {
+        if (! isset($user["id"]) && $this->database->valueExistsInDB($user["name"], "name", "users")) {
             $ok = false;
             $this->session->addError("user.namenotunique");
         }
@@ -200,7 +181,7 @@ class Validator extends Database
                 $user["password_confirm"] = null;
             }
 
-            if (! Validator::password($user["password"], $user["password_confirm"])) {
+            if (! $this->password($user["password"], $user["password_confirm"])) {
                 $ok = false;
                 $this->session->addError("fieldvalidation.passwordnotequal");
             }
@@ -226,7 +207,7 @@ class Validator extends Database
             $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "categories")) {
+        if (! isset($data["id"]) && $this->database->valueExistsInDB($data["slug"], "slug", "categories")) {
             $ok = false;
             $this->session->addError("db.slugnotunique");
         }
@@ -248,7 +229,7 @@ class Validator extends Database
             $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "posts")) {
+        if (! isset($data["id"]) && $this->database->valueExistsInDB($data["slug"], "slug", "posts")) {
             $ok = false;
             $this->session->addError("db.slugnotunique");
         }
@@ -282,7 +263,7 @@ class Validator extends Database
             $this->session->addError("fieldvalidation.slug");
         }
 
-        if (! isset($data["id"]) && $this->valueExistsInDB($data["slug"], "slug", "pages")) {
+        if (! isset($data["id"]) && $this->database->valueExistsInDB($data["slug"], "slug", "pages")) {
             $ok = false;
             $this->session->addError("db.slugnotunique");
         }

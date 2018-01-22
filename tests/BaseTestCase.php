@@ -54,8 +54,8 @@ abstract class BaseTestCase extends TestCase
         $this->container = new DIContainer();
         App::$container = $this->container;
 
-        $this->config = new Config();
-        $this->config->load(__dir__ . "/testsConfig.json");
+        $this->config = new Config(__dir__ . "/testsConfig.json");
+        $this->config->load();
         $this->container->set(Config::class, $this->config);
 
         $this->session = $this->container->get(Session::class);
