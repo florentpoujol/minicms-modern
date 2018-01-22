@@ -11,44 +11,44 @@ class CommentTest extends DatabaseTestCase
 {
     public function testGet()
     {
-        self::assertFalse($this->commentRepo->get(["id" => 999]));
+        $this->assertFalse($this->commentRepo->get(["id" => 999]));
 
         $comment = $this->commentRepo->get(["id" => 1]);
-        self::assertInstanceOf(Comment::class, $comment);
-        self::assertEquals("the comment on first post", $comment->content);
-        self::assertEquals(1, $comment->id);
-        self::assertEquals(3, $comment->user_id);
+        $this->assertInstanceOf(Comment::class, $comment);
+        $this->assertEquals("the comment on first post", $comment->content);
+        $this->assertEquals(1, $comment->id);
+        $this->assertEquals(3, $comment->user_id);
 
         $comment = $this->commentRepo->get(["user_id" => 2]);
-        self::assertInstanceOf(Comment::class, $comment);
-        self::assertEquals(2, $comment->user_id);
+        $this->assertInstanceOf(Comment::class, $comment);
+        $this->assertEquals(2, $comment->user_id);
 
         $comments = $this->commentRepo->getAll();
-        self::assertInternalType("array", $comments);
-        self::assertContainsOnlyInstancesOf(Comment::class, $comments);
-        self::assertCount(3, $comments);
+        $this->assertInternalType("array", $comments);
+        $this->assertContainsOnlyInstancesOf(Comment::class, $comments);
+        $this->assertCount(3, $comments);
 
         $comments = $this->commentRepo->getAll(["user_id" => 3]);
-        self::assertCount(2, $comments);
+        $this->assertCount(2, $comments);
 
-        self::assertEquals(3, $this->commentRepo->countAll());
+        $this->assertEquals(3, $this->commentRepo->countAll());
     }
 
     public function testGetResources()
     {
         $comment = $this->commentRepo->get(["id" => 1]);
         $user = $comment->getUser();
-        self::assertInstanceOf(User::class, $user);
+        $this->assertInstanceOf(User::class, $user);
         $post = $comment->getPost();
-        self::assertInstanceOf(Post::class, $post);
-        self::assertFalse($comment->getPage());
+        $this->assertInstanceOf(Post::class, $post);
+        $this->assertFalse($comment->getPage());
 
         $comment = $this->commentRepo->get(["id" => 2]);
         $sameUser = $comment->getUser();
-        self::assertInstanceOf(User::class, $sameUser);
-        self::assertEquals($user, $sameUser);
+        $this->assertInstanceOf(User::class, $sameUser);
+        $this->assertEquals($user, $sameUser);
         $page = $comment->getPage();
-        self::assertInstanceOf(Page::class, $page);
+        $this->assertInstanceOf(Page::class, $page);
     }
 
     public function testCreate()
@@ -67,26 +67,45 @@ class CommentTest extends DatabaseTestCase
             "content" => "the comment text"
         ];
         $comment = $this->commentRepo->create($newComment);
-        self::assertInstanceOf(Comment::class, $comment);
-        self::assertEquals(2, $comment->user_id);
-        self::assertEquals(1, $comment->getPage()->id);
+        $this->assertInstanceOf(Comment::class, $comment);
+        $this->assertEquals(2, $comment->user_id);
+        $this->assertEquals(1, $comment->getPage()->id);
 
-        self::assertGreaterThan($commentCount, $this->commentRepo->countAll());
-        self::assertGreaterThan(count($pageComments), count($page->getComments()));
-        self::assertGreaterThan(count($userComments), count($user->getComments()));
+        $this->assertGreaterThan($commentCount, $this->commentRepo->countAll());
+        $this->assertGreaterThan(count($pageComments), count($page->getComments()));
+        $this->assertGreaterThan(count($userComments), count($user->getComments()));
+    }
+
+    public function testGetAllForWriter()
+    {
+        $user = $this->userRepo->get(["role" => "writer"]);
+        $userComments = $user->getComments();
+        $this->assertSame(1, count($userComments));
+
+        $userPages = array_merge($user->getPages(), $user->getPosts());
+        $this->assertSame(2, count($userPages));
+
+        foreach ($userPages as $page) {
+            $comments = $page->getComments();
+            $userComments = array_merge($userComments, $comments);
+            // should add 2 comments of post 1
+        }
+        $userComments = array_unique($userComments, SORT_REGULAR);
+
+        $allComments = $this->commentRepo->getAllForEditor($user);
+        $this->assertSame(count($userComments), count($allComments));
     }
 
     public function testDelete()
     {
         $comments = $this->commentRepo->getAll(["user_id" => 3]);
-        self::assertCount(2, $comments);
+        $this->assertCount(2, $comments);
         $comment = $comments[0];
-        self::assertEquals(1, $comment->id);
+        $this->assertEquals(1, $comment->id);
 
-        self::assertTrue($this->commentRepo->delete($comment));
+        $this->assertTrue($this->commentRepo->delete($comment));
 
-        // self::assertNull($comment->id);
         $user = $this->userRepo->get(["id" => 3]);
-        self::assertCount(1, $user->getComments());
+        $this->assertCount(1, $user->getComments());
     }
 }

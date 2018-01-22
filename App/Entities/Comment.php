@@ -6,6 +6,7 @@ use App\Entities\Repositories\Comment as CommentRepo;
 use App\Entities\Repositories\Page as PageRepo;
 use App\Entities\Repositories\Post as PostRepo;
 use App\Entities\Repositories\User as UserRepo;
+use App\Router;
 
 class Comment extends Entity
 {
@@ -31,8 +32,9 @@ class Comment extends Entity
      */
     protected $postRepo;
 
-    public function __construct(CommentRepo $commentRepo, PageRepo $pageRepo, PostRepo $postRepo, UserRepo $userRepo)
+    public function __construct(Router $router, CommentRepo $commentRepo, PageRepo $pageRepo, PostRepo $postRepo, UserRepo $userRepo)
     {
+        parent::__construct($router);
         $this->commentRepo = $commentRepo;
         $this->pageRepo = $pageRepo;
         $this->postRepo = $postRepo;

@@ -5,6 +5,7 @@ namespace App\Entities;
 use App\Config;
 use App\Entities\Repositories\Media as MediaRepo;
 use App\Entities\Repositories\User as UserRepo;
+use App\Router;
 
 class Media extends Entity
 {
@@ -24,8 +25,9 @@ class Media extends Entity
      */
     protected $config;
 
-    public function __construct(MediaRepo $mediaRepo, UserRepo $userRepo, Config $config)
+    public function __construct(Router $router, MediaRepo $mediaRepo, UserRepo $userRepo, Config $config)
     {
+        parent::__construct($router);
         $this->userRepo = $userRepo;
         $this->mediaRepo = $mediaRepo;
         $this->config = $config;

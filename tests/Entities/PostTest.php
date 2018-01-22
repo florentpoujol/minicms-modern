@@ -36,7 +36,7 @@ class PostTest extends DatabaseTestCase
         $category = $this->categoryRepo->get(1);
         self::assertCount(1, $category->getPosts());
         $user = $this->userRepo->get(1);
-        self::assertCount(2, $user->getPosts());
+        self::assertCount(1, $user->getPosts());
 
         $data = [
             "slug" => "third-post",
@@ -52,7 +52,7 @@ class PostTest extends DatabaseTestCase
         self::assertInstanceOf(Post::class, $post);
         self::assertEquals(3, $this->postRepo->countAll());
         self::assertCount(2, $category->getPosts());
-        self::assertCount(3, $user->getPosts());
+        self::assertCount(2, $user->getPosts());
         self::assertEquals(3, $post->id);
         self::assertEquals("the third post content", $post->content);
     }
@@ -78,7 +78,7 @@ class PostTest extends DatabaseTestCase
         $user = $this->userRepo->get(1);
         $category = $this->categoryRepo->get(1);
 
-        self::assertCount(2, $user->getPosts());
+        self::assertCount(1, $user->getPosts());
         self::assertEquals(1, $post->id);
         self::assertCount(1, $category->getPosts());
         self::assertCount(2, $post->getComments());

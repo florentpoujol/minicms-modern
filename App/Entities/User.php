@@ -7,6 +7,7 @@ use App\Entities\Repositories\Page as PageRepo;
 use App\Entities\Repositories\Comment as CommentRepo;
 use App\Entities\Repositories\Media as MediaRepo;
 use App\Entities\Repositories\User as UserRepo;
+use App\Router;
 
 class User extends Entity
 {
@@ -44,8 +45,9 @@ class User extends Entity
      */
     protected $mediaRepo;
 
-    public function __construct(UserRepo $userRepo, PostRepo $postRepo, PageRepo $pageRepo, CommentRepo $commentRepo, MediaRepo $mediaRepo)
+    public function __construct(Router $router, UserRepo $userRepo, PostRepo $postRepo, PageRepo $pageRepo, CommentRepo $commentRepo, MediaRepo $mediaRepo)
     {
+        parent::__construct($router);
         $this->userRepo = $userRepo;
         $this->postRepo = $postRepo;
         $this->pageRepo = $pageRepo;

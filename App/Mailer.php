@@ -52,15 +52,16 @@ class Mailer
             }
         } else {
             $mailer = new PHPMailer();
+            // todo: find a way to inject this in order to test it
 
             $mailer->isSMTP();
             // $mailer->SMTPDebug = 3;
-            $mailer->Host = $this->config->get("smtp_host");
             $mailer->SMTPAuth = true;
-            $mailer->Username = $this->config->get("smtp_user");
-            $mailer->Password = $this->config->get("smtp_password");
             $mailer->SMTPSecure = 'tls';        // Enable TLS encryption, `ssl` also accepted
             $mailer->Port = 587;
+            $mailer->Host = $this->config->get("smtp_host");
+            $mailer->Username = $this->config->get("smtp_user");
+            $mailer->Password = $this->config->get("smtp_password");
 
             $mailer->setFrom($formAddress, $formName);
             $mailer->addAddress($to);

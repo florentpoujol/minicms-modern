@@ -5,6 +5,7 @@ namespace App\Entities;
 use App\Entities\Repositories\Page as PageRepo;
 use App\Entities\Repositories\Comment as CommentRepo;
 use App\Entities\Repositories\User as UserRepo;
+use App\Router;
 
 class Page extends BasePage
 {
@@ -22,8 +23,9 @@ class Page extends BasePage
      */
     protected $commentRepo;
 
-    public function __construct(PageRepo $pageRepo, CommentRepo $commentRepo, UserRepo $userRepo)
+    public function __construct(Router $router, PageRepo $pageRepo, CommentRepo $commentRepo, UserRepo $userRepo)
     {
+        parent::__construct($router);
         $this->pageRepo = $pageRepo;
         $this->commentRepo = $commentRepo;
         $this->userRepo = $userRepo;

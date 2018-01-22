@@ -31,11 +31,11 @@ class Comment extends Entity
     {
         $builder = $this->database->getQueryBuilder()
             ->select("comments.*")->fromTable("comments")
-            ->join("posts")->on("comments.post_id = posts.id")
-            ->join("pages")->on("comments.page_id = pages.id")
+            ->leftJoin("posts")->on("comments.post_id = posts.id")
+            ->leftJoin("pages")->on("comments.page_id = pages.id")
             ->where("comments.user_id = :user_id")
             ->orWhere("posts.user_id = :post_user_id")
-            ->orWhere("posts.user_id = :post_user_id")
+            ->orWhere("pages.user_id = :page_user_id")
             ->orderBy("comments.id");
 
         if ($pageNumber !== null) {
@@ -52,11 +52,10 @@ class Comment extends Entity
             "post_user_id" => $user->id,
             "page_user_id" => $user->id,
         ]);
-
         if ($query !== false) {
             $results = [];
             foreach ($query->fetchAll() as $result) {
-                $results[] = $this->entityClassName::hydrate($result);
+                $results[] = $this->entityClassName::createHydrated($result);
             }
             return $results;
         }

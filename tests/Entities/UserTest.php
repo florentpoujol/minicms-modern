@@ -60,7 +60,7 @@ class UserTest extends DatabaseTestCase
         $commenter = $users[2];
 
         $posts = $admin->getPosts($admin);
-        self::assertCount(2, $posts);
+        self::assertCount(1, $posts);
         self::assertContainsOnlyInstancesOf(Post::class, $posts);
         self::assertEmpty(0, $admin->getComments());
 
