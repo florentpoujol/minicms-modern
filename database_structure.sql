@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS `menus`;
 CREATE TABLE `menus` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
-  `structure` TEXT NOT NULL,
+  `json_structure` TEXT NOT NULL,
   `creation_datetime` datetime NOT NULL,
   `in_use` TINYINT(4) UNSIGNED DEFAULT 0,
   PRIMARY KEY (`id`)

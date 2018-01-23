@@ -55,7 +55,7 @@ abstract class DatabaseTestCase extends BaseTestCase
      */
     protected $menuRepo;
 
-    final public function getConnection()
+    public function getConnection()
     {
         if (self::$pdo === null) {
             $options = [
@@ -64,7 +64,14 @@ abstract class DatabaseTestCase extends BaseTestCase
                 \PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            self::$pdo = new \PDO($GLOBALS["DB_DSN"], $GLOBALS["DB_USER"], $GLOBALS["DB_PASSWORD"], $options);
+            $dsn = "mysql:host=" . $this->config->get("db_host") . ";dbname=" .$this->config->get("db_name") . ";charset=utf8";
+
+            self::$pdo = new \PDO(
+                $dsn,
+                $this->config->get("db_user"),
+                $this->config->get("db_password"),
+                $options
+            );
         }
 
         $this->database = $this->container->get(Database::class);
@@ -75,11 +82,10 @@ abstract class DatabaseTestCase extends BaseTestCase
         $this->pageRepo = $this->container->get(Page::class);
         $this->postRepo = $this->container->get(Post::class);
         $this->userRepo = $this->container->get(User::class);
-        // $this->mediaRepo = $this->container->get(Media::class);
-        // $this->menuRepo = $this->container->get(Menu::class);
+        $this->mediaRepo = $this->container->get(Media::class);
+        $this->menuRepo = $this->container->get(Menu::class);
 
-        return $this->createDefaultDBConnection(self::$pdo, $GLOBALS["DB_NAME"]);
-
+        return $this->createDefaultDBConnection(self::$pdo, $this->config->get("db_name"));
     }
 
     public function getDataSet()
