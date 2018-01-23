@@ -33,15 +33,9 @@ class Media extends Entity
         $this->config = $config;
     }
 
-    public function delete(): bool
+    public function update(array $data): bool
     {
-        if (parent::delete()) {
-            $path = $this->config->get("upload_path") . $this->filename;
-            if (file_exists($path)) {
-                unlink($path);
-            }
-            return true;
-        }
-        return false;
+        unset($data["filename"]);
+        return parent::update($data);
     }
 }

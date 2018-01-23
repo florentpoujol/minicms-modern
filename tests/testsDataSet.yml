@@ -115,5 +115,10 @@ menus:
     in_use: 0
     creation_datetime: "2017-01-01 00:00:00"
 
-
 medias:
+  -
+    id: 1
+    slug: the-picture
+    filename: the-picture-the-original-filename-2018-01-01.jpeg
+    user_id: 1
+    creation_datetime: "2018-01-01 00:00:00"
