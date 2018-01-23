@@ -164,20 +164,11 @@ class Entity
 
     public function delete($entity): bool
     {
-        $success = $this->database->getQueryBuilder()
+        return $this->database->getQueryBuilder()
             ->delete()
             ->fromTable($this->tableName)
             ->where("id", $entity->id)
             ->execute();
-
-        if ($success) {
-            /*$props = get_object_vars($entity);
-            foreach ($props as $field => $value) {
-                $entity->{$field} = null;
-            }*/
-            $entity->isDeleted = true;
-        }
-        return $success;
     }
 
     public function deleteMany(array $whereConditions): bool

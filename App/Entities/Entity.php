@@ -46,7 +46,7 @@ class Entity
         return strtolower($name);
     }
 
-    public function update(array $data)
+    public function update(array $data): bool
     {
         $repoName = $this->getEntityName() . "Repo";
         if ($this->{$repoName}->update($this, $data)) {

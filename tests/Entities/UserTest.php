@@ -59,7 +59,7 @@ class UserTest extends DatabaseTestCase
         $writer = $users[1];
         $commenter = $users[2];
 
-        $posts = $admin->getPosts($admin);
+        $posts = $admin->getPosts();
         self::assertCount(1, $posts);
         self::assertContainsOnlyInstancesOf(Post::class, $posts);
         self::assertEmpty(0, $admin->getComments());
@@ -145,14 +145,14 @@ class UserTest extends DatabaseTestCase
         self::assertCount(1, $this->commentRepo->getAll(["user_id" => 2]));
         self::assertEquals(3, $this->commentRepo->countAll());
 
-        $this->userRepo->deleteByAdmin($user, 1);
+        $this->expectException(\LogicException::class);
+        $user->delete();
+
+        $user->deleteByAdmin(1);
 
         self::assertFalse($this->userRepo->get(["id" => 2]));
 
         self::assertCount(0, $this->commentRepo->getAll(["user_id" => 2]));
         self::assertEquals(2, $this->commentRepo->countAll());
-
-        // self::assertNull($user->id);
-        // self::assertNull($user->name);
     }
 }

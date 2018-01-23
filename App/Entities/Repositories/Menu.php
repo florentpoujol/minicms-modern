@@ -30,17 +30,7 @@ class Menu extends Entity
         $data["structure"] = MenuEntity::cleanStructure($data["structure"]);
         $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
         unset($data["structure"]);
+        // the same thing is done during update, but inside the entity update() method, in the repository
         return parent::create($data);
-    }
-
-    /**
-     * @param MenuEntity $menu
-     */
-    public function update($menu, array $data): bool
-    {
-        $data["structure"] = MenuEntity::cleanStructure($data["structure"]);
-        $data["json_structure"] = json_encode($data["structure"], JSON_PRETTY_PRINT);
-        unset($data["structure"]);
-        return parent::update($menu, $data);
     }
 }

@@ -106,3 +106,14 @@ comments:
     user_id: 2
     content: the other comment on first post
     creation_datetime: "2017-01-01 00:00:00"
+
+menus:
+  -
+    id: 1
+    title: The first menu
+    json_structure: '[ { "type": "external", "name": "Login\/Admin", "target": "?r=admin", "children": [] } ]'
+    in_use: 0
+    creation_datetime: "2017-01-01 00:00:00"
+
+
+medias:
