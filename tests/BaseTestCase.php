@@ -68,7 +68,7 @@ abstract class BaseTestCase extends TestCase
         $this->renderer = $this->container->get(Renderer::class);
     }
 
-    protected function getControllerOutput($controller, string $method, array ...$args)
+    protected function getControllerOutput($controller, string $method, ...$args)
     {
         ob_start();
         if (empty($args)) {

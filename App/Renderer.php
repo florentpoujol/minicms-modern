@@ -92,7 +92,7 @@ class Renderer
 
         $tempPath = $this->viewFolder . "/temp";
         file_put_contents($tempPath, $content);
-        require_once $tempPath;
+        require $tempPath; // do not use require_once so that the same file can be included during tests
         // alternatively, the content can just be passed to eval
         // but saving to a file allow for easier debugging
     }
