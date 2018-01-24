@@ -1,7 +1,6 @@
 <?php
 // english language
 return [
-
     "login" => [
         "pagetitle" => "Login",
     ],
@@ -16,6 +15,23 @@ return [
     ],
     "users" => [
         "pagetitle" => "Users"
+    ],
+
+    // front
+    "blog" => [
+        "pagetitle" => "Blog",
+    ],
+
+    "category" => [
+        "plural" => "Categories",
+        "pagetitle" => "Category: {categoryTitle}",
+        "nocategoryyet" => "No category yet",
+    ],
+
+    "post" => [
+        "plural" => "Posts",
+        "nopostyet" => "No post yet",
+        "createdbyheader" => "Created by {userName} in category {categoryName}.",
     ],
 
     "admin" => [
@@ -44,11 +60,11 @@ return [
     "email" => [
         "confirmemail" => [
             "subject" => "Confirm your email address",
-            "body" => "You have registered or changed your email address on the site. <br> Please click the link below to verify the email adress. <br><br> <a href='{url}'>{url}</a>"
+            "body" => 'You have registered or changed your email address on the site. <br> Please click the link below to verify the email adress. <br><br> <a href="{url}">{url}</a>',
         ],
         "changepassword" => [
             "subject" => "Change your password",
-            "body" => "You have requested to change your password. <br> Click the link below within 48 hours to access the form.<br><br> <a href='{url}'>{url}</a>"
+            "body" => 'You have requested to change your password. <br> Click the link below within 48 hours to access the form.<br><br> <a href="{url}">{url}</a>',
         ],
     ],
 

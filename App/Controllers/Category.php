@@ -2,20 +2,43 @@
 
 namespace App\Controllers;
 
-use App\Entities\Category as CategoryEntity;
-use App\Entities\Post;
-use App\Messages;
+use App\Entities\Repositories\Category as CategoryRepo;
+use App\Entities\Repositories\Post as PostRepo;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
+use App\Validator;
 
 class Category extends BaseController
 {
-    public function getCategory(int $categoryId, int $pageNumber = 1)
+    /**
+     * @var CategoryRepo
+     */
+    public $categoryRepo;
+
+    /**
+     * @var PostRepo
+     */
+    public $postRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        CategoryRepo $categoryRepo, PostRepo $postRepo)
     {
-        $category = CategoryEntity::get($categoryId);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->categoryRepo = $categoryRepo;
+        $this->postRepo = $postRepo;
+    }
+
+    public function getCategory(int $categoryId = -1, int $pageNumber = 1)
+    {
+        $category = $this->categoryRepo->get($categoryId);
 
         if ($category === false) {
-            Messages::addError("category.unknow");
-            Router::redirect("blog");
+            $this->session->addError("category.unknow");
+            $this->router->redirect("blog");
         }
 
         $data = [
@@ -23,10 +46,12 @@ class Category extends BaseController
             "posts" => $category->getPosts(["pageNumber" => $pageNumber]),
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => Post::countAll(["category_id" => $categoryId]),
-                "queryString" => Router::getQueryString("category/$categoryId")
-            ]
+                "itemsCount" => $this->postRepo->countAll(["category_id" => $categoryId]),
+                "queryString" => $this->router->getQueryString("category/$categoryId")
+            ],
+            "pageTitle" => $this->lang->get("category.pagetitle", ["categoryTitle" => $category->title]),
         ];
-        $this->render("category", "Category: $category->title", $data);
+
+        $this->render("category", $data);
     }
 }

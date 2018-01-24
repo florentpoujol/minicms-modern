@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Controllers;
+namespace Tests;
 
 use App\Controllers\Blog;
-use Tests\DatabaseTestCase;
 
 class BlogTest extends DatabaseTestCase
 {
@@ -39,6 +38,8 @@ class BlogTest extends DatabaseTestCase
         $this->assertNotEmpty(trim($content));
         $this->assertContains($posts[0]->title, $content);
         $this->assertNotContains($posts[1]->title, $content);
+        $this->assertRegExp("~<strong><a href=.*>1</a></strong>~", $content);
+        $this->assertRegExp("~ <a href=.*>2</a>\n~", $content);
 
         $content = $this->getControllerOutput($controller, "getBlog", 1);
         $this->assertNotEmpty(trim($content));
@@ -49,5 +50,7 @@ class BlogTest extends DatabaseTestCase
         $this->assertNotEmpty(trim($content));
         $this->assertNotContains($posts[0]->title, $content);
         $this->assertContains($posts[1]->title, $content);
+        $this->assertRegExp("~<a href=.*>1</a>\n~", $content);
+        $this->assertRegExp("~<strong><a href=.*>2</a></strong>~", $content);
     }
 }

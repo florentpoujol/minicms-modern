@@ -28,11 +28,12 @@ class Category extends Entity
     }
 
     /**
-     * @return PostRepo[]|false
+     * @return Post[]|false
      */
-    public function getPosts()
+    public function getPosts(array $whereConditions = [])
     {
-        return $this->postRepo->getAll(["category_id" => $this->id]);
+        $whereConditions = array_merge($whereConditions, ["category_id" => $this->id]);
+        return $this->postRepo->getAll($whereConditions);
     }
 
     public function getLink(string $routeName = "category")
