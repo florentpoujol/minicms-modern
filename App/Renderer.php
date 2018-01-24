@@ -28,17 +28,7 @@ class Renderer
         $viewContent = file_get_contents($this->viewFolder . "/$view.php");
 
         // process the includes instruction
-        $matches = [];
-        preg_match_all("/{include (.+)}/", $viewContent, $matches, PREG_SET_ORDER);
-
-        foreach ($matches as $match) {
-            $includeContent = file_get_contents("$this->viewFolder/$match[1]");
-            if (substr_count($includeContent, "<?php") !== substr_count($includeContent, "?>")) {
-                // php tags MUST be closed in included files
-                $includeContent .= "?>";
-            }
-            $viewContent = str_replace($match[0], $includeContent, $viewContent);
-        }
+        $viewContent = $this->processIncludes($viewContent);
 
         // includes the view's content inside the template
         $content = file_get_contents($this->viewFolder . "/templates/$template.php");
@@ -57,8 +47,8 @@ class Renderer
 
         // process template functions
         $functions = [
-            "queryString" => ["\App\Route", "buildQueryString"],
-            "lang" => ["\App\Lang", "get"],
+            "queryString" => ["route", "getQueryString"],
+            "lang" => ["lang", "get"]
         ];
 
         foreach ($functions as $name => $funcData) {
@@ -68,7 +58,7 @@ class Renderer
             foreach ($matches as $match) {
                 $content = str_replace(
                     $match[0],
-                    "<?= $funcData[0]::$funcData[1]" . '("' . $match[1] . '"); ?>',
+                    '<?= $this->' . $funcData[0] . '->' . $funcData[1] . '("' . $match[1] . '"); ?>',
                     $content
                 );
             }
@@ -78,6 +68,28 @@ class Renderer
         $content = preg_replace("/{([a-zA-Z0-9:$>\[\]\(\)_\"'-]+)}/", "<?= htmlentities($1); ?>", $content);
 
         return $content;
+    }
+
+    protected function processIncludes(string $viewContent): string
+    {
+        $matches = [];
+        preg_match_all("/{include (.+)}/", $viewContent, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $includeContent = file_get_contents("$this->viewFolder/$match[1]");
+            if (substr_count($includeContent, "<?php") !== substr_count($includeContent, "?>")) {
+                // php tags MUST be closed in included files
+                $includeContent .= "?>";
+            }
+            $viewContent = str_replace($match[0], $includeContent, $viewContent);
+        }
+
+        if (!empty($matches)) {
+            // new content added, check if there is input inside
+            $viewContent = $this->processIncludes($viewContent);
+        }
+
+        return $viewContent;
     }
 
     public function render(string $template, string $view, array $data = [])
