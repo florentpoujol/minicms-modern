@@ -5,7 +5,7 @@
         <article>
             <h3><?= $post->getLink() ?></h3>
 
-            {include post/post-header.php}
+            {include post-includes/header.php}
 
             <p>
                 {$post->getExcerpt()}

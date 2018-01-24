@@ -2,45 +2,67 @@
 
 namespace App\Controllers;
 
-use App\Entities\Post as PostEntity;
-use App\Messages;
+
+use App\Entities\Repositories\Comment as CommentRepo;
+use App\Entities\Repositories\Post as PostRepo;
+use App\Config;
+use App\Form;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
+use App\Validator;
 
 class Post extends Commentable
 {
+    /**
+     * @var PostRepo
+     */
+    public $postRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, CommentRepo $commentRepo,
+        PostRepo $postRepo, Form $form)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $commentRepo, $form);
+        $this->postRepo = $postRepo;
+    }
+
     public function getPost(int $postId)
     {
-        $post = PostEntity::get($postId);
+        $post = $this->postRepo->get($postId);
 
         if ($post === false) {
-            Messages::addError("post.unknow");
-            Router::redirect("blog");
+            $this->session->addError("post.unknow");
+            $this->router->redirect("blog");
         }
 
         $data = [
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $post->title,
         ];
-        $this->render("post", $post->title, $data);
+        $this->render("post", $data);
     }
 
     public function postPost(int $postId)
     {
         if (! isset($this->user)) {
-            Messages::addError("user.mustbeloggedintopostcomment");
-            Router::redirect("post/$postId");
+            $this->session->addError("user.mustbeloggedintopostcomment");
+            $this->router->redirect("post/$postId");
         }
 
-        $thePost = PostEntity::get($postId);
+        $post = $this->postRepo->get($postId);
 
-        if ($thePost === false) {
-            Messages::addError("post.unknow");
-            Router::redirect("blog");
+        if ($post === false) {
+            $this->session->addError("post.unknow");
+            $this->router->redirect("blog");
         }
 
         $data = [
-            "post" => $thePost,
+            "post" => $post,
+            "pageTitle" => $post->title,
             "commentPost" => $this->postComment($postId)
         ];
-        $this->render("post", $thePost->title, $data);
+        $this->render("post", $data);
     }
 }

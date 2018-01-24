@@ -2,11 +2,6 @@
 
 namespace App;
 
-use App\Entities\Category;
-use App\Entities\Page;
-use App\Entities\Post;
-use App\Entities\User;
-
 class Validator
 {
     /**
@@ -239,14 +234,12 @@ class Validator
             $this->session->addError("fieldvalidation.title");
         }
 
-        $cat = Category::get($data["category_id"]);
-        if ($cat === false) {
+        if (! $this->database->valueExistsInDB($data["category_id"], "id", "categories")) {
             $ok = false;
             $this->session->addError("category.unknown");
         }
 
-        $user = User::get($data["user_id"]);
-        if ($user === false) {
+        if (! $this->database->valueExistsInDB($data["user_id"], "id", "posts")) {
             $ok = false;
             $this->session->addError("user.unknown");
         }
@@ -278,16 +271,14 @@ class Validator
                 $ok = false;
                 $this->session->addError("page.cantparenttoitself");
             } else {
-                $parentPage = Page::get($data["parent_page_id"]);
-                if ($parentPage === false) {
+                if (! $this->database->valueExistsInDB($data["parent_page_id"], "id", "pages")) {
                     $ok = false;
                     $this->session->addError("page.unknown");
                 }
             }
         }
 
-        $user = User::get($data["user_id"]);
-        if ($user === false) {
+        if (! $this->database->valueExistsInDB($data["user_id"], "id", "users")) {
             $ok = false;
             $this->session->addError("user.unknown");
         }
@@ -323,23 +314,20 @@ class Validator
             $this->session->addError("fieldvalidation.commentcontent");
         }
 
-        $user = User::get($data["user_id"]);
-        if ($user === false) {
+        if (! $this->database->valueExistsInDB($data["user_id"], "id", "users")) {
             $ok = false;
             $this->session->addError("user.unknown");
         }
 
         if (isset($data["page_id"])) {
-            $page = Page::get($data["page_id"]);
-            if ($page === false) {
+            if (! $this->database->valueExistsInDB($data["page_id"], "id", "pages")) {
                 $ok = false;
                 $this->session->addError("page.unknown");
             }
         }
 
         if (isset($data["post_id"])) {
-            $post = Post::get($data["post_id"]);
-            if ($post === false) {
+            if (! $this->database->valueExistsInDB($data["post_id"], "id", "posts")) {
                 $ok = false;
                 $this->session->addError("post.unknown");
             }
@@ -357,8 +345,7 @@ class Validator
             $this->session->addError("fieldvalidation.slug");
         }
 
-        $user = User::get($data["user_id"]);
-        if ($user === false) {
+        if (! $this->database->valueExistsInDB($data["user_id"], "id", "users")) {
             $ok = false;
             $this->session->addError("user.unknown");
         }

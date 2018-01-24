@@ -23,7 +23,34 @@ class Renderer
         $this->config = $config;
     }
 
-    protected function getContent(string $template, string $view)
+    /**
+     * The render is done from a static method so that the non-static content of the renderer instance do no bleed into the views.
+     * Only the content of the data array is exposed
+     */
+    protected static function staticRender(string $path, array $data = [])
+    {
+        // exposes variables and data passed to the view
+        /*if (!isset($data["post"])) {
+            $data["post"] = [];
+        }*/
+        extract($data);
+
+        require $path; // do not use require_once so that the same file can be included during tests
+        // alternatively, the content can just be passed to eval
+        // but saving to a file allow for easier debugging
+    }
+
+    public function render(string $template, string $view, array $data = null)
+    {
+        $content = $this->getViewContent($template, $view);
+
+        $tempPath = $this->viewFolder . "/temp";
+        file_put_contents($tempPath, $content);
+
+        self::staticRender($tempPath, $data);
+    }
+
+    protected function getViewContent(string $template, string $view)
     {
         $viewContent = file_get_contents($this->viewFolder . "/$view.php");
 
@@ -58,7 +85,7 @@ class Renderer
             foreach ($matches as $match) {
                 $content = str_replace(
                     $match[0],
-                    '<?= $this->' . $funcData[0] . '->' . $funcData[1] . '("' . $match[1] . '"); ?>',
+                    '<?= $' . $funcData[0] . '->' . $funcData[1] . '("' . $match[1] . '"); ?>',
                     $content
                 );
             }
@@ -90,22 +117,5 @@ class Renderer
         }
 
         return $viewContent;
-    }
-
-    public function render(string $template, string $view, array $data = [])
-    {
-        $content = $this->getContent($template, $view);
-
-        // exposes variables and data passed to the view
-        if (!isset($data["post"])) {
-            $data["post"] = [];
-        }
-        extract($data);
-
-        $tempPath = $this->viewFolder . "/temp";
-        file_put_contents($tempPath, $content);
-        require $tempPath; // do not use require_once so that the same file can be included during tests
-        // alternatively, the content can just be passed to eval
-        // but saving to a file allow for easier debugging
     }
 }

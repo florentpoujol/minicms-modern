@@ -2,7 +2,7 @@
 <article>
     <h1>{$post->title}</h1>
 
-    <header>Posted by {$post->getUser()->name} in category {$post->getCategory()->title}</header>
+    {include post-includes/header.php}
 
     <p>
         <?= $post->content ?>

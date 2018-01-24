@@ -34,6 +34,11 @@ return [
         "createdbyheader" => "Created by {userName} in category {categoryName}.",
     ],
 
+    "comment" => [
+        "plural" => "Comments",
+        "submit" => "Submit a new comment",
+    ],
+
     "admin" => [
         "page" => [
             "readtitle" => "Pages",

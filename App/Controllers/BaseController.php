@@ -70,6 +70,8 @@ class BaseController
         $data["session"] = $this->session;
         $data["config"] = $this->config;
         $data["router"] = $this->router;
+        $data["lang"] = $this->lang;
+        $data["user"] = $this->user;
 
         if (!isset($data["pageTitle"])) {
             $data["pageTitle"] = str_replace("/", ".", $view) . ".pagetitle";

@@ -1,37 +1,39 @@
-<hr>
-<h3>Comments</h3>
 <?php
-$allowComments = \App\Config::get("allow_comments");
+$allowComments = $config->get("allow_comments");
 if ($allowComments && $entity->allowComments()) {
-    if (isset($this->user)) {
-        if (! isset($commentPost)) {
-            $commentPost = [];
-        }
-        $form = new App\Form("commentcreate".$this->user->id."_$entity->id", $commentPost);
-        $form->open($queryString);
+?>
+<hr>
+<h3>{lang comment.plural}</h3>
+<?php
+    if (isset($user)) {
+        $form->setup(
+                "comment_create_" . $user->id . "_" . $entity->id,
+                $commentPost ?? []
+        );
+        $form->open($queryString); // set in post and page views
         $form->textarea("content", ["rows" => 5]);
 
-        $strEntity = "post";
+        /*$strEntity = "post";
         if ($entity instanceof \App\Entities\Page) {
             $strEntity = "page";
         }
-        $form->hidden($strEntity."_id", $entity->id);
+        $form->hidden($strEntity . "_id", $entity->id);*/
 
-        $form->submit("", "Submit a new comment");
+        $form->submit("", $lang->get("comment.submit"));
         $form->close();
     }
 
     $comments = $entity->getComments();
     ?>
 
-    <section>
+    <article>
         @foreach ($comments as $comment)
         <div>
-            <p>Posted by {$comment->getUser()->name} on {$comment->creation_datetime}</p>
+            <p>Posted by {$comment->getUser()->name} on {$comment->creation_datetime->format("Y-m-d H:i:s")}</p>
             <p>{$comment->content}</p>
         </div>
         @endforeach
-    </section>
+    </article>
 
     <?php
 }

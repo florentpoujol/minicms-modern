@@ -17,7 +17,7 @@
 </div>
 
 <div>
-    {include post/post-list.php}
+    {include post-includes/list.php}
 </div>
 
 {include pagination.php}
