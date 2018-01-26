@@ -1,12 +1,13 @@
 <?php
 
-namespace Tests;
+namespace Tests\Controllers;
 
 use App\Controllers\Category;
+use Tests\DatabaseTestCase;
 
 class CategoryTest extends DatabaseTestCase
 {
-    public function testCategory()
+    public function testGetCategory()
     {
         $this->postRepo->create([
             "title" => "other post on category 1",
@@ -31,13 +32,13 @@ class CategoryTest extends DatabaseTestCase
         foreach ($categories as $category) {
             $content = $this->getControllerOutput($controller, "getCategory", $category->id);
 
-            $this->assertContains($this->lang->get("category.pagetitle", ["categoryTitle" => $category->title]), $content);
+            $this->assertContains("<header>post.createdbyheader</header>", $content);
+            $this->assertContains("category.pagetitle", $content);
 
             $posts = $category->getPosts();
             $this->assertNotEmpty($categories);
             foreach ($posts as $post) {
                 $this->assertContains($post->title, $content);
-                $this->assertContains($post->getUser()->name, $content);
             }
         }
     }
@@ -75,5 +76,14 @@ class CategoryTest extends DatabaseTestCase
         $this->assertContains($posts[1]->title, $content);
         $this->assertRegExp("~<a href=.*>1</a>\n~", $content);
         $this->assertRegExp("~<strong><a href=.*>2</a></strong>~", $content);
+    }
+
+    function testRedirectWrongCategory()
+    {
+        $controller = $this->container->make(Category::class);
+        $this->getControllerOutput($controller, "getCategory", 987);
+
+        $this->assertContains("category.unknown", $this->session->getErrors());
+        $this->assertRedirectTo("blog");
     }
 }

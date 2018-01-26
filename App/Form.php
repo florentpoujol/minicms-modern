@@ -30,6 +30,10 @@ class Form
         $this->lang = $lang;
     }
 
+    /**
+     * Set the form name and data from which it will be populated.
+     * The name is the base of the generated CSRF token.
+     */
     public function setup(string $name, array $data = [])
     {
         $this->name = $name;
@@ -63,8 +67,9 @@ class Form
      * @param array $attributes Assoc array containing additional attributes.
      * May contains a "value" key, which override the value that may be found in the form's data.
      * May contains a "label" key, which may be a language keys (automatically prefixed with "formlabel").
+     * @param string|array $attributes
      */
-    public function input(string $type, string $name, array $attributes = [])
+    public function input(string $type, string $name, $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -139,22 +144,34 @@ class Form
         echo $content;
     }
 
-    public function text(string $name, array $attributes = null)
+    /**
+     * @param string|array|null $attributes
+     */
+    public function text(string $name, $attributes = null)
     {
         $this->input("text", $name, $attributes);
     }
 
-    public function number(string $name, array $attributes = null)
+    /**
+     * @param string|array|null $attributes
+     */
+    public function number(string $name, $attributes = null)
     {
         $this->input("number", $name, $attributes);
     }
 
-    public function email(string $name, array $attributes = null)
+    /**
+     * @param string|array|null $attributes
+     */
+    public function email(string $name, $attributes = null)
     {
         $this->input("email", $name, $attributes);
     }
 
-    public function password(string $name, array $attributes = null)
+    /**
+     * @param string|array|null $attributes
+     */
+    public function password(string $name, $attributes = null)
     {
         $this->input("password", $name, $attributes);
     }

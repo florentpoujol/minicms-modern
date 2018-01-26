@@ -20,7 +20,7 @@ class Lang
     public function __construct(string $languageFolder = null)
     {
         if ($languageFolder !== null) {
-            $this->languageFolder = $languageFolder;
+            $this->languageFolder = trim($languageFolder, "/\\") . "/";
         }
     }
 
@@ -56,7 +56,7 @@ class Lang
         $lang = $keys[0]; // either the language or the actual first key part
 
         if (! isset($this->dictionariesPerLocale[$lang])) {
-            self::load($lang);
+            $this->load($lang);
         }
 
         if (! isset($this->dictionariesPerLocale[$lang])) {
@@ -66,6 +66,7 @@ class Lang
             array_shift($keys); // remove the language identifier from the keys
         }
 
+        // var_dump("inside lang", $this);
         $value = $this->dictionariesPerLocale[$lang];
 
         foreach ($keys as $key) {
@@ -78,7 +79,7 @@ class Lang
         if (is_array($value)) { // key do not lead to a string
             if ($lang !== $this->defaultLanguage) {
                 $defaultLangKey = $this->defaultLanguage.".".preg_replace("/^$lang\./", "", $originalKey);
-                $value = self::get($defaultLangKey, $replacements);
+                $value = $this->get($defaultLangKey, $replacements);
                 if ($value !== $defaultLangKey) { // found in the default language
                     return $value;
                 }

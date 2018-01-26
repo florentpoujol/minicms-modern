@@ -64,13 +64,13 @@ class Validator
         return $this->validate($data, $pattern);
     }
 
-    public function password(string $data, string $confirm = null): bool
+    public function password(string $password, string $confirm = null): bool
     {
         $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
-        $formatOK = $this->validate($data, $patterns);
+        $formatOK = $this->validate($password, $patterns);
 
         if ($confirm !== null) {
-            return ($formatOK && $data === $confirm);
+            return ($formatOK && $password === $confirm);
         }
         return $formatOK;
     }

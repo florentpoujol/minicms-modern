@@ -142,7 +142,6 @@ class Router
     public function redirect(string $route = "")
     {
         header("Location: " . $this->getURL($route));
-        exit;
     }
 
     public function toInstall()

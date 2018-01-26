@@ -3,7 +3,7 @@
 {include messages.php}
 
 <?php
-$form = new App\Form("login", $post);
+$form->setup("login", $post);
 
 $form->open($router->getQueryString("login"));
     $form->text("login_name", "Name:");

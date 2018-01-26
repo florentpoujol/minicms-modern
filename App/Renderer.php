@@ -74,7 +74,7 @@ class Renderer
 
         // process template functions
         $functions = [
-            "queryString" => ["route", "getQueryString"],
+            "queryString" => ["router", "getQueryString"],
             "lang" => ["lang", "get"]
         ];
 

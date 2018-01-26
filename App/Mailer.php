@@ -52,7 +52,6 @@ class Mailer
             }
         } else {
             $mailer = new PHPMailer();
-            // todo: find a way to inject this in order to test it
 
             $mailer->isSMTP();
             // $mailer->SMTPDebug = 3;

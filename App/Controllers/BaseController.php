@@ -21,7 +21,7 @@ class BaseController
     /**
      * @var Lang
      */
-    protected $lang;
+    public $lang;
 
     /**
      * @var Session
@@ -63,6 +63,16 @@ class BaseController
     public function setLoggedInUser(User $user)
     {
         $this->user = $user; // logged in user
+    }
+
+    public function redirectIfUserLoggedIn(): bool
+    {
+        if ($this->user !== null) {
+            $this->session->addError("user.alreadyloggedin");
+            $this->router->redirect("admin");
+            return true;
+        }
+        return false;
     }
 
     public function render(string $view, array $data = [])

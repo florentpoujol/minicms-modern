@@ -5,8 +5,8 @@
 <p>If you forgot your password, you can fill the form below, we will send an email so that you can change your password.</p>
 
 <?php
-$form = new \App\Form("lostpassword", $post);
-$form->open("");
+$form->setup("lostpassword", $post);
+$form->open($router->getQueryString("login/lostpassword"));
     $form->email("lostpassword_email", "Email: ");
     $form->submit("", "Request password change");
 $form->close();

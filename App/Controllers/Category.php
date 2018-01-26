@@ -35,10 +35,10 @@ class Category extends BaseController
     public function getCategory(int $categoryId = -1, int $pageNumber = 1)
     {
         $category = $this->categoryRepo->get($categoryId);
-
         if ($category === false) {
-            $this->session->addError("category.unknow");
+            $this->session->addError("category.unknown");
             $this->router->redirect("blog");
+            return;
         }
 
         $data = [

@@ -5,7 +5,7 @@
 <p>Set the new password for user '{$userName}' below :</p>
 
 <?php
-$form = new App\Form("resetpassword", $post);
+$form->setup("resetpassword", $post);
 
 $form->open($router->getQueryString("login/resetpassword"));
     $form->text("resetpassword", "password");

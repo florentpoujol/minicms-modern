@@ -30,10 +30,10 @@ class Page extends Commentable
     public function getPage(int $pageId)
     {
         $page = $this->pageRepo->get($pageId);
-
         if ($page === false) {
-            $this->session->addError("page.unknow");
+            $this->session->addError("page.unknown");
             $this->router->redirect("blog");
+            return;
         }
 
         $data = [
@@ -48,13 +48,14 @@ class Page extends Commentable
         if (! isset($this->user)) {
             $this->session->addError("user.mustbeloggedintopostcomment");
             $this->router->redirect("page/$pageId");
+            return;
         }
 
         $page = $this->pageRepo->get($pageId);
-
         if ($page === false) {
-            $this->session->addError("page.unknow");
+            $this->session->addError("page.unknown");
             $this->router->redirect("blog");
+            return;
         }
 
         $data = [

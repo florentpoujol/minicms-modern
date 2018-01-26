@@ -2,121 +2,169 @@
 
 namespace App\Controllers;
 
-use App\Messages;
-use App\Validator;
+use App\Entities\Repositories\User as UserRepo;
+use App\Config;
+use App\Form;
+use App\Helpers;
+use App\Lang;
+use App\Mailer;
+use App\Renderer;
 use App\Router;
-use App\Entities\User;
+use App\Session;
+use App\Validator;
 
 class Login extends BaseController
 {
-    function __construct(User $user)
-    {
-        parent::__construct($user);
+    /**
+     * @var UserRepo
+     */
+    public $userRepo;
 
-        if (isset($this->user)) {
-            Messages::addError("user.alreadyloggedin");
-            Router::redirect("admin");
+    /**
+     * @var Mailer
+     */
+    public $mailer;
+
+    /**
+     * @var Form
+     */
+    public $form;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        UserRepo $userRepo, Mailer $mailer, Form $form)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->userRepo = $userRepo;
+        $this->mailer = $mailer;
+        $this->form = $form;
+    }
+
+    public function render(string $view, array $data = [])
+    {
+        $data["form"] = $this->form;
+        if (!isset($data["post"])) {
+            // post is the variable with which the form is populated
+            $data["post"] = [];
         }
+        parent::render($view, $data);
     }
 
     public function getLogin()
     {
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
         $this->render("login");
     }
 
     public function postLogin()
     {
-        $post = Validator::sanitizePost([
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $post = $this->validator->sanitizePost([
             "login_name" => "string",
             "login_password" => "string"
         ]);
 
-        if (Validator::csrf("login")) {
+        if ($this->validator->csrf("login")) {
             $formatOK = true;
 
-            if(! Validator::name($post["login_name"])) {
+            if(! $this->validator->name($post["login_name"])) {
                 $formatOK = false;
-                Messages::addError("fieldvalidation.name");
+                $this->session->addError("fieldvalidation.name");
             }
 
-            if(! Validator::password($post["login_password"])) {
+            if(! $this->validator->password($post["login_password"])) {
                 $formatOK = false;
-                Messages::addError("fieldvalidation.password");
+                $this->session->addError("fieldvalidation.password");
             }
 
             if ($formatOK) {
-                $user = User::get(["name" => $post["login_name"]]);
+                $user = $this->userRepo->get(["name" => $post["login_name"]]);
 
                 if (is_object($user)) {
                     if ($user->email_token === "") {
                         if (password_verify($post["login_password"], $user->password_hash)) {
-
-                            $this->user = $user;
-
-                            \App\Session::set("minicms_modern_auth", $this->user->id);
-                            Messages::addSuccess("user.loggedin", ["username" => $this->user->name]);
-
-                            Router::redirect("admin");
-
+                            $this->session->set("minicms_modern_auth", $user->id);
+                            $this->session->addSuccess("user.loggedin", ["username" => $user->name]);
+                            $this->router->redirect("admin");
+                            return;
                         } else {
-                            Messages::addError("user.wrongpassword");
+                            $this->session->addError("user.wrongpassword");
                         }
                     } else {
-                        Messages::addError("user.notactivated");
-                        Router::redirect("register/resendconfirmationemail");
+                        $this->session->addError("user.notactivated");
+                        $this->router->redirect("register/resendconfirmationemail");
+                        return;
                     }
                 } else {
-                    Messages::addError("user.unknow");
+                    $this->session->addError("user.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $this->render("login", null, ["post" => $post]);
+        $this->render("login", ["post" => $post]);
     }
 
-    public function getLostPassword()
+    public function getLostpassword()
     {
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
         $this->render("lostpassword");
     }
 
-    public function postLostPassword()
+    public function postLostpassword()
     {
-        $post = Validator::sanitizePost([
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $post = $this->validator->sanitizePost([
             "lostpassword_email" => "string"
         ]);
 
         $email = $post["lostpassword_email"];
 
-        if (Validator::csrf("lostpassword")) {
-            if (Validator::email($email)) {
-                $user = User::get(["email" => $email]);
+        if ($this->validator->csrf("lostpassword")) {
+            if ($this->validator->email($email)) {
+                $user = $this->userRepo->get(["email" => $email]);
 
                 if (is_object($user)) {
-                    $token = \App\Security::getUniqueToken();
-                    $success = $user->updatePasswordToken($token);
+                    $token = (new Helpers())->getUniqueToken();
 
-                    if ($success) {
-                        \App\Emails::sendChangePassword($user);
-                        Messages::addSuccess("email.changepassword");
+                    if ($user->updatePasswordToken($token)) {
+                        $this->mailer->sendChangePassword($user);
+                        $this->session->addSuccess("email.changepassword");
+                    } else {
+                        $this->session->addError("error.error");
                     }
                 } else {
-                    Messages::addError("user.unknow");
+                    $this->session->addError("user.unknown");
                 }
             } else {
-                Messages::addError("fieldvalidation.email");
+                $this->session->addError("fieldvalidation.email");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $this->render("lostpassword", null, ["post" => $post]);
+        $this->render("lostpassword", ["post" => $post]);
     }
 
     public function getResetPassword(int $userId, string $passwordToken)
     {
-        $user = User::get([
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $user = $this->userRepo->get([
             "id" => $userId,
             "password_token" => $passwordToken
         ]);
@@ -125,47 +173,50 @@ class Login extends BaseController
             $passwordToken !== "" && $user !== false &&
             time() < $user->password_change_time + (3600 * 48)
         ) {
-            $this->render("resetpassword", null, ["userName" => $user->name]);
+            $this->render("resetpassword", ["userName" => $user->name]);
         } else {
-            Messages::addError("user.unauthorized");
-            Router::redirect(); // todo: properly redirect to 301 page, same for places
+            $this->session->addError("user.unauthorized");
+            $this->router->redirect("login/lostpassword");
         }
     }
 
     public function postResetPassword(int $userId, string $passwordToken)
     {
-        $user = User::get([
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $user = $this->userRepo->get([
             "id" => $userId,
             "password_token" => $passwordToken
         ]);
 
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "resetpassword" => "string",
             "resetpassword_confirm" => "string"
         ]);
 
         if (
+            $this->validator->csrf("resetpassword") &&
             $passwordToken !== "" && $user !== false &&
-            time() < $user->password_change_time + (3600 * 48) &&
-            Validator::csrf("resetpassword")
+            time() < $user->password_change_time + (3600 * 48)
         ) {
-            if (Validator::password($post["resetpassword"], $post["resetpassword_confirm"])) {
-                $success = $user->updatePassword($post["resetpassword"]);
-
-                if ($success) {
-                    Messages::addSuccess("passwordchanged");
-                    Router::redirect("login");
+            if ($this->validator->password($post["resetpassword"], $post["resetpassword_confirm"])) {
+                if ($user->updatePassword($post["resetpassword"])) {
+                    $this->session->addSuccess("passwordchanged");
+                    $this->router->redirect("login");
+                    return;
                 } else {
-                    Messages::addError("db.resetpassword");
+                    $this->session->addError("db.resetpassword");
                 }
             } else {
-                Messages::addError("fieldvalidation.passwordnotequal");
+                $this->session->addError("fieldvalidation.passwordnotequal");
             }
 
-            $this->render("resetpassword", null, ["userName" => $user->name]);
+            $this->render("resetpassword", ["userName" => $user->name]);
         } else {
-            Messages::addError("unauthorized");
-            Router::redirect();
+            $this->session->addError("unauthorized");
+            $this->router->redirect("login/lostpassword");
         }
     }
 }

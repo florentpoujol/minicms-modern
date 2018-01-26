@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests;
+namespace Tests\Controllers;
 
 use App\Controllers\Page;
+use Tests\DatabaseTestCase;
 
 class PageTest extends DatabaseTestCase
 {
@@ -29,6 +30,15 @@ class PageTest extends DatabaseTestCase
 
         $this->assertNotContains("<form", $content); // user not logged in, no form to page a new comment
         $this->assertNotContains("submit", $content);
+    }
+
+    function testRedirectWrongPostId()
+    {
+        $controller = $this->container->make(Page::class);
+        $content = $this->getControllerOutput($controller, "getPage", 987);
+        $this->assertEmpty(trim($content));
+        $this->assertContains("page.unknown", $this->session->getErrors());
+        $this->assertRedirectTo("blog");
     }
 
     function testCommentNotAllowed()
@@ -89,7 +99,7 @@ class PageTest extends DatabaseTestCase
         $_POST["content"] = "the content of the new comment";
 
         $content = $this->getControllerOutput($controller, "postPage", 1);
-        $this->assertContains($this->lang->get("messages.error.csrffail"), $content);
+        $this->assertContains("csrffail", $content);
 
         // -------------
 
@@ -108,5 +118,27 @@ class PageTest extends DatabaseTestCase
         $this->assertSame(null, $lastComment->post_id);
 
         $this->assertContains($lastComment->content, $content);
+    }
+
+    function testPostPageRedirectUserNotLoggedIn()
+    {
+        $controller = $this->container->make(Page::class);
+        // no user logged in
+        $content = $this->getControllerOutput($controller, "postPage", 1);
+
+        $this->assertEmpty(trim($content));
+        $this->assertContains("user.mustbeloggedintopostcomment", $this->session->getErrors());
+        $this->assertRedirectTo("page/1");
+    }
+
+    function testPostPageRedirectUnknownId()
+    {
+        $controller = $this->container->make(Page::class);
+        $controller->setLoggedInUser($this->userRepo->get(1));
+        $content = $this->getControllerOutput($controller, "postPage", 987);
+
+        $this->assertEmpty(trim($content));
+        $this->assertContains("page.unknown", $this->session->getErrors());
+        $this->assertRedirectTo("blog");
     }
 }

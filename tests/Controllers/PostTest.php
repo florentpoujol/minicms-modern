@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests;
+namespace Tests\Controllers;
 
 use App\Controllers\Post;
+use Tests\DatabaseTestCase;
 
 class PostTest extends DatabaseTestCase
 {
@@ -32,6 +33,15 @@ class PostTest extends DatabaseTestCase
 
         $this->assertNotContains("<form", $content); // user not logged in, no form to post a new comment
         $this->assertNotContains("submit", $content);
+    }
+
+    function testGetPostRedirectUnknownId()
+    {
+        $controller = $this->container->make(Post::class);
+        $content = $this->getControllerOutput($controller, "getPost", 987);
+        $this->assertEmpty(trim($content));
+        $this->assertContains("post.unknown", $this->session->getErrors());
+        $this->assertRedirectTo("blog");
     }
 
     function testCommentNotAllowed()
@@ -92,12 +102,11 @@ class PostTest extends DatabaseTestCase
         $_POST["content"] = "the content of the new comment";
 
         $content = $this->getControllerOutput($controller, "postPost", 1);
-        $this->assertContains($this->lang->get("messages.error.csrffail"), $content);
+        $this->assertContains("csrffail", $content);
 
         // -------------
 
-        $token = "comment_create_" . $user->id . "_" . $post->id;
-        $_POST[$token . "_csrf_token"] = $this->session->createCSRFToken($token);
+        $this->setupCSRFToken("comment_create_" . $user->id . "_" . $post->id);
 
         $content = $this->getControllerOutput($controller, "postPost", 1);
 
@@ -111,5 +120,27 @@ class PostTest extends DatabaseTestCase
         $this->assertSame(null, $lastComment->page_id);
 
         $this->assertContains($lastComment->content, $content);
+    }
+
+    function testPostPostRedirectUserNotLoggedIn()
+    {
+        $controller = $this->container->make(Post::class);
+        // no user logged in
+        $content = $this->getControllerOutput($controller, "postPost", 1);
+
+        $this->assertEmpty(trim($content));
+        $this->assertContains("user.mustbeloggedintopostcomment", $this->session->getErrors());
+        $this->assertRedirectTo("post/1");
+    }
+
+    function testPostPostRedirectUnknownId()
+    {
+        $controller = $this->container->make(Post::class);
+        $controller->setLoggedInUser($this->userRepo->get(1));
+        $content = $this->getControllerOutput($controller, "postPost", 987);
+
+        $this->assertEmpty(trim($content));
+        $this->assertContains("post.unknown", $this->session->getErrors());
+        $this->assertRedirectTo("blog");
     }
 }

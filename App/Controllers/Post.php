@@ -31,10 +31,10 @@ class Post extends Commentable
     public function getPost(int $postId)
     {
         $post = $this->postRepo->get($postId);
-
         if ($post === false) {
-            $this->session->addError("post.unknow");
+            $this->session->addError("post.unknown");
             $this->router->redirect("blog");
+            return;
         }
 
         $data = [
@@ -49,13 +49,14 @@ class Post extends Commentable
         if (! isset($this->user)) {
             $this->session->addError("user.mustbeloggedintopostcomment");
             $this->router->redirect("post/$postId");
+            return;
         }
 
         $post = $this->postRepo->get($postId);
-
         if ($post === false) {
-            $this->session->addError("post.unknow");
+            $this->session->addError("post.unknown");
             $this->router->redirect("blog");
+            return;
         }
 
         $data = [

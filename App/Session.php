@@ -23,7 +23,8 @@ class Session extends NativeSession
         // todo: only store the msg key in the session, not the whole message
     }
 
-    public function createCSRFToken(string $requestName): string
+    public function
+    createCSRFToken(string $requestName): string
     {
         $token = $this->helpers->getUniqueToken();
         $this->set($requestName . "_csrf_token", $token);
