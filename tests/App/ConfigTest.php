@@ -58,7 +58,7 @@ class ConfigTest extends TestCase
 
         // reload
         $this->assertFileExists(self::$configFilePath);
-        self::$config = new Config();
+        self::$config = new Config(self::$configFilePath);
         self::$config->load();
         $this->assertEquals("avalue", self::$config->get("nonexistentkey"));
         $this->assertEquals("127.0.0.1", self::$config->get("bd_host"));

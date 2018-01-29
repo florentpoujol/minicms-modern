@@ -1,12 +1,10 @@
-
 <h1>{$pageTitle}</h1>
 
 {include messages.php}
 
 <?php
-$form = new App\Form("install", $post);
-
-$form->open("");
+$form->setup("install", $post);
+$form->open(""); // the install page is accessed without query string
 ?>
     <fieldset>
         <legend>Website</legend>
@@ -32,7 +30,7 @@ $form->password("db_password", "instal.dbpassword");
 $form->text("name", "install.username");
 $form->email("email", "install.useremail");
 $form->password("password", "install.userpassword");
-$form->password("password_confirm", "install.userpasswordconfirmation");
+$form->password("password_confirmation", "install.userpasswordconfirmation");
 ?>
     </fieldset>
 <?php

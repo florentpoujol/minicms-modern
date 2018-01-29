@@ -10,7 +10,6 @@ use App\Entities\Repositories\Menu;
 use App\Entities\Repositories\Page;
 use App\Entities\Repositories\Post;
 use App\Entities\Repositories\User;
-use App\Validator;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 

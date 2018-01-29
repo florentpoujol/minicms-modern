@@ -36,7 +36,7 @@ class RegisterTest extends DatabaseTestCase
         $_POST["register_name"] = "a";
         $_POST["register_email"] = "a";
         $_POST["register_password"] = "a";
-        $_POST["register_password_confirm"] = "a";
+        $_POST["register_password_confirmation"] = "a";
         $this->setupCSRFToken("register");
 
         $content = $this->getControllerOutput($controller, "postRegister");
@@ -70,7 +70,7 @@ class RegisterTest extends DatabaseTestCase
         $_POST["register_name"] = "NewUser";
         $_POST["register_email"] = "email@email.fr";
         $_POST["register_password"] = "Az1";
-        $_POST["register_password_confirm"] = "Az1";
+        $_POST["register_password_confirmation"] = "Az1";
         $this->setupCSRFToken("register");
 
         $this->assertSame(3, $this->userRepo->countAll());

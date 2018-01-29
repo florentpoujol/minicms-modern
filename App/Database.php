@@ -2,8 +2,8 @@
 
 namespace App;
 
-use App\Entities\Menu;
-use App\Entities\User;
+use App\Entities\Repositories\Menu as MenuRepo;
+use App\Entities\Repositories\User as UserRepo;
 use \PDO;
 use StdCmp\QueryBuilder\QueryBuilder;
 
@@ -72,7 +72,7 @@ class Database
     {
         // todo : validate host, name and user format ?
         try {
-            $dsn = "mysql:host=$connectionInfo[db_host];dbname=$connectionInfo[db_name];charset=utf8";
+            $dsn = "mysql:host=$connectionInfo[db_host];charset=utf8";
             return new PDO($dsn, $connectionInfo["db_user"], $connectionInfo["db_password"], $this->pdoOptions);
         } catch (\Exception $e) {
             $this->session->addError("Error connecting to the database: probably wrong host, username or password.");
@@ -87,42 +87,44 @@ class Database
      * @param array $userInfo Array containing the information about the first user.
      * @return bool
      */
-    public function install(array $dbConnectionInfo, array $userInfo)
+    public function install(array $dbConnectionInfo, array $userInfo, UserRepo $userRepo, Menurepo $menuRepo)
     {
-        $db = $this->testConnection($dbConnectionInfo);
-        // register $db to the container
-        // register the $querybuilder
-        if ($db !== false) {
-            $success = $db->exec("CREATE DATABASE IF NOT EXISTS `" . $dbConnectionInfo["db_name"] . "`");
+        $pdo = $this->testConnection($dbConnectionInfo);
+
+        if ($pdo !== false) {
+            $this->pdo = $pdo;
+            $success = $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbConnectionInfo[db_name]`;");
+
             if ($success) {
-                $db->exec("use `" . $dbConnectionInfo["db_name"] . "`");
+                $pdo->exec("use `$dbConnectionInfo[db_name]`;");
 
                 $sql = file_get_contents($this->dbStructureFile);
-                $success = $db->exec($sql); // false on error, on success in this case
+                $success = $pdo->exec($sql); // false on error, 0 on success
 
                 if ($success !== false) {
-                    $user = User::create($userInfo);
+                    unset($userInfo["id"]); // set in Controllers/Install::postInstall()
+                    $user = $userRepo->create($userInfo);
 
                     $defaultMenu = [
                         [
                             "type" => "external",
                             "name" => "Login/Admin",
                             "target" => "?r=admin",
-                            "children" => []
+                            "children" => [],
                         ],
                         [
                             "type" => "external",
                             "name" => "Logout",
                             "target" => "?r=logout",
-                            "children" => []
-                        ]
+                            "children" => [],
+                        ],
                     ];
                     $menu = [
-                        "slug" => "defaultmenu",
+                        "title" => "Default Menu",
                         "in_use" => 1,
-                        "structure" => json_encode($defaultMenu, JSON_PRETTY_PRINT)
+                        "structure" => $defaultMenu
                     ];
-                    $menu = Menu::create($menu);
+                    $menu = $menuRepo->create($menu);
 
                     if (is_object($user) && is_object($menu)) {
                         return true;

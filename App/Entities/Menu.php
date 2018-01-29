@@ -27,7 +27,7 @@ class Menu extends Entity
      * Remove items from structure where name and target are empty
      * @param array $structure The structure array, passed by reference
      */
-    public static function cleanStructure($structure): array
+    public static function cleanStructure(array $structure): array
     {
         for ($i = count($structure)-1; $i >= 0; $i--) {
             if (isset($structure[$i]["children"])) {

@@ -29,6 +29,9 @@ $router = $container->get(Router::class);
 // end setup container
 
 if (!$config->fileExists()) {
+    if (trim($_GET["QUERY_STRING"]) !== "") {
+        $router->redirect();
+    }
     $router->toInstall();
     exit;
 }

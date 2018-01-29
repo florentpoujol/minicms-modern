@@ -15,6 +15,11 @@ class Config
         }
     }
 
+    public function getConfigFilePath(): string
+    {
+        return $this->configFile;
+    }
+
     /**
      * read the config file (JSON) then populate the $config array
      */

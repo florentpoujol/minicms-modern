@@ -66,13 +66,12 @@ class Validator
 
     public function password(string $password, string $confirm = null): bool
     {
-        $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
-        $formatOK = $this->validate($password, $patterns);
-
         if ($confirm !== null) {
-            return ($formatOK && $password === $confirm);
+            return $password === $confirm;
         }
-        return $formatOK;
+
+        $patterns = ["/[A-Z]+/", "/[a-z]+/", "/[0-9]+/", "/^.{3,}$/"];
+        return $this->validate($password, $patterns);
     }
 
     /**
@@ -174,6 +173,11 @@ class Validator
         if (isset($user["password"]) && $user["password"] !== "") {
             if (! isset($user["password_confirm"])) {
                 $user["password_confirm"] = null;
+            }
+
+            if (! $this->password($user["password"])) {
+                $ok = false;
+                $this->session->addError("fieldvalidation.password");
             }
 
             if (! $this->password($user["password"], $user["password_confirm"])) {

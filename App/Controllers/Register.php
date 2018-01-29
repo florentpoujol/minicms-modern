@@ -67,7 +67,7 @@ class Register extends BaseController
             "register_name" => "string",
             "register_email" => "string",
             "register_password" => "string",
-            "register_password_confirm" => "string",
+            "register_password_confirmation" => "string",
         ]);
 
         if ($this->validator->csrf("register")) {
@@ -75,7 +75,7 @@ class Register extends BaseController
                 "name" => $post["register_name"],
                 "email" => $post["register_email"],
                 "password" => $post["register_password"],
-                "password_confirmation" => $post["register_password_confirm"],
+                "password_confirmation" => $post["register_password_confirmation"],
             ];
 
             if ($this->validator->user($user)) {

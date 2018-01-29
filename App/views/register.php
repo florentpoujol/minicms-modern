@@ -8,7 +8,7 @@ $form->open($router->getQueryString("register"));
     $form->text("register_name", "name");
     $form->email("register_email", "email");
     $form->password("register_password", "password");
-    $form->password("register_password_confirm", "password_confirm");
+    $form->password("register_password_confirmation", "password_confirmation");
     $form->submit("", "Register");
 $form->close();
 ?>
