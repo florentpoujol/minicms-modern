@@ -83,6 +83,9 @@ abstract class BaseTestCase extends TestCase
                     ],
                 ],
             ],
+            "email" => [
+                "confirmemail" => [ "body" => "{url}" ],
+            ],
         ];');
         $this->lang = new Lang($root->url());
         $this->assertTrue($this->lang->load("en"));
@@ -146,7 +149,9 @@ abstract class BaseTestCase extends TestCase
     protected function assertRedirectWithSuccess(string $content, string $success, string $route)
     {
         $this->assertEmpty(trim($content));
-        $this->assertContains($success, $this->session->getSuccesses());
+        if ($success !== "") {
+            $this->assertContains($success, $this->session->getSuccesses());
+        }
         $this->assertRedirectTo($route);
     }
 }

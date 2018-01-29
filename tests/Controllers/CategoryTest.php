@@ -32,7 +32,8 @@ class CategoryTest extends DatabaseTestCase
         foreach ($categories as $category) {
             $content = $this->getControllerOutput($controller, "getCategory", $category->id);
 
-            $this->assertContains("<header>post.createdbyheader</header>", $content);
+            // $text = $this->lang->get("post.createdbyheader", ["userName" => $user->name, "categoryName" => $category->name]);
+            $this->assertContains($category->title, $content);
             $this->assertContains("category.pagetitle", $content);
 
             $posts = $category->getPosts();

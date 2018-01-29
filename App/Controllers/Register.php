@@ -2,122 +2,180 @@
 
 namespace App\Controllers;
 
-use App\Messages;
-use App\Validator;
+use App\Entities\Repositories\User as UserRepo;
+use App\Config;
+use App\Form;
+use App\Lang;
+use App\Mailer;
+use App\Renderer;
 use App\Router;
-use App\Emails;
-use App\Entities\User;
+use App\Session;
+use App\Validator;
 
-class
-Register extends BaseController
+class Register extends BaseController
 {
-    function __construct(User $user)
-    {
-        parent::__construct($user);
+    /**
+     * @var UserRepo
+     */
+    public $userRepo;
 
-        if (isset($this->user)) {
-            Messages::addError("user.alreadyloggedin");
-            Router::redirect("admin");
+    /**
+     * @var Mailer
+     */
+    public $mailer;
+
+    /**
+     * @var Form
+     */
+    public $form;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        UserRepo $userRepo, Mailer $mailer, Form $form)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->userRepo = $userRepo;
+        $this->mailer = $mailer;
+        $this->form = $form;
+    }
+
+    public function render(string $view, array $data = [])
+    {
+        $data["form"] = $this->form;
+        if (!isset($data["post"])) {
+            // post is the variable with which the form is populated
+            $data["post"] = [];
         }
+        parent::render($view, $data);
     }
 
     public function getRegister()
     {
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
         $this->render("register");
     }
 
     public function postRegister()
     {
-        $post = Validator::sanitizePost([
-            "register_name"             => "string",
-            "register_email"            => "string",
-            "register_password"         => "string",
-            "register_password_confirm" => "string"
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $post = $this->validator->sanitizePost([
+            "register_name" => "string",
+            "register_email" => "string",
+            "register_password" => "string",
+            "register_password_confirm" => "string",
         ]);
 
-        if (Validator::csrf("register")) {
+        if ($this->validator->csrf("register")) {
             $user = [
                 "name" => $post["register_name"],
                 "email" => $post["register_email"],
                 "password" => $post["register_password"],
-                "password_confirm" => $post["register_password_confirm"]
+                "password_confirmation" => $post["register_password_confirm"],
             ];
 
-            if (Validator::user($user)) {
+            if ($this->validator->user($user)) {
                 unset($post["password_confirm"]);
-                $user = User::create($post);
+                $user = $this->userRepo->create($user);
 
                 if (is_object($user)) {
-                    Messages::addSuccess("user.created");
+                    $this->session->addSuccess("user.created");
 
-                    if (Emails::sendConfirmEmail($user)) {
-                        Messages::addSuccess("email.confirmemail");
-                        Router::redirect("login");
+                    if ($this->mailer->sendConfirmEmail($user)) {
+                        $this->session->addSuccess("email.confirmemail");
+                        $this->router->redirect("login");
+                        return;
+                    } else {
+                        $this->session->addError("email.notsent");
+                        $this->router->redirect("register/resendconfirmationemail");
+                        return;
                     }
                 } else {
-                    Messages::addError("db.createuser");
+                    $this->session->addError("db.createuser");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $this->render("register", null, ["post" => $post]);
+        $this->render("register", ["post" => $post]);
     }
 
     public function getConfirmEmail(int $userId, string $emailToken)
     {
-        $user = User::get([
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
+        $user = $this->userRepo->get([
             "id" => $userId,
             "email_token" => $emailToken
         ]);
 
         if ($emailToken !== "" && $user !== false) {
-            if ($user->update(["email_token" => ""]))  {
-                Messages::addSuccess("user.emailconfirmed");
-                Router::redirect("login");
+            if ($user->updateEmailToken(""))  {
+                $this->session->addSuccess("user.emailconfirmed");
+                $this->router->redirect("login");
+                return;
             } else {
-                Messages::addError("db.updateemailtoken");
+                $this->session->addError("db.updateemailtoken");
             }
         } else {
-            Messages::addError("user.unauthorized");
-            Router::redirect();
+            $this->session->addError("user.unauthorized");
+            $this->router->redirect();
+            return;
         }
     }
 
     public function getResendConfirmationEmail()
     {
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
+
         $this->render("resendconfirmationemail");
     }
 
     public function postResendConfirmationEmail()
     {
-        $post = Validator::sanitizePost(["confirm_email" => "string"]);
+        if ($this->redirectIfUserLoggedIn()) {
+            return;
+        }
 
-        if (Validator::csrf("resendconfirmationemail")) {
-            if (Validator::email($post["confirm_email"])) {
-                $user = User::get(["email" => $post["confirm_email"]]);
+        $post = $this->validator->sanitizePost(["confirm_email" => "string"]);
+
+        if ($this->validator->csrf("resendconfirmationemail")) {
+            if ($this->validator->email($post["confirm_email"])) {
+                $user = $this->userRepo->get(["email" => $post["confirm_email"]]);
 
                 if (is_object($user)) {
                     if ($user->email_token !== "") {
-                        if (Emails::sendConfirmEmail($user)) {
-                            Messages::addSuccess("email.confirmemail");
-                            Router::redirect("login");
+                        if ($this->mailer->sendConfirmEmail($user)) {
+                            $this->session->addSuccess("email.confirmemail");
+                            $this->router->redirect("login");
+                            return;
+                        } else {
+                            $this->session->addError("email.notsent");
                         }
                     } else {
-                        Messages::addError("user.alreadyactivated");
-                        Router::redirect("login");
+                        $this->session->addError("user.alreadyactivated");
+                        $this->router->redirect("login");
+                        return;
                     }
                 } else {
-                    Messages::addError("user.unknow");
+                    $this->session->addError("user.unknown");
                 }
             } else {
-                Messages::addError("fieldvalidation.email");
+                $this->session->addError("fieldvalidation.email");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $this->render("resendconfirmationemail", null, $post);
+        $this->render("resendconfirmationemail", $post);
     }
 }

@@ -3,7 +3,7 @@
 {include messages.php}
 
 <?php
-$form = new App\Form("register", $post);
+$form->setup("register", $post);
 $form->open($router->getQueryString("register"));
     $form->text("register_name", "name");
     $form->email("register_email", "email");
@@ -13,4 +13,4 @@ $form->open($router->getQueryString("register"));
 $form->close();
 ?>
 
-<a href="{queryString register/resendconfirmationemail}">Send confirmation again ?</a>
+<a href="{queryString register/resendconfirmationemail}">Send confirmation email again ?</a>
