@@ -2,128 +2,155 @@
 
 namespace App\Controllers\Admin;
 
-use App\Entities\Category;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
 use App\Validator;
+use App\Entities\Repositories\Category as CategoryRepo;
 
 class Categories extends AdminBaseController
 {
+    /**
+     * @var CategoryRepo
+     */
+    public $categoryRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        CategoryRepo $categoryRepo)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->categoryRepo = $categoryRepo;
+    }
+
     public function getRead(int $pageNumber = 1)
     {
-        $allRows = Category::getAll(["pageNumber" => $pageNumber]);
+        $allRows = $this->categoryRepo->getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => Category::countAll(),
-                "queryString" => Router::getQueryString("admin/categories/read")
-            ]
+                "itemsCount" => $this->categoryRepo->countAll(),
+                "queryString" => $this->router->getQueryString("admin/categories/read")
+            ],
+            "pageTitle" => $this->lang->get("categories.pagetitle"),
         ];
-        $this->render("categories.read", "categories.pagetitle", $data);
+        $this->render("categories.read", $data);
     }
 
     public function getCreate()
     {
-        $this->render("categories.update", "categories.createnewcategory", ["action" => "create"]);
+        $this->render("categories.update", [
+            "action" => "create",
+            "pageTitle" => $this->lang->get("categories.createnewcategory"),
+        ]);
     }
 
     public function postCreate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "slug" => "string",
-            "title" => "string"
+            "title" => "string",
         ]);
-        if (Validator::csrf("categorycreate")) {
 
-            if (Validator::category($post)) {
-                $cat = Category::create($post);
+        if ($this->validator->csrf("categorycreate")) {
+            if ($this->validator->category($post)) {
+                $category = $this->categoryRepo->create($post);
 
-                if (is_object($cat)) {
-                    Messages::addSuccess("categories.created");
-                    Router::redirect("admin/categories/update/".$cat->id);
+                if (is_object($category)) {
+                    $this->session->addSuccess("categories.created");
+                    $this->router->redirect("admin/categories/update/$category->id");
+                    return;
                 } else {
-                    Messages::addError("db.createcategory");
+                    $this->session->addError("db.createcategory");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "create",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("categories.createnewcategory"),
         ];
-        $this->render("categories.update", "categories.createnewcategory", $data);
+        $this->render("categories.update", $data);
     }
 
     public function getUpdate(int $categoryId)
     {
-        $category = Category::get($categoryId);
+        $category = $this->categoryRepo->get($categoryId);
         if ($category === false) {
-            Messages::addError("category.unknown");
-            Router::redirect("admin/categories/read");
+            $this->session->addError("category.unknown");
+            $this->router->redirect("admin/categories/read");
+            return;
         }
 
         $data = [
             "action" => "update",
-            "post" => $category->toArray()
+            "post" => $category->toArray(),
+            "pageTitle" => $this->lang->get("categories.update"),
         ];
-        $this->render("categories.update", "categories.update", $data);
+        $this->render("categories.update", $data);
     }
 
     public function postUpdate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
-            "title" => "string"
+            "title" => "string",
         ]);
-        if (Validator::csrf("categoryupdate")) {
 
-            if (Validator::category($post)) {
-                $category = Category::get($post["id"]);
+        if ($this->validator->csrf("categoryupdate")) {
+            if ($this->validator->category($post)) {
+                $category = $this->categoryRepo->get($post["id"]);
 
                 if (is_object($category)) {
                     if ($category->update($post)) {
-                        Messages::addSuccess("category.updated");
-                        Router::redirect("admin/categories/update/".$category->id);
+                        $this->session->addSuccess("category.updated");
+                        $this->router->redirect("admin/categories/update/$category->id");
+                        return;
                     } else {
-                        Messages::addError("db.categoryupdated");
+                        $this->session->addError("db.categoryupdated");
                     }
                 } else {
-                    Messages::addError("category.unknown");
+                    $this->session->addError("category.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "update",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("categories.update"),
         ];
-        $this->render("categories.update", "categories.update", $data);
+        $this->render("categories.update", $data);
     }
 
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validator::csrf("categorydelete$id")) {
-            $category = Category::get($id);
+        if ($this->validator->csrf("categorydelete$id")) {
+            $category = $this->categoryRepo->get($id);
             if (is_object($category)) {
                 if ($category->delete()) {
-                    Messages::addSuccess("category.deleted");
+                    $this->session->addSuccess("category.deleted");
                 } else {
-                    Messages::addError("category.deleting");
+                    $this->session->addError("category.deleting");
                 }
             } else {
-                Messages::addError("category.unknown");
+                $this->session->addError("category.unknown");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        Router::redirect("admin/categories/read");
+        $this->router->redirect("admin/categories/read");
     }
 }

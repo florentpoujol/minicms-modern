@@ -2,141 +2,166 @@
 
 namespace App\Controllers\Admin;
 
-use App\Entities\Page;
-use App\Messages;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
 use App\Validator;
+use App\Entities\Repositories\Page as PageRepo;
 
 class Pages extends AdminBaseController
 {
+    /**
+     * @var PageRepo
+     */
+    public $pageRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        PageRepo $pageRepo)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->pageRepo = $pageRepo;
+    }
+
     public function getRead(int $pageNumber = 1)
     {
-        $allRows = Page::getAll(["pageNumber" => $pageNumber]);
+        $allRows = $this->pageRepo->getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => Page::countAll(),
-                "queryString" => Router::getQueryString("admin/pages/read")
-            ]
+                "itemsCount" => $this->pageRepo->countAll(),
+                "queryString" => $this->router->getQueryString("admin/pages/read")
+            ],
+            "pageTitle" => $this->lang->get("admin.page.readtitle"),
         ];
-        $this->render("pages.read", "admin.page.readtitle", $data);
+        $this->render("pages.read", $data);
     }
 
     public function getCreate()
     {
-        $this->render("pages.update", "admin.page.create", ["action" => "create"]);
+        $this->render("pages.update", [
+            "action" => "create",
+            "pageTitle" => $this->lang->get("admin.page.createtitle"),
+        ]);
     }
 
     public function postCreate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
             "content" => "string",
             "parent_page_id" => "int",
             "published" => "checkbox",
-            "allow_comments" => "checkbox"
+            "allow_comments" => "checkbox",
         ]);
 
-        if (Validator::csrf("pagecreate")) {
-            if (Validator::page($post)) {
-                $page = Page::create($post);
+        if ($this->validator->csrf("pagecreate")) {
+            if ($this->validator->page($post)) {
+                $page = $this->pageRepo->create($post);
 
                 if (is_object($page)) {
-                    Messages::addSuccess("page.created");
-                    Router::redirect("admin/pages/update/$page->id");
+                    $this->session->addSuccess("page.created");
+                    $this->router->redirect("admin/pages/update/$page->id");
+                    return;
                 } else {
-                    Messages::addError("page.create");
+                    $this->session->addError("page.create");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "create",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("admin.page.create"),
         ];
-        $this->render("pages.update", "admin.page.create", $data);
+        $this->render("pages.update", $data);
     }
 
     public function getUpdate(int $pageId)
     {
-        $page = Page::get($pageId);
+        $page = $this->pageRepo->get($pageId);
         if ($page === false) {
-            Messages::addError("page.unknown");
-            Router::redirect("admin/pages/read");
+            $this->session->addError("page.unknown");
+            $this->router->redirect("admin/pages/read");
+            return;
         }
 
         $data = [
             "action" => "update",
-            "post" => $page->toArray()
+            "post" => $page->toArray(),
+            "pageTitle" => $this->lang->get("admin.page.readtitle"),
         ];
-        $this->render("pages.update", "admin.page.updatetitle", $data);
+        $this->render("pages.update", $data);
     }
 
     public function postUpdate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
             "content" => "string",
             "parent_page_id" => "int",
             "published" => "checkbox",
-            "allow_comments" => "checkbox"
+            "allow_comments" => "checkbox",
         ]);
 
-        if (Validator::csrf("pageupdate")) {
-
-            if (Validator::page($post)) {
-                $page = Page::get($post["id"]);
+        if ($this->validator->csrf("pageupdate")) {
+            if ($this->validator->page($post)) {
+                $page = $this->pageRepo->get($post["id"]);
 
                 if (is_object($page)) {
                     if ($page->update($post)) {
-                        Messages::addSuccess("page.updated");
-                        Router::redirect("admin/pages/update/$page->id");
+                        $this->session->addSuccess("page.updated");
+                        $this->router->redirect("admin/pages/update/$page->id");
+                        return;
                     } else {
-                        Messages::addError("db.pageupdated");
+                        $this->session->addError("db.pageupdated");
                     }
                 } else {
-                    Messages::addError("page.unknown");
+                    $this->session->addError("page.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $post["creation_datetime"] = Page::get($post["id"])->creation_datetime;
+        $post["creation_datetime"] = $this->pageRepo->get($post["id"])->creation_datetime;
 
         $data = [
             "action" => "update",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("admin.page.updatetitle"),
         ];
-        $this->render("pages.update", "admin.page.updatetitle", $data);
+        $this->render("pages.update", $data);
     }
 
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validator::csrf("pagedelete$id")) {
-            $page = Page::get($id);
+        if ($this->validator->csrf("pagedelete$id")) {
+            $page = $this->pageRepo->get($id);
             if (is_object($page)) {
                 if ($page->delete()) {
-                    Messages::addSuccess("page.deleted");
+                    $this->session->addSuccess("page.deleted");
                 } else {
-                    Messages::addError("page.deleting");
+                    $this->session->addError("page.deleting");
                 }
             } else {
-                Messages::addError("page.unknown");
+                $this->session->addError("page.unknown");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        Router::redirect("admin/pages/read");
+        $this->router->redirect("admin/pages/read");
     }
 }

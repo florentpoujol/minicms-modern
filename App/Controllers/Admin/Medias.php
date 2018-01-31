@@ -2,148 +2,176 @@
 
 namespace App\Controllers\Admin;
 
-use App\Entities\Media;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
 use App\Validator;
+use App\Entities\Repositories\Media as MediaRepo;
 
 class Medias extends AdminBaseController
 {
+    /**
+     * @var MediaRepo
+     */
+    public $mediaRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        MediaRepo $mediaRepo)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->mediaRepo = $mediaRepo;
+    }
+
     public function getRead(int $pageNumber = 1)
     {
-        $allRows = Media::getAll(["pageNumber" => $pageNumber]);
+        $allRows = $this->mediaRepo->getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => Media::countAll(),
-                "queryString" => Router::getQueryString("admin/medias/read")
-            ]
+                "itemsCount" => $this->mediaRepo->countAll(),
+                "queryString" => $this->router->getQueryString("admin/medias/read")
+            ],
+            "pageTitle" => $this->lang->get("admin.media.readtitle"),
         ];
-        $this->render("medias.read", "admin.media.readtitle", $data);
+        $this->render("medias.read", $data);
     }
 
     public function getCreate()
     {
-        $this->render("medias.update", "admin.media.create", ["action" => "create"]);
+        $this->render("medias.update", [
+            "action" => "create",
+            "pageTitle" => $this->lang->get("admin.media.create"),
+        ]);
     }
 
     public function postCreate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "slug" => "string"
         ]);
 
         $post["user_id"] = $this->user->id;
 
-        if (Validator::csrf("mediacreate")) {
+        if ($this->validator->csrf("mediacreate")) {
             $ok = isset($_FILES["upload_file"]);
-            if ($ok === false) {
-                Messages::addError("fieldvalidation.file");
+            if (! $ok) {
+                $this->session->addError("fieldvalidation.file");
             }
-            if (Validator::media($post) && $ok) {
-                $media = Media::create($post);
+
+            if ($this->validator->media($post) && $ok) {
+                $media = $this->mediaRepo->create($post);
 
                 if (is_object($media)) {
-                    Messages::addSuccess("media.created");
-                    Router::redirect("admin/medias/update/$media->id");
+                    $this->session->addSuccess("media.created");
+                    $this->router->redirect("admin/medias/update/$media->id");
+                    return;
                 } else {
-                    Messages::addError("media.create");
+                    $this->session->addError("media.create");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "create",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("admin.media.create"),
         ];
-        $this->render("medias.update", "admin.media.create", $data);
+        $this->render("medias.update", $data);
     }
 
     public function getUpdate(int $mediaId)
     {
-        $media = Media::get($mediaId);
+        $media = $this->mediaRepo->get($mediaId);
         if ($media === false) {
-            Messages::addError("media.unknown");
-            Router::redirect("admin/medias/read");
+            $this->session->addError("media.unknown");
+            $this->router->redirect("admin/medias/read");
+            return;
         }
 
         if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
-            Messages::addError("user.notallowed");
-            Router::redirect("admin/medias/read");
+            $this->session->addError("user.notallowed");
+            $this->router->redirect("admin/medias/read");
         }
 
         $data = [
             "action" => "update",
-            "post" => $media->toArray()
+            "post" => $media->toArray(),
+            "pageTitle" => $this->lang->get("admin.media.updatetitle"),
         ];
-        $this->render("medias.update", "admin.media.updatetitle", $data);
+        $this->render("medias.update", $data);
     }
 
     public function postUpdate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
             "user_id" => "int"
         ]);
 
-        if (Validator::csrf("mediaupdate")) {
-
-            if (Validator::media($post)) {
-                $media = Media::get($post["id"]);
+        if ($this->validator->csrf("mediaupdate")) {
+            if ($this->validator->media($post)) {
+                $media = $this->mediaRepo->get($post["id"]);
 
                 if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
-                    Messages::addError("user.notallowed");
-                    Router::redirect("admin/medias/read");
+                    $this->session->addError("user.notallowed");
+                    $this->router->redirect("admin/medias/read");
+                    return;
                 }
 
                 if (is_object($media)) {
                     if ($media->update($post)) {
-                        Messages::addSuccess("media.updated");
-                        Router::redirect("admin/medias/update/$media->id");
+                        $this->session->addSuccess("media.updated");
+                        $this->router->redirect("admin/medias/update/$media->id");
+                        return;
                     } else {
-                        Messages::addError("db.mediaupdated");
+                        $this->session->addError("db.mediaupdated");
                     }
                 } else {
-                    Messages::addError("media.unknown");
+                    $this->session->addError("media.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $media = Media::get($post["id"]);
+        $media = $this->mediaRepo->get($post["id"]);
         $post["filename"] = $media->filename;
         $post["creation_datetime"] = $media->creation_datetime;
 
         $data = [
             "action" => "update",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("admin.media.updatetitle"),
         ];
-        $this->render("medias.update", "admin.media.updatetitle", $data);
+        $this->render("medias.update", $data);
     }
 
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validator::csrf("mediadelete$id")) {
-            $media = Media::get($id);
+        if ($this->validator->csrf("mediadelete$id")) {
+            $media = $this->mediaRepo->get($id);
             if (is_object($media)) {
                 if ($media->delete()) {
-                    Messages::addSuccess("media.deleted");
+                    $this->session->addSuccess("media.deleted");
                 } else {
-                    Messages::addError("media.deleting");
+                    $this->session->addError("media.deleting");
                 }
             } else {
-                Messages::addError("media.unknown");
+                $this->session->addError("media.unknown");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        Router::redirect("admin/medias/read");
+        $this->router->redirect("admin/medias/read");
     }
 }

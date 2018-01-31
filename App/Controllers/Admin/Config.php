@@ -2,95 +2,129 @@
 
 namespace App\Controllers\Admin;
 
-use App\Emails;
 use App\Entities\User;
+use App\Lang;
+use App\Renderer;
 use App\Router;
 use App\Config as AppConfig;
+use App\Session;
 use App\Validator;
+use App\Mailer;
 
 class Config extends AdminBaseController
 {
-    public function __construct(User $user)
-    {
-        parent::__construct($user);
-        if (! $this->user->isAdmin()) {
-            Router::redirect("admin");
-        }
+    /**
+     * @var Mailer
+     */
+    protected $mailer;
 
-        if (! is_writable(AppConfig::$configFolder."config.json")) {
-            Messages::addError("Config file not writable !");
+    protected $configSchema = [
+        "db_host" => "string",
+        "db_name" => "string",
+        "db_user" =>  "string",
+        "db_password" => "string",
+        "mailer_from_address" =>  "string",
+        "mailer_from_name" => "string",
+        "smtp_host" => "string",
+        "smtp_user" => "string",
+        "smtp_password" => "string",
+        "smtp_port" => "int",
+        "site_title" => "string",
+        "recaptcha_secret" => "string",
+        "use_nice_url" => "bool",
+        "allow_comments" => "bool",
+        "allow_registration" => "bool",
+        "items_per_page" => "int",
+    ];
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, AppConfig $config,
+        Mailer $mailer)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->mailer = $mailer;
+
+        $this->ensureConfigFolderIsWritable();
+    }
+
+    public function setLoggedInUser(User $user)
+    {
+        if (! $user->isAdmin()) {
+            $this->router->redirect("admin");
+            return;
+        }
+        parent::setLoggedInUser($user);
+    }
+
+    protected function ensureConfigFolderIsWritable()
+    {
+        if (! is_writable($this->config->getConfigFilePath())) {
+            $this->session->addError("Config file not writable !");
         }
     }
 
     public function getUpdate()
     {
+        $config = [];
+        foreach ($this->configSchema as $configKey => $type) {
+            $config[$configKey] = $this->config->get($configKey);
+        }
+
         $data = [
-            "config" => AppConfig::$config,
+            "config" => $config,
+            "pageTitle" => $this->lang->get("admin.config.title"),
         ];
-        $this->render("config", "admin.config.title", $data);
+        $this->render("config", $data);
     }
 
     public function postUpdate()
     {
-        $testEmail = Validator::sanitizePost([
+        $testEmail = $this->validator->sanitizePost([
             "test_email" => "string",
-            "test_email_submit" => "string"
-        ]);
-        $config = Validator::sanitizePost([
-            "db_host" => "string",
-            "db_name" => "string",
-            "db_user" =>  "string",
-            "db_password" => "string",
-            "mailer_from_address" =>  "string",
-            "mailer_from_name" => "string",
-            "smtp_host" => "string",
-            "smtp_user" => "string",
-            "smtp_password" => "string",
-            "smtp_port" => "int",
-            "site_title" => "string",
-            "recaptcha_secret" => "string",
-            "use_nice_url" => "bool",
-            "allow_comments" => "bool",
-            "allow_registration" => "bool",
-            "items_per_page" => "int"
+            "test_email_submit" => "string",
         ]);
 
-        if (Validator::csrf("config")) {
+        $config = $this->validator->sanitizePost($this->configSchema);
+
+        if ($this->validator->csrf("config")) {
             if ($testEmail["test_email_submit"] !== "") {
                 $email = $testEmail["test_email"];
-                if (Validator::email($email)) {
-                    if (Emails::sendTest($email)) {
-                        Messages::addSuccess("Test email sent successfully");
+                if ($this->validator->email($email)) {
+                    if ($this->mailer->sendTest($email)) {
+                        $this->session->addSuccess("Test email sent successfully");
                     }
                 } else {
-                    Messages::addError("formvalidation.email");
+                    $this->session->addError("formvalidation.email");
                 }
             } else {
                 //update config
                 if ($config["db_password"] === "") {
-                    $config["db_password"] = AppConfig::get("db_password");
+                    $config["db_password"] = $this->config->get("db_password");
                 }
                 if ($config["smtp_password"] === "") {
-                    $config["smtp_password"] = AppConfig::get("smtp_password");
+                    $config["smtp_password"] = $this->config->get("smtp_password");
                 }
 
-                AppConfig::$config = $config;
+                foreach ($this->configSchema as $configKey => $type) {
+                    $this->config->set($configKey, $config[$configKey]);
+                }
 
-                if (AppConfig::save()) {
-                    Messages::addSuccess("config.saved");
-                    Router::redirect("admin/config");
+                if ($this->config->save()) {
+                    $this->session->addSuccess("config.saved");
+                    $this->router->redirect("admin/config");
                 } else {
-                    Messages::addError("config.save");
+                    $this->session->addError("config.save");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $config["test_email"] = $testEmail["test_email"];
         $data = [
-            "config" => $config
+            "config" => $config,
+            "pageTitle" => $this->lang->get("admin.config.title"),
         ];
-        $this->render("config", "admin.config.title", $data);
+        $this->render("config", $data);
     }
 }

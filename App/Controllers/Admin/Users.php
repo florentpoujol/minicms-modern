@@ -2,90 +2,117 @@
 
 namespace App\Controllers\Admin;
 
-use App\Entities\User;
-use App\Messages;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
 use App\Validator;
+use App\Entities\Repositories\User as UserRepo;
 
 class Users extends AdminBaseController
 {
+    /**
+     * @var UserRepo
+     */
+    public $userRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        UserRepo $userRepo)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->userRepo = $userRepo;
+    }
+
     public function getRead(int $pageNumber = 1)
     {
-        $allRows = User::getAll(["pageNumber" => $pageNumber]);
+        $allRows = $this->userRepo->getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => User::countAll(),
-                "queryString" => Router::getQueryString("admin/users/read/")
-            ]
+                "itemsCount" => $this->userRepo->countAll(),
+                "queryString" => $this->router->getQueryString("admin/users/read/")
+            ],
+            "pageTitle" => $this->lang->get("users.pagetitle"),
         ];
-        $this->render("users.read", "users.pagetitle", $data);
+        $this->render("users.read", $data);
     }
 
     public function getCreate()
     {
         if ($this->user->isWriter()) {
-            Router::redirect("admin/users/read");
+            $this->router->redirect("admin/users/read");
+            return;
         }
 
-        $this->render("users.update", "users.createnewuser", ["action" => "create"]);
+        $this->render("users.update", [
+            "action" => "create",
+            "pageTitle" => $this->lang->get("users.createnewuser"),
+        ]);
     }
 
     public function postCreate()
     {
         if ($this->user->isWriter()) {
-            Router::redirect("admin/users/read");
+            $this->router->redirect("admin/users/read");
+            return;
         }
 
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "name" => "string",
             "email" => "string",
             "password" => "string",
             "password_confirmation" => "string",
-            "role" => "string"
+            "role" => "string",
         ]);
-        if (Validator::csrf("usercreate")) {
 
-            if (Validator::user($post)) {
-                $user = User::create($post);
+        if ($this->validator->csrf("usercreate")) {
+            if ($this->validator->user($post)) {
+                $user = $this->userRepo->create($post);
 
                 if (is_object($user)) {
-                    Messages::addSuccess("user.created");
-                    Router::redirect("admin/users/update/$user->id");
+                    $this->session->addSuccess("user.created");
+                    $this->router->redirect("admin/users/update/$user->id");
+                    return;
                 } else {
-                    Messages::addError("db.createuser");
+                    $this->session->addError("db.createuser");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "create",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("users.createnewuser"),
         ];
-        $this->render("users.update", "users.createnewuser", $data);
+        $this->render("users.update", $data);
     }
 
     public function getUpdate(int $userId)
     {
         if (! $this->user->isAdmin() && $userId !== $this->user->id) {
-            Router::redirect("admin/users/update/$this->user->id");
+            $this->router->redirect("admin/users/update/" . $this->user->id);
+            return;
         }
 
-        $user = User::get($userId);
+        $user = $this->userRepo->get($userId);
         if ($user === false) {
-            Messages::addError("user.unknown");
-            Router::redirect("admin/users");
+            $this->session->addError("user.unknown");
+            $this->router->redirect("admin/users/read");
+            return;
         }
 
         $data = [
             "action" => "update",
-            "post" => $user->toArray()
+            "post" => $user->toArray(),
+            "pageTitle" => $this->lang->get("users.updateuser"),
         ];
-        $this->render("users.update", "users.updateuser", $data);
+        $this->render("users.update", $data);
     }
 
     public function postUpdate()
@@ -96,7 +123,7 @@ class Users extends AdminBaseController
             "email" => "string",
             "password" => "string",
             "password_confirmation" => "string",
-            "role" => "string"
+            "role" => "string",
         ];
 
         if ($this->user->isAdmin()) {
@@ -107,39 +134,42 @@ class Users extends AdminBaseController
                 "is_blocked" => "checkbox",
             ]);
         }
-        $post = Validator::sanitizePost($schema);
-        if (Validator::csrf("userupdate")) {
+
+        $post = $this->validator->sanitizePost($schema);
+        if ($this->validator->csrf("userupdate")) {
 
             if (! $this->user->isAdmin()) {
                 $post["id"] = $this->user->id;
                 $post["role"] = $this->user->role;
             }
 
-            if (Validator::user($post)) {
-                $user = User::get($post["id"]);
+            if ($this->validator->user($post)) {
+                $user = $this->userRepo->get($post["id"]);
 
                 if (is_object($user)) {
                     if ($user->update($post)) {
-                        Messages::addSuccess("user.updated");
-                        Router::redirect("admin/users/update/$user->id");
+                        $this->session->addSuccess("user.updated");
+                        $this->router->redirect("admin/users/update/$user->id");
+                        return;
                     } else {
-                        Messages::addError("db.userupdated");
+                        $this->session->addError("db.userupdated");
                     }
                 } else {
-                    Messages::addError("user.unknown");
+                    $this->session->addError("user.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $post["creation_datetime"] = User::get($post["id"])->creation_datetime;
+        $post["creation_datetime"] = $this->userRepo->get($post["id"])->creation_datetime;
 
         $data = [
             "action" => "update",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("users.updateuser"),
         ];
-        $this->render("users.update", "users.createnewuser", $data);
+        $this->render("users.update", $data);
     }
 
     public function postDelete()
@@ -149,26 +179,26 @@ class Users extends AdminBaseController
             $id = (int)$_POST["id"];
             if ($this->user->id !== $id) {
 
-                if (Validator::csrf("userdelete$id")) {
+                if ($this->validator->csrf("userdelete$id")) {
 
-                    $user = User::get($id);
+                    $user = $this->userRepo->get($id);
                     if (is_object($user)) {
                         if ($user->deleteByAdmin($this->user->id)) {
-                            Messages::addSuccess("user.deleted");
+                            $this->session->addSuccess("user.deleted");
                         } else {
-                            Messages::addError("user.deleting");
+                            $this->session->addError("user.deleting");
                         }
                     } else {
-                        Messages::addError("user.unknown");
+                        $this->session->addError("user.unknown");
                     }
                 } else {
-                    Messages::addError("csrffail");
+                    $this->session->addError("csrffail");
                 }
             } else {
-                Messages::addError("user.cantdeleteownuser");
+                $this->session->addError("user.cantdeleteownuser");
             }
         }
 
-        Router::redirect("admin/users/read");
+        $this->router->redirect("admin/users/read");
     }
 }

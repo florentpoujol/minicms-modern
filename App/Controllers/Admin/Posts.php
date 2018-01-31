@@ -2,36 +2,56 @@
 
 namespace App\Controllers\Admin;
 
-use App\Entities\Post;
-use App\Messages;
+use App\Config;
+use App\Lang;
+use App\Renderer;
 use App\Router;
+use App\Session;
 use App\Validator;
+use App\Entities\Repositories\Post as PostRepo;
 
 class Posts extends AdminBaseController
 {
+    /**
+     * @var PostRepo
+     */
+    public $postRepo;
+
+    public function __construct(
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        PostRepo $postRepo)
+    {
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        $this->postRepo = $postRepo;
+    }
+
     public function getRead(int $pageNumber = 1)
     {
-        $allRows = Post::getAll(["pageNumber" => $pageNumber]);
+        $allRows = $this->postRepo->getAll(["pageNumber" => $pageNumber]);
 
         $data = [
             "allRows" => $allRows,
             "pagination" => [
                 "pageNumber" => $pageNumber,
-                "itemsCount" => Post::countAll(),
-                "queryString" => Router::getQueryString("admin/posts/read/")
-            ]
+                "itemsCount" => $this->postRepo->countAll(),
+                "queryString" => $this->router->getQueryString("admin/posts/read/")
+            ],
+            "pageTitle" => $this->lang->get("posts.pagetitle"),
         ];
-        $this->render("posts.read", "posts.pagetitle", $data);
+        $this->render("posts.read", $data);
     }
 
     public function getCreate()
     {
-        $this->render("posts.update", "posts.createnew", ["action" => "create"]);
+        $this->render("posts.update", [
+            "action" => "create",
+            "pageTitle" => $this->lang->get("posts.pagetitle"),
+        ]);
     }
 
     public function postCreate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
@@ -39,49 +59,53 @@ class Posts extends AdminBaseController
             "category_id" => "int",
             "user_id" => "int",
             "published" => "checkbox",
-            "allow_comments" => "checkbox"
+            "allow_comments" => "checkbox",
         ]);
 
-        if (Validator::csrf("postcreate")) {
-            if (Validator::post($post)) {
-                $thePost = Post::create($post);
+        if ($this->validator->csrf("postcreate")) {
+            if ($this->validator->post($post)) {
+                $thePost = $this->postRepo->create($post);
 
                 if (is_object($thePost)) {
-                    Messages::addSuccess("post.created");
-                    Router::redirect("admin/posts/update/$thePost->id");
+                    $this->session->addSuccess("post.created");
+                    $this->router->redirect("admin/posts/update/$thePost->id");
+                    return;
                 } else {
-                    Messages::addError("db.createpost");
+                    $this->session->addError("db.createpost");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
         $data = [
             "action" => "create",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("posts.createnew"),
         ];
-        $this->render("posts.update", "posts.createnewcategory", $data);
+        $this->render("posts.update", $data);
     }
 
     public function getUpdate(int $userId)
     {
-        $thePost = Post::get($userId);
+        $thePost = $this->postRepo->get($userId);
         if ($thePost === false) {
-            Messages::addError("post.unknown");
-            Router::redirect("admin/posts/read");
+            $this->session->addError("post.unknown");
+            $this->router->redirect("admin/posts/read");
+            return;
         }
 
         $data = [
             "action" => "update",
-            "post" => $thePost->toArray()
+            "post" => $thePost->toArray(),
+            "pageTitle" => $this->lang->get("posts.updatetitle"),
         ];
-        $this->render("posts.update", "posts.updatecategory", $data);
+        $this->render("posts.update", $data);
     }
 
     public function postUpdate()
     {
-        $post = Validator::sanitizePost([
+        $post = $this->validator->sanitizePost([
             "id" => "int",
             "slug" => "string",
             "title" => "string",
@@ -89,55 +113,57 @@ class Posts extends AdminBaseController
             "category_id" => "int",
             "user_id" => "int",
             "published" => "checkbox",
-            "allow_comments" => "checkbox"
+            "allow_comments" => "checkbox",
         ]);
 
-        if (Validator::csrf("postupdate")) {
-            if (Validator::post($post)) {
-                $thePost = Post::get($post["id"]);
+        if ($this->validator->csrf("postupdate")) {
+            if ($this->validator->post($post)) {
+                $thePost = $this->postRepo->get($post["id"]);
 
                 if (is_object($thePost)) {
                     if ($thePost->update($post)) {
-                        Messages::addSuccess("post.updated");
-                        Router::redirect("admin/posts/update/$thePost->id");
+                        $this->session->addSuccess("post.updated");
+                        $this->router->redirect("admin/posts/update/$thePost->id");
+                        return;
                     } else {
-                        Messages::addError("db.postupdated");
+                        $this->session->addError("db.postupdated");
                     }
                 } else {
-                    Messages::addError("post.unknown");
+                    $this->session->addError("post.unknown");
                 }
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        $post["creation_datetime"] = Post::get($post["id"])->creation_datetime;
+        $post["creation_datetime"] = $this->postRepo->get($post["id"])->creation_datetime;
 
         $data = [
             "action" => "update",
-            "post" => $post
+            "post" => $post,
+            "pageTitle" => $this->lang->get("posts.updatetitle"),
         ];
-        $this->render("posts.update", "posts.update", $data);
+        $this->render("posts.update", $data);
     }
 
     public function postDelete()
     {
         $id = (int)$_POST["id"];
-        if (Validator::csrf("postdelete$id")) {
-            $post = Post::get($id);
+        if ($this->validator->csrf("postdelete$id")) {
+            $post = $this->postRepo->get($id);
             if (is_object($post)) {
                 if ($post->delete()) {
-                    Messages::addSuccess("post.deleted");
+                    $this->session->addSuccess("post.deleted");
                 } else {
-                    Messages::addError("post.deleting");
+                    $this->session->addError("post.deleting");
                 }
             } else {
-                Messages::addError("post.unknown");
+                $this->session->addError("post.unknown");
             }
         } else {
-            Messages::addError("csrffail");
+            $this->session->addError("csrffail");
         }
 
-        Router::redirect("admin/posts/read");
+        $this->router->redirect("admin/posts/read");
     }
 }
