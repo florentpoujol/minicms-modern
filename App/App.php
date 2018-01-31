@@ -21,7 +21,8 @@ class App
         $directory = str_replace("index.php", "", $_SERVER["SCRIPT_NAME"]); // trailing slash
         $config->set("site_directory", $directory);
 
-        $url = "$_SERVER[REQUEST_SCHEME]://$_SERVER[REQUEST_SCHEME]$directory";
+        $scheme = $_SERVER["REQUEST_SCHEME"] ?? "http";
+        $url = "$scheme://$_SERVER[HTTP_HOST]$directory";
         $config->set("site_url", $url);
     }
 }

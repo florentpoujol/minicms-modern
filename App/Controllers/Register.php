@@ -90,7 +90,6 @@ class Register extends BaseController
                         $this->router->redirect("login");
                         return;
                     } else {
-                        $this->session->addError("email.notsent");
                         $this->router->redirect("register/resendconfirmationemail");
                         return;
                     }
@@ -158,8 +157,6 @@ class Register extends BaseController
                             $this->session->addSuccess("email.confirmemail");
                             $this->router->redirect("login");
                             return;
-                        } else {
-                            $this->session->addError("email.notsent");
                         }
                     } else {
                         $this->session->addError("user.alreadyactivated");
@@ -176,6 +173,6 @@ class Register extends BaseController
             $this->session->addError("csrffail");
         }
 
-        $this->render("resendconfirmationemail", $post);
+        $this->render("resendconfirmationemail", ["post" => $post]);
     }
 }

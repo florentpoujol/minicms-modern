@@ -140,8 +140,9 @@ class Login extends BaseController
                     $token = (new Helpers())->getUniqueToken();
 
                     if ($user->updatePasswordToken($token)) {
-                        $this->mailer->sendChangePassword($user);
-                        $this->session->addSuccess("email.changepassword");
+                        if ($this->mailer->sendChangePassword($user)) {
+                            $this->session->addSuccess("email.changepassword");
+                        }
                     } else {
                         $this->session->addError("error.error");
                     }

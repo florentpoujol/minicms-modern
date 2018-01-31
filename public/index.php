@@ -2,47 +2,44 @@
 
 namespace App;
 
-use App\Entities\Entity;
 use App\Entities\Repositories\User;
-use PHPMailer;
 use StdCmp\DI\DIContainer;
-use StdCmp\QueryBuilder\QueryBuilder;
 
 require_once __dir__ . "/../vendor/autoload.php";
 require __dir__ . "/../../standard-components/vendor/autoload.php"; // todo: remove when the php-standard-component is finally included as a composer dependency here
 
 // start setup DI container
 $container = new DIContainer();
-
-$config = $container->get(Config::class);
+$container->set(DIContainer::class, $container);
 
 $lang = $container->get(Lang::class);
 $lang->load("en"); // let's imagine "en" has been changed based on config value or navigator language
 
-$app = new App($container);
-$container->set(App::class, $app);
+$config = $container->get(Config::class);
+$config->load();
+
+$app = $container->get(App::class);
+$app::$container = $container; // used in Entity::createHydrated()
 
 $session = $container->get(Session::class);
+$session->start();
 
 $router = $container->get(Router::class);
-
 // end setup container
 
 if (!$config->fileExists()) {
-    if (trim($_GET["QUERY_STRING"]) !== "") {
+    $queryStr = $_SERVER["QUERY_STRING"] ?? "";
+    if (trim($queryStr) !== "") {
         $router->redirect();
     }
     $router->toInstall();
     exit;
 }
 
-$config->load();
+
 
 $db = $container->get(Database::class);
 $db->connect();
-
-$session->start();
-
 
 // check if user is logged in
 /**

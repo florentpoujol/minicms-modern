@@ -81,7 +81,7 @@ class Router
             if (preg_match("~^" . $route . '$~', $r, $controllerArgs) === 1) {
                 array_shift($controllerArgs); // index 0 is the whole match
                 $routeName = $name;
-                $routeParts = explode("/", $route);
+                $routeParts = explode("/", $r);
                 break;
             }
         }
@@ -93,7 +93,7 @@ class Router
         }
 
         $controllerName = ucfirst($routeParts[0]);
-        $methodName = "";
+        $methodName = $controllerName;
         if (isset($routeParts[1])) {
             $methodName = ucfirst($routeParts[1]);
         }
@@ -101,6 +101,7 @@ class Router
         switch ($routeName) {
             case "logout":
                 $this->logout();
+                return;
                 break;
 
             case "admin_config":
@@ -120,9 +121,11 @@ class Router
 
         $this->controllerName = "\App\Controllers\\$controllerName";
         $controller = $this->container->make($this->controllerName);
-        $controller->setLoggedInUser($user);
+        if ($user !== null) {
+            $controller->setLoggedInUser($user);
+        }
 
-        $this->methodName = $_SERVER["REQUEST_METHOD"] . $methodName;
+        $this->methodName = strtolower($_SERVER["REQUEST_METHOD"] ?? "get") . $methodName;
         $controller->{$this->methodName}(...$controllerArgs);
     }
 
@@ -147,7 +150,7 @@ class Router
     public function toInstall()
     {
         $controller = $this->container->make(Install::class);
-        $methodName = $_SERVER["REQUEST_METHOD"] . "Install";
+        $methodName = strtolower($_SERVER["REQUEST_METHOD"] ?? "get") . "Install";
         $controller->{$methodName}();
     }
 

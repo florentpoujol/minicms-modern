@@ -13,6 +13,10 @@ class Config
         if ($configFile !== null) {
             $this->configFile = $configFile;
         }
+        $realpath = realpath($this->configFile);
+        if ($realpath !== false) { // happens during tests, leaving the old path also allows to debug
+            $this->configFile = $realpath;
+        }
     }
 
     public function getConfigFilePath(): string

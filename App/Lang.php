@@ -13,14 +13,18 @@ class Lang
 
     public $currentLanguage = "en";
 
-    protected $languageFolder = __dir__ . "/../languages/";
+    protected $languageFolder = __dir__ . "/../languages";
 
     protected $dictionariesPerLocale = [];
 
     public function __construct(string $languageFolder = null)
     {
         if ($languageFolder !== null) {
-            $this->languageFolder = trim($languageFolder, "/\\") . "/";
+            $this->languageFolder = trim($languageFolder, "/\\");
+        }
+        $realpath = realpath($this->languageFolder);
+        if ($realpath !== false) { // happens during tests, leaving the old path also allows to debug
+            $this->languageFolder = $realpath;
         }
     }
 
@@ -31,7 +35,7 @@ class Lang
     public function load(string $lang, bool $reload = false): bool
     {
         if ($reload || !isset($this->dictionariesPerLocale[$lang])) {
-            $path = $this->languageFolder . "$lang.php";
+            $path = $this->languageFolder . "/$lang.php";
             if (file_exists($path)) {
                 $this->dictionariesPerLocale[$lang] = require $path;
                 return true;
@@ -56,17 +60,21 @@ class Lang
         $lang = $keys[0]; // either the language or the actual first key part
 
         if (! isset($this->dictionariesPerLocale[$lang])) {
-            $this->load($lang);
+            $this->load($lang); // let it fail if the $lang (the first key) is not actually a language
         }
 
         if (! isset($this->dictionariesPerLocale[$lang])) {
             // $keys[0] (and $lang) are not a language identifier
             $lang = $this->currentLanguage;
+            // $this->load($lang);
         } else {
             array_shift($keys); // remove the language identifier from the keys
         }
 
-        // var_dump("inside lang", $this);
+        if (! isset($this->dictionariesPerLocale[$lang])) {
+            throw new \RuntimeException("Dictionary for language '$lang' wasn't loaded. Default language: '$this->defaultLanguage'. Current language: '$this->defaultLanguage'. Language folder: '$this->languageFolder'.");
+        }
+
         $value = $this->dictionariesPerLocale[$lang];
 
         foreach ($keys as $key) {

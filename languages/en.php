@@ -91,8 +91,8 @@ return [
             "user" => [
                 "create" => "Error creating the user",
                 "alreadyloggedin" => "You are already logged in",
-                "unknown" => "Unknow user",
-                "unknownwithfield" => "Unknow user with {field} '{value}'",
+                "unknown" => "Unknown user",
+                "unknownwithfield" => "Unknown user with {field} '{value}'",
                 "wrongpassword" => "Wrong password",
                 "notactivated" => "This user's email address is not confirmed yet. You can sent the activation email again, blabla",
                 "alreaddyactivated" => "this email address is already confirmed. you can login with this user",

@@ -71,7 +71,9 @@ class User extends Entity
             $newUser["role"] = "commenter";
         }
 
-        $newUser["email_token"] = (new Helpers())->getUniqueToken();
+        if (!isset($newUser["email_token"])) {
+            $newUser["email_token"] = (new Helpers())->getUniqueToken();
+        }
 
         $newUser["password_hash"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
         $newUser["password_token"] = "";

@@ -38,7 +38,7 @@ class LangTest extends TestCase
         ';
         $fr->withContent($content);
 
-        self::$languageFolder = $root->url() . "/";
+        self::$languageFolder = $root->url();
         self::$dictionaries["en"] = require $root->url() . "/en.php";
         self::$dictionaries["fr"] = require $root->url() . "/fr.php";
     }
