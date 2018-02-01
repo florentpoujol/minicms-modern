@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
@@ -15,13 +16,13 @@ class Menus extends AdminBaseController
     /**
      * @var MenuRepo
      */
-    public $menuRepo;
+    protected $menuRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
         MenuRepo $menuRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->menuRepo = $menuRepo;
     }
 
@@ -36,7 +37,6 @@ class Menus extends AdminBaseController
                 "itemsCount" => $this->menuRepo->countAll(),
                 "queryString" => $this->router->getQueryString("admin/menu/read")
             ],
-            "pageTitle" => $this->lang->get("admin.menu.readtitle"),
         ];
         $this->render("menus.read", $data);
     }
@@ -46,7 +46,6 @@ class Menus extends AdminBaseController
         $data = [
             "action" => "create",
             "post" => ["structure" => []],
-            "pageTitle" => $this->lang->get("admin.menu.createtitle"),
         ];
         $this->render("menus.update", $data);
     }
@@ -54,8 +53,7 @@ class Menus extends AdminBaseController
     public function postCreate()
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
-            "name" => "string",
+            "title" => "string",
             "in_use" => "checkbox",
             "structure" => "array",
             "json_structure" => "string",
@@ -80,7 +78,6 @@ class Menus extends AdminBaseController
         $data = [
             "action" => "create",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.menu.readtitle"),
         ];
         $this->render("menus.update", $data);
     }
@@ -97,20 +94,19 @@ class Menus extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $menu->toArray(),
-            "pageTitle" => $this->lang->get("admin.menu.updatetitle"),
         ];
         $this->render("menus.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $menuId)
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
-            "name" => "string",
+            "title" => "string",
             "in_use" => "checkbox",
             "structure" => "array",
             "json_structure" => "string"
         ]);
+        $post["id"] = $menuId;
 
         if ($this->validator->csrf("menuupdate")) {
             if ($this->validator->menu($post)) {
@@ -137,16 +133,14 @@ class Menus extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.menu.updatetitle"),
         ];
         $this->render("menus.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $menuId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("menudelete$id")) {
-            $menu = $this->menuRepo->get($id);
+        if ($this->validator->csrf("menudelete$menuId")) {
+            $menu = $this->menuRepo->get($menuId);
             if (is_object($menu)) {
                 if ($menu->delete()) {
                     $this->session->addSuccess("menu.deleted");

@@ -130,7 +130,7 @@ class Validator
                     break;
 
                 case "checkbox":
-                    $value = (int)($value === "on"); // when checkbox is not checked, $value will actually be null ($key not present in $_POST
+                    $value = (int)($value === "on"); // when checkbox is not checked, $value will actually be null ($key not present in $_POST)
                     break;
 
                 case "array":
@@ -138,11 +138,11 @@ class Validator
                     break;
 
                 default:
-                    throw new \UnexpectedValueException("Unhandled type: $type");
+                    throw new \UnexpectedValueException("Unhandled type: '$type'.");
                     break;
             }
 
-            $sanitizedPost[$key] = $value; // if $value was null, it is now 0, false or ""
+            $sanitizedPost[$key] = $value; // if $value was null, it is now 0, false, "" or []
         }
 
         return $sanitizedPost;
@@ -171,8 +171,8 @@ class Validator
         }
 
         if (isset($user["password"]) && $user["password"] !== "") {
-            if (! isset($user["password_confirm"])) {
-                $user["password_confirm"] = null;
+            if (! isset($user["password_confirmation"])) {
+                $user["password_confirmation"] = null;
             }
 
             if (! $this->password($user["password"])) {
@@ -180,7 +180,7 @@ class Validator
                 $this->session->addError("fieldvalidation.password");
             }
 
-            if (! $this->password($user["password"], $user["password_confirm"])) {
+            if (! $this->password($user["password"], $user["password_confirmation"])) {
                 $ok = false;
                 $this->session->addError("fieldvalidation.passwordnotequal");
             }
@@ -294,9 +294,9 @@ class Validator
     {
         $ok = true;
 
-        if (! $this->name($data["name"])) {
+        if (! $this->title($data["title"])) {
             $ok = false;
-            $this->session->addError("fieldvalidation.name");
+            $this->session->addError("fieldvalidation.title");
         }
 
         // check for valid JSON

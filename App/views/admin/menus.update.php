@@ -1,6 +1,3 @@
-<?php
-use \App\Entities\Menu;
-?>
 
 <h1>{$pageTitle}</h1>
 
@@ -10,15 +7,15 @@ use \App\Entities\Menu;
 Menu id: {$post["id"]} <br>
 @endif
 <?php
-$form = new \App\Form("menu$action", $post);
+$form->setup("menu$action", $post);
 
 $str = "admin/menus/$action";
 if ($action === "update") {
-    $str .= "/".$post["id"];
+    $str .= "/$post[id]";
 }
 $form->open($router->getQueryString($str));
 
-$form->text("name", "name");
+$form->text("title", "title");
 
 $form->checkbox("in_use", false, "Use this menu");
 
@@ -105,8 +102,7 @@ buildMenuStructure($post["structure"], "structure");
 $form->textarea("json_structure", ["label" => "JSON structure", "value" => "{}"]);
 
 if ($action === "update") {
-    echo "Creation date: ".$post["creation_datetime"];
-    $form->hidden("id", $post["id"]);
+    echo "Creation date: " . $post["creation_datetime"]->format("Y-m-d") . "<br>";
 }
 
 $form->submit("", "$action page");

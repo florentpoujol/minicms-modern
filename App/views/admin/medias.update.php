@@ -2,9 +2,9 @@
 <h1>{$pageTitle}</h1>
 
 <?php
-$uploadPath = \App\App::$uploadPath;
+$uploadPath = $config->get("upload_path") . "/";
 if (! is_writable($uploadPath)) {
-    \App\Messages::addError("file.uploadfoldernotwritable");
+    $session->addError("file.uploadfoldernotwritable");
 }
 ?>
 
@@ -14,11 +14,11 @@ if (! is_writable($uploadPath)) {
 Media id: {$post["id"]} <br>
 @endif
 <?php
-$form = new \App\Form("media$action", $post);
+$form->setup("media$action", $post);
 
 $str = "admin/medias/$action";
 if ($action === "update") {
-    $str .= "/".$post["id"];
+    $str .= "/$post[id]";
 }
 $form->open($router->getQueryString($str), "post", true);
 
@@ -35,23 +35,19 @@ if ($action === "create") {
     $ext = pathinfo($post["filename"], PATHINFO_EXTENSION);
     echo "file preview: <br>";
     if ($ext === "zip" || $ext === "pdf") {
-        echo '<a href="' . $uploadPath . $post["filename"] . '">' . $post["filename"] . '</a> <br><br>';
+        echo '<a href="uploads/' . $post["filename"] . '">' . $post["filename"] . '</a> <br><br>';
     } else {
-        echo '<img src="' . $uploadPath . $post["filename"] . '" height="200px"> <br><br>';
+        echo '<img src="uploads/' . $post["filename"] . '" height="200px"> <br><br>';
     }
 
     // user id
-    $users = array_merge(
-        \App\Entities\User::getAll(["role" => "admin"]),
-        \App\Entities\User::getAll(["role" => "writer"])
-    );
     $options = [];
     foreach ($users as $user) {
-        $options[$user->id] = $user->name." ($user->id)";
+        $options[$user->id] = "$user->name ($user->id)";
     }
     $form->select("user_id", $options, "User: ");
 
-    echo "Creation date: ".$post["creation_datetime"];
+    echo "Creation date: " . $post["creation_datetime"]->format("Y-m-d") . "<br>";
     $form->hidden("id", $post["id"]);
 }
 $form->submit("", "$action media");

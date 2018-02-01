@@ -45,7 +45,7 @@
         <td>{$_user}</td>
         <td>{$post}</td>
         <td>{$page}</td>
-        <td>{$row->creation_datetime}</td>
+        <td>{$row->creation_datetime->format("Y-m-d")}</td>
         <td>{$row->getExcerpt()}</td>
         <td><a href="{queryString admin/comments/update/$row->id}">Edit</a></td>
         @if ($user->isAdmin())

@@ -115,14 +115,17 @@ class Router
                 break;
         }
 
-        // $parts = explode("\\", $controllerName);
-        // $parts = array_map(function($val){ return ucfirst($val); }, $parts);
-        // $controllerName = implode("\\", $parts);
-
         $this->controllerName = "\App\Controllers\\$controllerName";
         $controller = $this->container->make($this->controllerName);
         if ($user !== null) {
             $controller->setLoggedInUser($user);
+        }
+
+        if (
+            strpos($this->controllerName, "Admin") !== false &&
+            $controller->redirectIfUserIsGuest()
+        ) {
+            return;
         }
 
         $this->methodName = strtolower($_SERVER["REQUEST_METHOD"] ?? "get") . $methodName;

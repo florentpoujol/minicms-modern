@@ -3,26 +3,34 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
 use App\Session;
 use App\Validator;
 use App\Entities\Repositories\Media as MediaRepo;
+use App\Entities\Repositories\User as UserRepo;
 
 class Medias extends AdminBaseController
 {
     /**
      * @var MediaRepo
      */
-    public $mediaRepo;
+    protected $mediaRepo;
+
+    /**
+     * @var UserRepo
+     */
+    protected $userRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
-        MediaRepo $mediaRepo)
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
+        MediaRepo $mediaRepo, UserRepo $userRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->mediaRepo = $mediaRepo;
+        $this->userRepo = $userRepo;
     }
 
     public function getRead(int $pageNumber = 1)
@@ -36,17 +44,13 @@ class Medias extends AdminBaseController
                 "itemsCount" => $this->mediaRepo->countAll(),
                 "queryString" => $this->router->getQueryString("admin/medias/read")
             ],
-            "pageTitle" => $this->lang->get("admin.media.readtitle"),
         ];
         $this->render("medias.read", $data);
     }
 
     public function getCreate()
     {
-        $this->render("medias.update", [
-            "action" => "create",
-            "pageTitle" => $this->lang->get("admin.media.create"),
-        ]);
+        $this->render("medias.update", ["action" => "create"]);
     }
 
     public function postCreate()
@@ -81,7 +85,6 @@ class Medias extends AdminBaseController
         $data = [
             "action" => "create",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.media.create"),
         ];
         $this->render("medias.update", $data);
     }
@@ -98,23 +101,27 @@ class Medias extends AdminBaseController
         if ($this->user->isWriter() && $media->user_id !== $this->user->id) {
             $this->session->addError("user.notallowed");
             $this->router->redirect("admin/medias/read");
+            return;
         }
 
         $data = [
             "action" => "update",
             "post" => $media->toArray(),
-            "pageTitle" => $this->lang->get("admin.media.updatetitle"),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("medias.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $mediaId)
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "slug" => "string",
-            "user_id" => "int"
+            "user_id" => "int",
         ]);
+        $post["id"] = $mediaId;
 
         if ($this->validator->csrf("mediaupdate")) {
             if ($this->validator->media($post)) {
@@ -149,16 +156,18 @@ class Medias extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.media.updatetitle"),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("medias.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $mediaId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("mediadelete$id")) {
-            $media = $this->mediaRepo->get($id);
+        if ($this->validator->csrf("mediadelete$mediaId")) {
+            $media = $this->mediaRepo->get($mediaId);
             if (is_object($media)) {
                 if ($media->delete()) {
                     $this->session->addSuccess("media.deleted");

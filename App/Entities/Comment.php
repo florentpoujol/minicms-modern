@@ -64,4 +64,16 @@ class Comment extends Entity
         }
         return substr($this->content, 0, $characterCount);
     }
+
+    public function canBeEditedByUser(User $user): bool
+    {
+        if ($this->user_id === $user->id || $user->isAdmin()) {
+            return true;
+        }
+        if ($user->isWriter()) {
+            $postOrPage = $this->getPost() ?: $this->getPage();
+            return $postOrPage->user_id === $user->id;
+        }
+        return false;
+    }
 }

@@ -42,6 +42,15 @@ class AdminBaseController extends BaseController
         $this->user = $user;
     }
 
+    public function redirectIfUserIsGuest(): bool
+    {
+        if ($this->user === null) {
+            $this->router->redirect("login");
+            return true;
+        }
+        return false;
+    }
+
     public function render(string $view, array $data = null)
     {
         $data["form"] = $this->form;

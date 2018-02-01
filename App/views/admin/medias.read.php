@@ -18,12 +18,12 @@
     </tr>
 
     <?php
-    $uploadPath = \App\App::$uploadPath;
+    $uploadPath = $config->get("upload_path");
     ?>
     @foreach ($allRows as $row)
     <?php
-    $user = $row->getUser();
-    $user = $user->name." (".$user->id.")";
+    $owner = $row->getUser();
+    $owner = "$owner->name ($owner->id)";
 
     $ext = pathinfo($row->filename, PATHINFO_EXTENSION);
     ?>
@@ -33,19 +33,18 @@
         <td>{$row->filename}</td>
         <td>
             @if ($ext === "zip" || $ext === "pdf")
-            <a href="{$uploadPath}{$row->filename}">{$row->filename}</a> <br>
+            <a href="uploads/{$row->filename}">{$row->filename}</a> <br>
             @else
-            <img src="{$uploadPath}{$row->filename}" height="200px"> <br>
+            <img src="uploads/{$row->filename}" height="200px"> <br>
             @endif
         </td>
-        <td>{$user}</td>
-        <td>{$row->creation_datetime}</td>
+        <td>{$owner}</td>
+        <td>{$row->creation_datetime->format("Y-m-d")}</td>
         <td><a href="{queryString admin/medias/update/$row->id}">Edit</a></td>
         <td>
             <?php
-            $form = new \App\Form("mediadelete".$row->id);
-            $form->open($router->getQueryString("admin/medias/delete"));
-            $form->hidden("id", $row->id);
+            $form->setup("mediadelete".$row->id);
+            $form->open($router->getQueryString("admin/medias/delete/$row->id"));
             $form->submit("", "Delete");
             $form->close();
             ?>
@@ -53,3 +52,5 @@
     </tr>
     @endforeach
 </table>
+
+{include pagination.php}

@@ -40,7 +40,7 @@ class Media extends Entity
      */
     public function upload(string $fileSlug)
     {
-        $uploadPath = $this->config->get("upload_path");
+        $uploadPath = $this->config->get("upload_path") . "/";
         if (!is_writable($uploadPath)) {
             $this->session->addError("file.uploadfoldernotwritable");
             return false;

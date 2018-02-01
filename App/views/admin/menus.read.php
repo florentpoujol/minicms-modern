@@ -18,15 +18,14 @@
     @foreach ($allRows as $row)
     <tr>
         <td>{$row->id}</td>
-        <td>{$row->name}</td>
+        <td>{$row->title}</td>
         <td>{$row->in_use}</td>
 
         <td><a href="{queryString admin/menus/update/$row->id}">Edit</a></td>
         <td>
             <?php
-            $form = new \App\Form("menudelete".$row->id);
-            $form->open($router->getQueryString("admin/menus/delete"));
-            $form->hidden("id", $row->id);
+            $form->setup("menudelete$row->id");
+            $form->open($router->getQueryString("admin/menus/delete/$row->id"));
             $form->submit("", "Delete");
             $form->close();
             ?>

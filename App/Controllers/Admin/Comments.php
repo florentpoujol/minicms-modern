@@ -72,6 +72,11 @@ class Comments extends AdminBaseController
             return;
         }
 
+        if (!$comment->canBeEditedByUser($this->user)) {
+            $this->router->redirect("admin/comments/read");
+            return;
+        }
+
         $data = [
             "post" => $comment->toArray(),
             "users" => $this->userRepo->getAll(),
@@ -92,6 +97,11 @@ class Comments extends AdminBaseController
                 $comment = $this->commentRepo->get($post["id"]);
 
                 if (is_object($comment)) {
+                    if (!$comment->canBeEditedByUser($this->user)) {
+                        $this->router->redirect("admin/comments/read");
+                        return;
+                    }
+
                     if ($comment->update($post)) {
                         $this->session->addSuccess("comment.updated");
                         $this->router->redirect("admin/comments/update/$comment->id");
@@ -119,19 +129,21 @@ class Comments extends AdminBaseController
 
     public function postDelete(int $commentId)
     {
-        if ($this->validator->csrf("commentdelete$commentId")) {
-            $comment = $this->commentRepo->get($commentId);
-            if (is_object($comment)) {
-                if ($comment->delete()) {
-                    $this->session->addSuccess("comment.deleted");
+        if ($this->user->isAdmin()) {
+            if ($this->validator->csrf("commentdelete$commentId")) {
+                $comment = $this->commentRepo->get($commentId);
+                if (is_object($comment)) {
+                    if ($comment->delete()) {
+                        $this->session->addSuccess("comment.deleted");
+                    } else {
+                        $this->session->addError("comment.deleting");
+                    }
                 } else {
-                    $this->session->addError("comment.deleting");
+                    $this->session->addError("comment.unknown");
                 }
             } else {
-                $this->session->addError("comment.unknown");
+                $this->session->addError("csrffail");
             }
-        } else {
-            $this->session->addError("csrffail");
         }
 
         $this->router->redirect("admin/comments/read");

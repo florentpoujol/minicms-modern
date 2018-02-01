@@ -3,7 +3,7 @@
 
 {include messages.php}
 
-@if ($this->user->isAdmin())
+@if ($user->isAdmin())
 <a href="{queryString admin/users/create}">{lang users.createlink}</a> <br>
 @endif
 <br>
@@ -16,7 +16,7 @@
         <th>role</th>
         <th>creation date</th>
 
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <th>email token</th>
         <th>password token</th>
         <th>password change time</th>
@@ -24,7 +24,7 @@
 
         <th>Edit</th>
 
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <th>Delete</th>
         @endif
     </tr>
@@ -35,26 +35,25 @@
         <td>{$row->name}</td>
         <td>{$row->email}</td>
         <td>{$row->role}</td>
-        <td>{$row->creation_datetime}</td>
+        <td>{$row->creation_datetime->format("Y-m-d")}</td>
 
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <td>{$row->email_token}</td>
         <td>{$row->password_token}</td>
         <td>{$row->password_change_time}</td>
         @endif
 
-        @if ($this->user->isAdmin() || $this->user->id === $row->id)
+        @if ($user->isAdmin() || $user->id === $row->id)
         <td><a href="{queryString admin/users/update/$row->id}">Edit</a></td>
         @else
         <td></td>
         @endif
 
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <td>
         <?php
-        $form = new \App\Form("userdelete".$row->id);
-        $form->open($router->getQueryString("admin/users/delete"));
-        $form->hidden("id", $row->id);
+        $form->setup("userdelete$row->id");
+        $form->open($router->getQueryString("admin/users/delete/$row->id"));
         $form->submit("", "Delete");
         $form->close();
         ?>
