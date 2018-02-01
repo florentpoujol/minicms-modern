@@ -103,7 +103,7 @@ class Install extends BaseController
             "email" => "string",
             "password" => "string",
             "password_confirmation" => "string",
-            "email_token" => "",
+            "email_token" => "string",
         ]);
         $userPost["id"] = -1; // this is needed for Validator::user() not to call Database::valueExistsInDB() at a time where doesn't make sense since no DB is installed
 

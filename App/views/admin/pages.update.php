@@ -1,6 +1,3 @@
-<?php
-use \App\Entities\Page;
-?>
 
 <h1>{$pageTitle}</h1>
 
@@ -10,13 +7,13 @@ use \App\Entities\Page;
 Page id: {$post["id"]} <br>
 @endif
 <?php
-$form = new \App\Form("page$action", $post);
+$form->setup("page$action", $post);
 
 $str = "admin/pages/$action";
 if ($action === "update") {
-    $str .= "/".$post["id"];
+    $str .= "/$post[id]";
 }
-$form->open(\App\Router::getQueryString($str));
+$form->open($router->getQueryString($str));
 
 $form->text("slug", "slug");
 $form->text("title", "title");
@@ -24,25 +21,31 @@ $form->text("title", "title");
 $form->textarea("content", ["cols" => 50, "rows" => 20, "label" => "content"]);
 
 // parent page id
-$pages = Page::getAll(["parent_page_id" => null]);
 $options = ["0" => "None"];
-foreach ($pages as $page) {
-    if ($action === "update" && $post["id"] === $page->id)
+foreach ($parentPages as $page) {
+    if ($action === "update" && $post["id"] === $page->id) {
         continue;
+    }
 
-    $options[$page->id] = $page->title." ($page->id)";
+    $options[$page->id] = "$page->title ($page->id)";
 }
 $form->select("parent_page_id", $options, "parent page: ");
+
+// user id
+$options = [];
+foreach ($users as $user) {
+    $options[$user->id] = "$user->name ($user->id)";
+}
+$form->select("user_id", $options, "User: ");
 
 // published
 $form->checkbox("published", true, "published");
 
 // allow comments
-$form->checkbox("allow_comments", null, "allowcomments");
+$form->checkbox("allow_comments", $config->get("allow_comments"), "allowcomments");
 
 if ($action === "update") {
-    echo "Creation date: ".$post["creation_datetime"];
-    $form->hidden("id", $post["id"]);
+    echo "Creation date: " . $post["creation_datetime"]->format("Y-m-d") . "<br>";
 }
 $form->submit("", "$action page");
 $form->close();

@@ -3,26 +3,34 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
 use App\Session;
 use App\Validator;
 use App\Entities\Repositories\Page as PageRepo;
+use App\Entities\Repositories\User as UserRepo;
 
 class Pages extends AdminBaseController
 {
     /**
      * @var PageRepo
      */
-    public $pageRepo;
+    protected $pageRepo;
+
+    /**
+     * @var UserRepo
+     */
+    protected $userRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
-        PageRepo $pageRepo)
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
+        PageRepo $pageRepo, UserRepo $userRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->pageRepo = $pageRepo;
+        $this->userRepo = $userRepo;
     }
 
     public function getRead(int $pageNumber = 1)
@@ -36,7 +44,6 @@ class Pages extends AdminBaseController
                 "itemsCount" => $this->pageRepo->countAll(),
                 "queryString" => $this->router->getQueryString("admin/pages/read")
             ],
-            "pageTitle" => $this->lang->get("admin.page.readtitle"),
         ];
         $this->render("pages.read", $data);
     }
@@ -45,18 +52,22 @@ class Pages extends AdminBaseController
     {
         $this->render("pages.update", [
             "action" => "create",
-            "pageTitle" => $this->lang->get("admin.page.createtitle"),
+            "parentPages" => $this->pageRepo->getAll(["parent_page_id" => null]),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ]);
     }
 
     public function postCreate()
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "slug" => "string",
             "title" => "string",
             "content" => "string",
             "parent_page_id" => "int",
+            "user_id" => "int",
             "published" => "checkbox",
             "allow_comments" => "checkbox",
         ]);
@@ -80,7 +91,11 @@ class Pages extends AdminBaseController
         $data = [
             "action" => "create",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.page.create"),
+            "parentPages" => $this->pageRepo->getAll(["parent_page_id" => null]),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("pages.update", $data);
     }
@@ -97,12 +112,16 @@ class Pages extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $page->toArray(),
-            "pageTitle" => $this->lang->get("admin.page.readtitle"),
+            "parentPages" => $this->pageRepo->getAll(["parent_page_id" => null]),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("pages.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $pageId)
     {
         $post = $this->validator->sanitizePost([
             "id" => "int",
@@ -110,9 +129,11 @@ class Pages extends AdminBaseController
             "title" => "string",
             "content" => "string",
             "parent_page_id" => "int",
+            "user_id" => "int",
             "published" => "checkbox",
             "allow_comments" => "checkbox",
         ]);
+        $post["id"] = $pageId;
 
         if ($this->validator->csrf("pageupdate")) {
             if ($this->validator->page($post)) {
@@ -139,16 +160,19 @@ class Pages extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.page.updatetitle"),
+            "parentPages" => $this->pageRepo->getAll(["parent_page_id" => null]),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("pages.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $pageId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("pagedelete$id")) {
-            $page = $this->pageRepo->get($id);
+        if ($this->validator->csrf("pagedelete$pageId")) {
+            $page = $this->pageRepo->get($pageId);
             if (is_object($page)) {
                 if ($page->delete()) {
                     $this->session->addSuccess("page.deleted");

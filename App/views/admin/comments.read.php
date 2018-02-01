@@ -11,31 +11,29 @@
         <th>page</th>
         <th>created at</th>
         <th>content</th>
-        @if ($this->user->isWriter())
         <th>Edit</th>
-        @endif
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <th>Delete</th>
         @endif
     </tr>
 
     @foreach ($allRows as $row)
     <?php
-    $user = \App\Entities\User::get($row->user_id);
-    if (is_object($user)) {
-        $user = "$user->name ($user->id)";
+    $_user = $row->getUser();
+    if (is_object($_user)) {
+        $_user = "$_user->name ($_user->id)";
     } else {
-        $user = "";
+        $_user = "";
     }
 
-    $post = \App\Entities\Post::get($row->post_id);
+    $post = $row->getPost();
     if (is_object($post)) {
         $post = "$post->title ($post->id)";
     } else {
         $post = "";
     }
 
-    $page = \App\Entities\Page::get($row->page_id);
+    $page = $row->getPage();
     if (is_object($page)) {
         $page = "$page->title ($page->id)";
     } else {
@@ -44,20 +42,17 @@
     ?>
     <tr>
         <td>{$row->id}</td>
-        <td>{$user}</td>
+        <td>{$_user}</td>
         <td>{$post}</td>
         <td>{$page}</td>
         <td>{$row->creation_datetime}</td>
-        <td>{$row->content}</td>
-        @if ($this->user->isWriter())
+        <td>{$row->getExcerpt()}</td>
         <td><a href="{queryString admin/comments/update/$row->id}">Edit</a></td>
-        @endif
-        @if ($this->user->isAdmin())
+        @if ($user->isAdmin())
         <td>
             <?php
-            $form = new \App\Form("commentdelete".$row->id);
-            $form->open($router->getQueryString("admin/comments/delete"));
-            $form->hidden("id", $row->id);
+            $form->setup("commentdelete$row->id");
+            $form->open($router->getQueryString("admin/comments/delete/$row->id"));
             $form->submit("", "Delete");
             $form->close();
             ?>

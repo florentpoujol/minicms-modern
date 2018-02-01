@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
@@ -18,10 +19,10 @@ class Categories extends AdminBaseController
     public $categoryRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
         CategoryRepo $categoryRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->categoryRepo = $categoryRepo;
     }
 
@@ -36,7 +37,6 @@ class Categories extends AdminBaseController
                 "itemsCount" => $this->categoryRepo->countAll(),
                 "queryString" => $this->router->getQueryString("admin/categories/read")
             ],
-            "pageTitle" => $this->lang->get("categories.pagetitle"),
         ];
         $this->render("categories.read", $data);
     }
@@ -45,7 +45,7 @@ class Categories extends AdminBaseController
     {
         $this->render("categories.update", [
             "action" => "create",
-            "pageTitle" => $this->lang->get("categories.createnewcategory"),
+            "pageTitle" => "admin.categories.create",
         ]);
     }
 
@@ -92,22 +92,21 @@ class Categories extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $category->toArray(),
-            "pageTitle" => $this->lang->get("categories.update"),
         ];
         $this->render("categories.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $categoryId)
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "slug" => "string",
             "title" => "string",
         ]);
+        $post["id"] = $categoryId; // prevent the validator to check if the slug already exists
 
         if ($this->validator->csrf("categoryupdate")) {
             if ($this->validator->category($post)) {
-                $category = $this->categoryRepo->get($post["id"]);
+                $category = $this->categoryRepo->get($categoryId);
 
                 if (is_object($category)) {
                     if ($category->update($post)) {
@@ -128,16 +127,14 @@ class Categories extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("categories.update"),
         ];
         $this->render("categories.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $categoryId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("categorydelete$id")) {
-            $category = $this->categoryRepo->get($id);
+        if ($this->validator->csrf("categorydelete$categoryId")) {
+            $category = $this->categoryRepo->get($categoryId);
             if (is_object($category)) {
                 if ($category->delete()) {
                     $this->session->addSuccess("category.deleted");

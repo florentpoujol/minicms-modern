@@ -3,26 +3,41 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
 use App\Session;
 use App\Validator;
 use App\Entities\Repositories\Post as PostRepo;
+use App\Entities\Repositories\Category as CategoryRepo;
+use App\Entities\Repositories\User as UserRepo;
 
 class Posts extends AdminBaseController
 {
     /**
      * @var PostRepo
      */
-    public $postRepo;
+    protected $postRepo;
+
+    /**
+     * @var CategoryRepo
+     */
+    protected $categoryRepo;
+
+    /**
+     * @var UserRepo
+     */
+    protected $userRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
-        PostRepo $postRepo)
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
+        PostRepo $postRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->postRepo = $postRepo;
+        $this->categoryRepo = $categoryRepo;
+        $this->userRepo = $userRepo;
     }
 
     public function getRead(int $pageNumber = 1)
@@ -36,7 +51,6 @@ class Posts extends AdminBaseController
                 "itemsCount" => $this->postRepo->countAll(),
                 "queryString" => $this->router->getQueryString("admin/posts/read/")
             ],
-            "pageTitle" => $this->lang->get("posts.pagetitle"),
         ];
         $this->render("posts.read", $data);
     }
@@ -45,14 +59,17 @@ class Posts extends AdminBaseController
     {
         $this->render("posts.update", [
             "action" => "create",
-            "pageTitle" => $this->lang->get("posts.pagetitle"),
+            "categories" => $this->categoryRepo->getAll(),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ]);
     }
 
     public function postCreate()
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "slug" => "string",
             "title" => "string",
             "content" => "string",
@@ -81,7 +98,11 @@ class Posts extends AdminBaseController
         $data = [
             "action" => "create",
             "post" => $post,
-            "pageTitle" => $this->lang->get("posts.createnew"),
+            "categories" => $this->categoryRepo->getAll(),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("posts.update", $data);
     }
@@ -98,15 +119,18 @@ class Posts extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $thePost->toArray(),
-            "pageTitle" => $this->lang->get("posts.updatetitle"),
+            "categories" => $this->categoryRepo->getAll(),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("posts.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $postId)
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "slug" => "string",
             "title" => "string",
             "content" => "string",
@@ -115,6 +139,7 @@ class Posts extends AdminBaseController
             "published" => "checkbox",
             "allow_comments" => "checkbox",
         ]);
+        $post["id"] = $postId;
 
         if ($this->validator->csrf("postupdate")) {
             if ($this->validator->post($post)) {
@@ -141,16 +166,19 @@ class Posts extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("posts.updatetitle"),
+            "categories" => $this->categoryRepo->getAll(),
+            "users" => array_merge(
+                $this->userRepo->getAll(["role" => "admin"]),
+                $this->userRepo->getAll(["role" => "writer"])
+            ),
         ];
         $this->render("posts.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $postId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("postdelete$id")) {
-            $post = $this->postRepo->get($id);
+        if ($this->validator->csrf("postdelete$postId")) {
+            $post = $this->postRepo->get($postId);
             if (is_object($post)) {
                 if ($post->delete()) {
                     $this->session->addSuccess("post.deleted");

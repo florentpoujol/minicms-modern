@@ -243,7 +243,7 @@ class Validator
             $this->session->addError("category.unknown");
         }
 
-        if (! $this->database->valueExistsInDB($data["user_id"], "id", "posts")) {
+        if (! $this->database->valueExistsInDB($data["user_id"], "id", "users")) {
             $ok = false;
             $this->session->addError("user.unknown");
         }

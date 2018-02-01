@@ -54,6 +54,11 @@ class Post extends BasePage
         return $this->commentRepo->getAll(["post_id" => $this->id]);
     }
 
+    public function countComments(): int
+    {
+        return $this->commentRepo->countAll(["post_id" => $this->id]);
+    }
+
     public function getLink(string $routeName = "post")
     {
         return parent::getLink($routeName);

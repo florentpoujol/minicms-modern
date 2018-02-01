@@ -7,18 +7,15 @@
 Category id: {$post["id"]} <br>
 @endif
 <?php
-$form = new \App\Form("category$action", $post);
+$form->setup("category$action", $post);
 $str = "admin/categories/$action";
-if ($action == "update") {
-    $str .= "/".$post["id"];
+if ($action === "update") {
+    $str .= "/$post[id]";
 }
 $form->open($router->getQueryString($str));
 
 $form->text("title", "title");
 $form->text("slug", "slug");
-if ($action === "update") {
-    $form->hidden("id", $post["id"]);
-}
 
 $form->submit("", "$action category");
 $form->close();

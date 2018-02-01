@@ -56,4 +56,12 @@ class Comment extends Entity
     {
         return $this->pageRepo->get(["id" => $this->page_id]);
     }
+
+    public function getExcerpt(int $characterCount = 500): string
+    {
+        if ($characterCount <= 0) {
+            $characterCount = 500;
+        }
+        return substr($this->content, 0, $characterCount);
+    }
 }

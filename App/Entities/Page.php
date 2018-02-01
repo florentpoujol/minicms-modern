@@ -58,6 +58,11 @@ class Page extends BasePage
         return $this->commentRepo->getAll(["page_id" => $this->id]);
     }
 
+    public function countComments(): int
+    {
+        return $this->commentRepo->countAll(["post_id" => $this->id]);
+    }
+
     public function getLink(string $routeName = "page")
     {
         return parent::getLink($routeName);

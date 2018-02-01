@@ -3,26 +3,34 @@
 namespace App\Controllers\Admin;
 
 use App\Config;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
 use App\Session;
 use App\Validator;
 use App\Entities\Repositories\Comment as CommentRepo;
+use App\Entities\Repositories\User as UserRepo;
 
 class Comments extends AdminBaseController
 {
     /**
      * @var CommentRepo
      */
-    public $commentRepo;
+    protected $commentRepo;
+
+    /**
+     * @var UserRepo
+     */
+    protected $userRepo;
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config,
-        CommentRepo $commentRepo)
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, Config $config, Form $form,
+        CommentRepo $commentRepo, UserRepo $userRepo)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->commentRepo = $commentRepo;
+        $this->userRepo = $userRepo;
     }
 
     public function getRead(int $pageNumber = 1)
@@ -51,7 +59,6 @@ class Comments extends AdminBaseController
                 "itemsCount" => $totalCommentCount,
                 "queryString" => $this->router->getQueryString("admin/comments/read")
             ],
-            "pageTitle" => $this->lang->get("admin.comment.readtitle"),
         ];
         $this->render("comments.read", $data);
     }
@@ -66,20 +73,19 @@ class Comments extends AdminBaseController
         }
 
         $data = [
-            "action" => "update",
             "post" => $comment->toArray(),
-            "pageTitle" => $this->lang->get("admin.comment.updatetitle"),
+            "users" => $this->userRepo->getAll(),
         ];
         $this->render("comments.update", $data);
     }
 
-    public function postUpdate()
+    public function postUpdate(int $commentId)
     {
         $post = $this->validator->sanitizePost([
-            "id" => "int",
             "content" => "string",
             "user_id" => "int",
         ]);
+        $post["id"] = $commentId;
 
         if ($this->validator->csrf("commentupdate")) {
             if ($this->validator->comment($post)) {
@@ -106,16 +112,15 @@ class Comments extends AdminBaseController
         $data = [
             "action" => "update",
             "post" => $post,
-            "pageTitle" => $this->lang->get("admin.page.updatetitle"),
+            "users" => $this->userRepo->getAll(),
         ];
-        $this->render("pages.update", $data);
+        $this->render("comments.update", $data);
     }
 
-    public function postDelete()
+    public function postDelete(int $commentId)
     {
-        $id = (int)$_POST["id"];
-        if ($this->validator->csrf("commentdelete$id")) {
-            $comment = $this->commentRepo->get($id);
+        if ($this->validator->csrf("commentdelete$commentId")) {
+            $comment = $this->commentRepo->get($commentId);
             if (is_object($comment)) {
                 if ($comment->delete()) {
                     $this->session->addSuccess("comment.deleted");

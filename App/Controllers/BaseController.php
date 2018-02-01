@@ -88,6 +88,10 @@ class BaseController
         }
         $data["pageTitle"] = $this->lang->get($data["pageTitle"]);
 
+        if (!isset($data["post"])) {
+            $data["post"] = []; // used to populate the forms
+        }
+
         $this->renderer->render($this->template, $view, $data);
     }
 }

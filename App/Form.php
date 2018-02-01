@@ -195,7 +195,7 @@ class Form
     }
 
     /**
-     * @param array|string $attributes
+     * @param string|array $attributes
      */
     public function checkbox(string $name, bool $isChecked = false, $attributes = [])
     {
@@ -215,7 +215,10 @@ class Form
         $this->input("checkbox", $name, $attributes);
     }
 
-    public function select(string $name, array $options, array $attributes = [])
+    /**
+     * @param string|array $attributes
+     */
+    public function select(string $name, array $options, $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {
@@ -290,7 +293,10 @@ class Form
         echo $content;
     }
 
-    public function textarea(string $name, array $attributes = [])
+    /**
+     * @param string|array $attributes
+     */
+    public function textarea(string $name, $attributes = [])
     {
         $label = "";
         if (is_string($attributes)) {

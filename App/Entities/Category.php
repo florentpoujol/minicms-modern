@@ -36,6 +36,11 @@ class Category extends Entity
         return $this->postRepo->getAll($whereConditions);
     }
 
+    public function countPosts(): int
+    {
+        return $this->postRepo->countAll(["category_id" => $this->id]);
+    }
+
     public function getLink(string $routeName = "category")
     {
         return parent::getLink($routeName);
