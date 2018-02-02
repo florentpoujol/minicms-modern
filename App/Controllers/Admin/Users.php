@@ -98,7 +98,7 @@ class Users extends AdminBaseController
     public function getUpdate(int $userId)
     {
         if (! $this->user->isAdmin() && $userId !== $this->user->id) {
-            $this->router->redirect("admin/users/update/$this->user->id");
+            $this->router->redirect("admin/users/update/" . $this->user->id);
             return;
         }
 
@@ -119,7 +119,7 @@ class Users extends AdminBaseController
     public function postUpdate(int $userId)
     {
         if (! $this->user->isAdmin() && $userId !== $this->user->id) {
-            $this->router->redirect("admin/users/update/$this->user->id");
+            $this->router->redirect("admin/users/update/" . $this->user->id);
             return;
         }
 

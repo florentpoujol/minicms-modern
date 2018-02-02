@@ -5,16 +5,16 @@
 
 <p>Password are only updated when their fields are filled.</p>
 <?php
-$form = new \App\Form("config", $config);
+$form->setup("config", $configArray);
 
 $form->open($router->getQueryString("admin/config"));
 ?>
 <h2>Site</h2>
 <?php
 $form->text("site_title", "config.sitetitle");
-$form->checkbox("use_nice_url", null, "config.useniceurl");
-$form->checkbox("allow_comments", null, "config.allowcomments");
-$form->checkbox("allow_registration", null, "config.allowregistration");
+$form->checkbox("use_nice_url", false, "config.useniceurl");
+$form->checkbox("allow_comments", false, "config.allowcomments");
+$form->checkbox("allow_registration", false, "config.allowregistration");
 $form->text("recaptcha_secret", "config.recaptcha");
 $form->number("items_per_page", "config.iemsperpage");
 

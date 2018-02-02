@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Entities\User;
+use App\Form;
 use App\Lang;
 use App\Renderer;
 use App\Router;
@@ -31,20 +32,18 @@ class Config extends AdminBaseController
         "smtp_port" => "int",
         "site_title" => "string",
         "recaptcha_secret" => "string",
-        "use_nice_url" => "bool",
-        "allow_comments" => "bool",
-        "allow_registration" => "bool",
+        "use_nice_url" => "checkbox",
+        "allow_comments" => "checkbox",
+        "allow_registration" => "checkbox",
         "items_per_page" => "int",
     ];
 
     public function __construct(
-        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, AppConfig $config,
+        Lang $lang, Session $session, Validator $validator, Router $router, Renderer $renderer, AppConfig $config, Form $form,
         Mailer $mailer)
     {
-        parent::__construct($lang, $session, $validator, $router, $renderer, $config);
+        parent::__construct($lang, $session, $validator, $router, $renderer, $config, $form);
         $this->mailer = $mailer;
-
-        $this->ensureConfigFolderIsWritable();
     }
 
     public function setLoggedInUser(User $user)
@@ -65,20 +64,23 @@ class Config extends AdminBaseController
 
     public function getUpdate()
     {
+        $this->ensureConfigFolderIsWritable();
+
         $config = [];
         foreach ($this->configSchema as $configKey => $type) {
             $config[$configKey] = $this->config->get($configKey);
         }
 
         $data = [
-            "config" => $config,
-            "pageTitle" => $this->lang->get("admin.config.title"),
+            "configArray" => $config, // there already is the App\Config instance set in the $config variable in the views
         ];
         $this->render("config", $data);
     }
 
     public function postUpdate()
     {
+        $this->ensureConfigFolderIsWritable();
+
         $testEmail = $this->validator->sanitizePost([
             "test_email" => "string",
             "test_email_submit" => "string",
@@ -110,8 +112,11 @@ class Config extends AdminBaseController
                 }
 
                 if ($this->config->save()) {
+                    // note: saving will add the upload_path, site_directory and site_url to the config file
+                    // this is ok since these values are never read from the config but generated in App::__construct()
                     $this->session->addSuccess("config.saved");
                     $this->router->redirect("admin/config");
+                    return;
                 } else {
                     $this->session->addError("config.save");
                 }
@@ -122,8 +127,7 @@ class Config extends AdminBaseController
 
         $config["test_email"] = $testEmail["test_email"];
         $data = [
-            "config" => $config,
-            "pageTitle" => $this->lang->get("admin.config.title"),
+            "configArray" => $config,
         ];
         $this->render("config", $data);
     }
