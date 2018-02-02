@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 use App\Controllers\Install;
 use App\Entities\User;
 use StdCmp\DI\DIContainer;
@@ -37,9 +38,9 @@ class Router
      */
     private $routes = [
         "blog" => "blog/?([0-9]+)?",
-        "page" => "page/([a-z0-9]+)",
-        "post" => "post/([a-z0-9]+)",
-        "category" => "category/([a-z0-9]+)/?([0-9]+)?",
+        "page" => "page/([a-z0-9-]+)",
+        "post" => "post/([a-z0-9-]+)",
+        "category" => "category/([a-z0-9-]+)/?([0-9]+)?",
 
         "logout" => "logout",
         "login" => "login",
@@ -52,7 +53,7 @@ class Router
 
         "admin_config" => "admin/config",
         "admin" => "admin/?(?:users|pages|posts|comments|categories|medias|menus)?/?(?:create|read|update|delete)?/?([0-9]+)?",
-// a URI like this one might be confusing :  admin/users/read/2
+        // a URI like this one might be confusing :  admin/users/read/2
         // it show the page 2 of the users list, it does not display the user with id 2
         // there is no "profile" page where data is just displayed, non admin immediately access their edit page
     ];
@@ -73,6 +74,9 @@ class Router
     public function load(User $user = null)
     {
         $r = $_GET["r"] ?? "blog";
+        if (trim($r) === "") {
+            $r = "blog";
+        }
 
         $routeName = "";
         $controllerArgs = [];
@@ -96,14 +100,26 @@ class Router
 
         $controllerName = ucfirst($routeParts[0]);
         $methodName = $controllerName;
-        if (isset($routeParts[1])) {
-            $methodName = ucfirst($routeParts[1]);
-        }
 
         switch ($routeName) {
             case "logout":
                 $this->logout();
                 return;
+
+            case "blog":
+            case "page":
+            case "post":
+            case "category":
+            case "register":
+            case "login":
+                $methodName = $controllerName; //  ie: getPost(int $postId)
+                break;
+
+            case "lostpassword":
+            case "resetpassword":
+            case "resendconfirmationemail":
+            case "confirmemail":
+                $methodName = ucfirst($routeParts[1]); // ie: getLostpassword
                 break;
 
             case "admin_config":
@@ -114,6 +130,10 @@ class Router
             case "admin":
                 $controllerName = "Admin\\" . ucfirst($routeParts[1] ?? "Users");
                 $methodName = ucfirst($routeParts[2] ?? "Read");
+                break;
+
+            default:
+                throw new \UnexpectedValueException("Unhandled route '$routeName'.");
                 break;
         }
 

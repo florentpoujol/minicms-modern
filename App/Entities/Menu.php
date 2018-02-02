@@ -144,7 +144,8 @@ class Menu extends Entity
                         $target = $this->router->getQueryString("$type/" . $entity->{$field});
 
                         $currentQueryString = $this->session->get("current_query_string"); // set in router
-                        if ($currentQueryString === $target) {
+
+                        if ($currentQueryString === str_replace("?r=", "", $target)) {
                             $selected = "selected";
                         }
                     } else {
@@ -165,7 +166,6 @@ class Menu extends Entity
             }
 
             $html .= "</li>";
-
         }
 
         $html .= "</ul>";

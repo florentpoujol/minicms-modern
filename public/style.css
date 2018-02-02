@@ -17,3 +17,7 @@ table, tr, th, td {
     border-collapse: collapse;
     padding: 5px;
 }
+
+#main-menu .selected {
+    font-weight: bold;
+}

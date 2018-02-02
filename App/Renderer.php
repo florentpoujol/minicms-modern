@@ -104,7 +104,11 @@ class Renderer
 
         foreach ($matches as $match) {
             $includeContent = file_get_contents("$this->viewFolder/$match[1]");
-            if (substr_count($includeContent, "<?php") !== substr_count($includeContent, "?>")) {
+            if (
+                (substr_count($includeContent, "<?php") +
+                substr_count($includeContent, "<?="))
+                !== substr_count($includeContent, "?>")
+            ) {
                 // php tags MUST be closed in included files
                 $includeContent .= "?>";
             }
