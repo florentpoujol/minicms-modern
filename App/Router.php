@@ -92,6 +92,8 @@ class Router
             exit;
         }
 
+        $this->session->set("current_query_string", $r);
+
         $controllerName = ucfirst($routeParts[0]);
         $methodName = $controllerName;
         if (isset($routeParts[1])) {

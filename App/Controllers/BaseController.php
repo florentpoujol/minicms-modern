@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\App;
 use App\Config;
+use App\Entities\Repositories\Menu as MenuRepo;
 use App\Entities\User;
 use App\Lang;
 use App\Renderer;
@@ -82,6 +84,7 @@ class BaseController
         $data["router"] = $this->router;
         $data["lang"] = $this->lang;
         $data["user"] = $this->user;
+        $data["mainMenu"] = App::$container->get(MenuRepo::class)->get(["in_use" => 1]);
 
         if (!isset($data["pageTitle"])) {
             $data["pageTitle"] = str_replace("/", ".", $view) . ".pagetitle";

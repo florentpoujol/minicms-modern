@@ -11,7 +11,13 @@
 <body>
 
     <nav id="main-menu">
-        menu
+        <?php
+        if ($mainMenu !== false) {
+            echo $mainMenu->buildStructure();
+        } else {
+            echo "No active menu";
+        }
+        ?>
     </nav>
 
     {viewContent}

@@ -2,8 +2,13 @@
 
 namespace App\Entities;
 
-use App\Router;
+use App\Config;
 use App\Entities\Repositories\Menu as MenuRepo;
+use App\Entities\Repositories\Page as PageRepo;
+use App\Entities\Repositories\Post as PostRepo;
+use App\Entities\Repositories\Category as CategoryRepo;
+use App\Router;
+use App\Session;
 
 class Menu extends Entity
 {
@@ -13,14 +18,46 @@ class Menu extends Entity
     public $in_use = -1;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * @var MenuRepo
      */
-    public $menuRepo;
+    protected $menuRepo;
 
-    public function __construct(Router $router, MenuRepo $menuRepo)
+    /**
+     * @var PageRepo
+     */
+    protected $pageRepo;
+
+    /**
+     * @var PostRepo
+     */
+    protected $postRepo;
+
+    /**
+     * @var CategoryRepo
+     */
+    protected $categoryRepo;
+
+    public function __construct(
+        Router $router, Config $config, Session $session,
+        MenuRepo $menuRepo, PageRepo $pageRepo, PostRepo $postRepo, CategoryRepo $categoryRepo)
     {
         parent::__construct($router);
         $this->menuRepo = $menuRepo;
+        $this->config = $config;
+        $this->session = $session;
+        $this->pageRepo = $pageRepo;
+        $this->postRepo = $postRepo;
+        $this->categoryRepo = $categoryRepo;
     }
 
     /**
@@ -65,5 +102,73 @@ class Menu extends Entity
     public function isInUse(): bool
     {
         return $this->in_use === 1;
+    }
+
+    public function buildStructure(array $structure = null)
+    {
+        if ($structure === null){
+            $structure = $this->getStructure();
+        }
+        $html = "<ul>";
+
+        foreach ($structure as $i => $item) {
+            $type = $item["type"] ?? "folder";
+            $target = $item["target"] ?? "";
+            $name = $item["name"] ?? "";
+            $selected = "";
+
+            if ($type !== "folder") { // page, post, category, homepage or external
+                if ($type !== "external") { // page, post, category or homepage
+                    if ($type === "homepage") {
+                        $type = "page";
+                    }
+                    $repo = $type . "Repo"; // pageRepo, postRepo, categoryRepo
+
+                    $field = "id";
+                    if (!is_numeric($target)) {
+                        $field = "slug";
+                    }
+
+                    $entity = $this->{$repo}->get([$field => $target]);
+
+                    if ($entity !== false) {
+                        if ($name === "") {
+                            $name = $entity->title;
+                        }
+
+                        $field = "id";
+                        if ($this->config->get("use_nice_rewrite")) {
+                            $field = "slug";
+                        }
+
+                        $target = $this->router->getQueryString("$type/" . $entity->{$field});
+
+                        $currentQueryString = $this->session->get("current_query_string"); // set in router
+                        if ($currentQueryString === $target) {
+                            $selected = "selected";
+                        }
+                    } else {
+                        $name = "[content not found]";
+                        $target = "";
+                    }
+                } // end if type !== external
+
+                $html .= '<li class="' . $selected . '">
+                <a href="' . $target . '">' . $name . '</a>';
+
+            } else {
+                $html .= "<li> $name";
+            }
+
+            if (isset($item["children"]) && count($item["children"]) > 0) {
+                $html .= $this->buildStructure($item["children"]);
+            }
+
+            $html .= "</li>";
+
+        }
+
+        $html .= "</ul>";
+        return $html;
     }
 }
