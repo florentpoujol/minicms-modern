@@ -32,10 +32,10 @@ class Post extends BasePage
     public function __construct(Router $router, PostRepo $postRepo, CommentRepo $commentRepo, CategoryRepo $categoryRepo, UserRepo $userRepo)
     {
         parent::__construct($router);
+        $this->postRepo = $postRepo;
         $this->commentRepo = $commentRepo;
         $this->categoryRepo = $categoryRepo;
         $this->userRepo = $userRepo;
-        $this->postRepo = $postRepo;
     }
 
     /**

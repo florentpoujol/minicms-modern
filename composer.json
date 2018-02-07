@@ -2,9 +2,11 @@
     "require": {
         "php": "^7.0",
         "phpmailer/phpmailer": "^5.0.0",
-        "florentpoujol/php-standard-components": "0.0.2"
+        "florentpoujol/php-standard-components": "0.0.2",
+        "michelf/php-markdown": "^1.0.0"
     },
     "require-dev": {
+        "ext-gd": "*",
         "phpunit/phpunit": "^6.0.0",
         "phpunit/dbunit": "^3.0.0",
         "mikey179/vfsStream": "^1.0.0"
