@@ -12,11 +12,12 @@
 
     <nav id="main-menu">
         <?php
-        if ($mainMenu !== false) {
+        if ($mainMenu instanceof \App\Entities\Menu) {
             echo $mainMenu->buildStructure();
-        } else {
+        } elseif ($mainMenu === false) {
             echo "No active menu";
         }
+        // else $mainMenu === "install" > don't display anything
         ?>
     </nav>
 

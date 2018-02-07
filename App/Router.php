@@ -174,6 +174,8 @@ class Router
 
     public function toInstall()
     {
+        $this->session->set("current_query_string", "install");
+
         $controller = $this->container->make(Install::class);
         $methodName = strtolower($_SERVER["REQUEST_METHOD"] ?? "get") . "Install";
         $controller->{$methodName}();

@@ -8,6 +8,23 @@ The point of this project is to practice back-end web developement with PHP, by 
 
 _See also [MINI CMS - Old-School - Vanilla](https://github.com/florentpoujol/minicms-osv), the same kind of project but completely procedural, without specific organisation of files and no libraries._
 
+## Install
+
+Require PHP7.0+ and MySQL5.6+.
+
+- Clone the repo or upload and extract the .zip from github's download.
+- Set the root of the virtual host to the public folder.
+- Make sure the `App\views`, `config` and `public/uploads` folders are writable
+- Access the site, which redirects you to the install page, fill out the required information (especially the database access), then if there is no error, you are good to go !
+
+If you have any unexpected errors, or something doesn't seem to go right during the installation, make sure to delete the `config/config.json` file before trying again.
+
+You will be redirected to the login page once the installation is complete.
+
+If you need to update the configuration, you can either access the Config page via the admin menu (only admin users can do that), or directly edit the `config/config.json` file.
+
+To run the tests, edit the database information in the `tests\testsConfig.json` file, then run `php vendor/bin/phpunit` from the root folder.
+
 ## General features
 
 ### Users
@@ -59,9 +76,8 @@ _See also [MINI CMS - Old-School - Vanilla](https://github.com/florentpoujol/min
 - full validation of data on the backend side (writers or commenters can't do anything they aren't supposed to do, even when modifying the HTML of a form through the browser's dev tools)
 - nice handling of all possible kinds of errors and success messages
 - emails can be sent via the local email software or SMTP
-- global configuration saved as JSON can be editted via the file or by admins via a form
+- global configuration saved as JSON can be edited via the file or by admins via a form
 - must work with PHP7.0+ MySQL5.6+ and not use any deprecated stuff
-- works with or without URL rewriting, with .htaccess provided
 - works as a subfolder or the root of a domain name
 - links to pages, posts, categories and medias can be added in the content via wordpress-like shortcodes. Ie: [link:mdedia:the-media-slug]
 - works with or without SSL. All internals links adapt automatically to the protocol used (+ url rewrite or not).

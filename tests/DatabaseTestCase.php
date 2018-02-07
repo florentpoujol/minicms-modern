@@ -55,6 +55,25 @@ abstract class DatabaseTestCase extends BaseTestCase
      */
     protected $menuRepo;
 
+    public static function createDB()
+    {
+        $config = json_decode(file_get_contents(__dir__ . "/testsConfig.json"), true);
+
+        $pdo = new \PDO(
+            "mysql:host=$config[db_host];charset=utf8",
+            $config["db_user"],
+            $config["db_password"],
+            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+        );
+
+        $pdo->exec("DROP DATABASE IF EXISTS $config[db_name]");
+        $pdo->exec("CREATE DATABASE $config[db_name]");
+        $pdo->exec("use $config[db_name]");
+
+        $structure = file_get_contents(__dir__ . "/../database_structure.sql");
+        $pdo->exec($structure);
+    }
+
     public function getConnection()
     {
         if (self::$pdo === null) {
@@ -64,7 +83,7 @@ abstract class DatabaseTestCase extends BaseTestCase
                 \PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            $dsn = "mysql:host=" . $this->config->get("db_host") . ";dbname=" .$this->config->get("db_name") . ";charset=utf8";
+            $dsn = "mysql:host=" . $this->config->get("db_host") . ";dbname=" . $this->config->get("db_name") . ";charset=utf8";
 
             self::$pdo = new \PDO(
                 $dsn,
