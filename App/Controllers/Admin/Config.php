@@ -20,10 +20,10 @@ class Config extends AdminBaseController
     protected $mailer;
 
     protected $configSchema = [
-        "db_host" => "string",
-        "db_name" => "string",
-        "db_user" =>  "string",
-        "db_password" => "string",
+        //"db_host" => "string",
+        //"db_name" => "string",
+        //"db_user" =>  "string",
+        //"db_password" => "string",
         "mailer_from_address" =>  "string",
         "mailer_from_name" => "string",
         "smtp_host" => "string",

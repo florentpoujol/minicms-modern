@@ -39,11 +39,12 @@ $form->submit("test_email_submit", "config.testemailsubmit");
     Making a mistake when updating any of the fields below WILL render the site inaccessible. <br>
     You will have to fix the mistake by opening the file config file directly on the server.
 </p>
+<p><em>Note: this section has been changed on the demo site so that you don't have accces to the MySQL user and password. There should be another form here.</em></p>
 <?php
-$form->text("db_host", "config.dbhost");
-$form->text("db_name", "config.dbname");
-$form->text("db_user", "config.dbuser");
-$form->password("db_password", "config.dbpassword");
+//$form->text("db_host", "config.dbhost");
+//$form->text("db_name", "config.dbname");
+//$form->text("db_user", "config.dbuser");
+//$form->password("db_password", "config.dbpassword");
 
 $form->submit("", "Update configuration");
 $form->close();
