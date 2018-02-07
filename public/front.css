@@ -1,0 +1,29 @@
+
+#categories {
+    float: right;
+    /*background-color: aqua;*/
+    padding: 0 10px 10px;
+    width: 20%;
+    border-top: 2px dashed grey;
+    border-left: 2px dashed grey;
+
+    /*border-radius: 10px;*/
+}
+
+#categories ul {
+    padding-left: 20px;
+}
+
+#posts-list {
+    width: 75%;
+}
+.post {
+    border-bottom: 1px dashed rgb(200,200,200);
+}
+
+.post header, .post header a {
+    color: rgb(100, 100, 100);
+}
+
+
+

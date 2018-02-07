@@ -3,7 +3,7 @@
 
 {include messages.php}
 
-<div id="categories">
+<section id="categories">
     <h2>{lang category.plural}</h2>
     <ul>
     @if (count($categories) > 0)
@@ -14,10 +14,9 @@
         <li>{lang category.nocategoryyet}</li>
     @endif
     </ul>
-</div>
+</section>
 
-<div>
-    {include post-includes/list.php}
-</div>
+
+{include post-includes/list.php}
 
 {include pagination.php}

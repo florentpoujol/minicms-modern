@@ -191,7 +191,7 @@ class Form
 
     public function submit(string $name = "", string $value = "")
     {
-        $this->input("submit", $name, ["value" => $value]);
+        $this->input("submit", $name, ["value" => $value, "class" => "button-submit"]);
     }
 
     /**

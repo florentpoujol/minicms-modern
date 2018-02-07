@@ -4,7 +4,7 @@
 {include messages.php}
 
 @if ($user->isAdmin())
-<a href="{queryString admin/users/create}">{lang users.createlink}</a> <br>
+<a href="{queryString admin/users/create}" class="button">{lang users.createlink}</a> <br>
 @endif
 <br>
 
@@ -44,7 +44,7 @@
         @endif
 
         @if ($user->isAdmin() || $user->id === $row->id)
-        <td><a href="{queryString admin/users/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/users/update/$row->id}" class="button button-edit">Edit</a></td>
         @else
         <td></td>
         @endif

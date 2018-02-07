@@ -1,0 +1,54 @@
+
+html {
+    margin: 0;
+    padding: 0;
+    background-color: lightgrey;
+}
+
+body {
+    max-width: 90%;
+    height: 100vh;
+    margin: -16px auto 0 auto;
+    padding: 0 10px 0 10px;
+    background-color: white;
+}
+
+.success-msg {
+    border: 1px solid green;
+    background: rgba(0,255,0,0.3);
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.error-msg {
+    border: 1px solid red;
+    background: rgba(255,0,0,0.3);
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#main-menu .selected {
+    font-weight: bold;
+}
+
+
+
+.button {
+    padding: 10px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    background-color: rgb(128, 153, 255);
+    text-decoration: none;
+    color: white;
+}
+
+.button:hover, .button.selected {
+    background-color: rgb(107, 109, 198);
+}
+
+.button-edit {
+    background-color: rgb(255, 170, 82);
+}
+.button-edit:hover {
+    background-color: rgb(205, 131, 71);
+}
