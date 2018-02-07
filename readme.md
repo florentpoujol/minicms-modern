@@ -6,6 +6,8 @@ The point of this project is to practice back-end web developement with PHP, by 
 - use some of the [PHP Standard Components](https://github.com/florentpoujol/PHP-Standard-Components) (that I also created myself),
 - no framework or non-native libraries (except for my Standard Components of course, as well as Markdown, PHP Mailer and PHPUnit)
 
+An online demo version is available at [https://minicmsmodern.florentpoujol.fr](https://minicmsmodern.florentpoujol.fr).
+
 _See also [MINI CMS - Old-School - Vanilla](https://github.com/florentpoujol/minicms-osv), the same kind of project but completely procedural, without specific organisation of files and no libraries._
 
 ## Install
