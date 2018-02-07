@@ -13,14 +13,6 @@ class BasePage extends Entity
     public $allow_comments = -1;
     public $user_id = -1;
 
-    public function getExcerpt(int $characterCount = 200): string
-    {
-        if ($characterCount <= 0) {
-            $characterCount = 200;
-        }
-        return substr(Markdown::defaultTransform($this->content), 0, $characterCount);
-    }
-
     public function transformMarkdown(): string
     {
         return Markdown::defaultTransform($this->content);
