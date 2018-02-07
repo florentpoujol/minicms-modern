@@ -6,7 +6,6 @@ use App\Entities\Repositories\User;
 use StdCmp\DI\DIContainer;
 
 require_once __dir__ . "/../vendor/autoload.php";
-require __dir__ . "/../../standard-components/vendor/autoload.php"; // todo: remove when the php-standard-component is finally included as a composer dependency here
 
 // start setup DI container
 $container = new DIContainer();
@@ -35,8 +34,6 @@ if (!$config->fileExists()) {
     $router->toInstall();
     exit;
 }
-
-
 
 $db = $container->get(Database::class);
 $db->connect();
