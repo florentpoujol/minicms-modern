@@ -5,7 +5,7 @@
     {include post-includes/header.php}
 
     <p>
-        <?= $post->content; ?>
+        <?= $post->transformMarkdown(); ?>
     </p>
 </article>
 

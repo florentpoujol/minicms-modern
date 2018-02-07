@@ -42,7 +42,7 @@
         <td>{$row->title}</td>
         <td>{$category}</td>
         <td>{$editor}</td>
-        <td>{$row->getExcerpt()}</td>
+        <td><?= $row->getExcerpt(); ?></td>
         <td>{$row->allow_comments}</td>
         <td><?= $row->countComments(); ?></td>
         <td>{$row->published}</td>
