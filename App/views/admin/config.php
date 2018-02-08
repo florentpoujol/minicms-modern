@@ -15,7 +15,8 @@ $form->text("site_title", "config.sitetitle");
 $form->checkbox("use_nice_url", false, "config.useniceurl");
 $form->checkbox("allow_comments", false, "config.allowcomments");
 $form->checkbox("allow_registration", false, "config.allowregistration");
-$form->text("recaptcha_secret", "config.recaptcha");
+$form->text("recaptcha_secret", "config.recaptcha_secret");
+$form->text("recaptcha_site_key", "config.recaptcha_site_key");
 $form->number("items_per_page", "config.iemsperpage");
 
 ?>

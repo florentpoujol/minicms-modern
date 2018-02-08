@@ -1,6 +1,7 @@
 {
     "require": {
         "php": "^7.0",
+        "ext-curl": "*",
         "phpmailer/phpmailer": "^5.0.0",
         "florentpoujol/php-standard-components": "0.0.2",
         "michelf/php-markdown": "^1.0.0"

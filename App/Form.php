@@ -7,12 +7,17 @@ class Form
     /**
      * @var Session
      */
-    public $session;
+    protected $session;
 
     /**
      * @var Lang
      */
-    public $lang;
+    protected $lang;
+
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
      * @var string The name of the form, mostly used as prefix for CSRF protection
@@ -24,10 +29,11 @@ class Form
      */
     private $data = [];
 
-    public function __construct(Session $session, Lang $lang)
+    public function __construct(Session $session, Lang $lang, Config $config)
     {
         $this->session = $session;
         $this->lang = $lang;
+        $this->config = $config;
     }
 
     /**
@@ -349,6 +355,15 @@ class Form
         }
 
         echo $content;
+    }
+
+    public function recaptcha()
+    {
+        $siteKey = $this->config->get("recaptcha_site_key", "");
+        if ($siteKey !== "") {
+            echo '<div class="g-recaptcha" data-sitekey="' . $siteKey . '"></div>';
+            echo '<script src="https://www.google.com/recaptcha/api.js" async defer></script>';
+        }
     }
 
     public function br(int $count = 1)

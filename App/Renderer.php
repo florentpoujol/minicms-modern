@@ -75,7 +75,8 @@ class Renderer
         // process template functions
         $functions = [
             "queryString" => ["router", "getQueryString"],
-            "lang" => ["lang", "get"]
+            "lang" => ["lang", "get"],
+            "config" => ["config", "get"],
         ];
 
         foreach ($functions as $name => $funcData) {

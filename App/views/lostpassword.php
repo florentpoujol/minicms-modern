@@ -8,6 +8,7 @@
 $form->setup("lostpassword", $post);
 $form->open($router->getQueryString("login/lostpassword"));
     $form->email("lostpassword_email", "Email: ");
+    $form->recaptcha();
     $form->submit("", "Request password change");
 $form->close();
 ?>
