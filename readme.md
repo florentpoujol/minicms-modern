@@ -12,11 +12,12 @@ _See also [MINI CMS - Old-School - Vanilla](https://github.com/florentpoujol/min
 
 ## Install
 
-Require PHP7.0+ and MySQL5.6+.
+Require PHP7.0+ (with the CURL and GD extensions), MySQL5.6+.
 
 - Clone the repo or upload and extract the .zip from github's download.
-- Set the root of the virtual host to the public folder.
-- Make sure the `App\views`, `config` and `public/uploads` folders are writable
+- Make sure the `App\views`, `config` and `public/uploads` folders exists and are writable.
+- run `composer install`.
+- Set the root of the virtual host to the `public` folder.
 - Access the site, which redirects you to the install page, fill out the required information (especially the database access), then if there is no error, you are good to go !
 
 If you have any unexpected errors, or something doesn't seem to go right during the installation, make sure to delete the `config/config.json` file before trying again.
