@@ -3,7 +3,7 @@
 
 {include messages.php}
 
-<a href="{queryString admin/menus/create}">{lang menu.createlink}</a> <br>
+<a href="{queryString admin/menus/create}" class="button">{lang menu.createlink}</a> <br>
 <br>
 
 <table>
@@ -21,12 +21,12 @@
         <td>{$row->title}</td>
         <td>{$row->in_use}</td>
 
-        <td><a href="{queryString admin/menus/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/menus/update/$row->id}" class="button button-edit">Edit</a></td>
         <td>
             <?php
             $form->setup("menudelete$row->id");
             $form->open($router->getQueryString("admin/menus/delete/$row->id"));
-            $form->submit("", "Delete");
+            $form->submit("", "Delete", ["class" => "button button-delete"]);
             $form->close();
             ?>
         </td>

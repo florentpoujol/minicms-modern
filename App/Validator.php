@@ -14,10 +14,16 @@ class Validator
      */
     protected $database;
 
-    public function __construct(Session $session, Database $database)
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    public function __construct(Session $session, Database $database, Config $config)
     {
         $this->session = $session;
         $this->database = $database;
+        $this->config = $config;
     }
 
     /**
@@ -355,5 +361,33 @@ class Validator
         }
 
         return $ok;
+    }
+
+    public function recaptcha(): bool
+    {
+        $secret = $this->config->get("recaptcha_secret", "");
+        if ($secret !== "") {
+            $postFields = [
+                "secret" => $secret,
+                "response" => $_POST["g-recaptcha-response"] ?? "no_response",
+            ];
+            $postFields = http_build_query($postFields);
+
+            $url = "https://www.google.com/recaptcha/api/siteverify";
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields); // gives me an array to string conversion error when not using http_build_query()
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+            if (is_string($response)) {
+                $response = json_decode($response);
+                $response = $response->success;
+            }
+            return $response;
+        }
+        return true;
     }
 }

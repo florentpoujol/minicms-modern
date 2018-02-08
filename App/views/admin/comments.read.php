@@ -47,13 +47,13 @@
         <td>{$page}</td>
         <td>{$row->creation_datetime->format("Y-m-d")}</td>
         <td>{$row->getExcerpt()}</td>
-        <td><a href="{queryString admin/comments/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/comments/update/$row->id}" class="button button-edit">Edit</a></td>
         @if ($user->isAdmin())
         <td>
             <?php
             $form->setup("commentdelete$row->id");
             $form->open($router->getQueryString("admin/comments/delete/$row->id"));
-            $form->submit("", "Delete");
+            $form->submit("", "Delete", ["class" => "button button-delete"]);
             $form->close();
             ?>
         </td>

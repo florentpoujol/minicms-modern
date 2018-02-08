@@ -32,6 +32,7 @@ class Config extends AdminBaseController
         "smtp_port" => "int",
         "site_title" => "string",
         "recaptcha_secret" => "string",
+        "recaptcha_site_key" => "string",
         "use_nice_url" => "checkbox",
         "allow_comments" => "checkbox",
         "allow_registration" => "checkbox",

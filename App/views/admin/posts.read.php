@@ -3,7 +3,7 @@
 
 {include messages.php}
 
-<a href="{queryString admin/posts/create}">{lang post.createlink}</a> <br>
+<a href="{queryString admin/posts/create}" class="button">{lang post.createlink}</a> <br>
 <br>
 
 <table>
@@ -13,7 +13,6 @@
         <th>title</th>
         <th>category</th>
         <th>Editor</th>
-        <th>Excerpt</th>
         <th>Allow comments</th>
         <th>Nb comments</th>
         <th>Published</th>
@@ -42,18 +41,17 @@
         <td>{$row->title}</td>
         <td>{$category}</td>
         <td>{$editor}</td>
-        <td><?= $row->getExcerpt(); ?></td>
         <td>{$row->allow_comments}</td>
         <td><?= $row->countComments(); ?></td>
         <td>{$row->published}</td>
         <td>{$row->creation_datetime->format("Y-m-d")}</td>
 
-        <td><a href="{queryString admin/posts/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/posts/update/$row->id}" class="button button-edit">Edit</a></td>
         <td>
             <?php
             $form->setup("postdelete$row->id");
             $form->open($router->getQueryString("admin/posts/delete/$row->id"));
-            $form->submit("", "Delete");
+            $form->submit("", "Delete", ["class" => "button button-delete"]);
             $form->close();
             ?>
         </td>

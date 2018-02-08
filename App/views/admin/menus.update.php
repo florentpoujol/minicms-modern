@@ -105,6 +105,6 @@ if ($action === "update") {
     echo "Creation date: " . $post["creation_datetime"]->format("Y-m-d") . "<br>";
 }
 
-$form->submit("", "$action page");
+$form->submit("", "$action menu", ["class" => "button"]);
 $form->close();
 ?>

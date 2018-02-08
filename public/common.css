@@ -2,15 +2,19 @@
 html {
     margin: 0;
     padding: 0;
-    background-color: lightgrey;
+    background-color: #f0f0f0;
 }
 
 body {
-    max-width: 800px;
-    height: 100vh;
-    margin: -16px auto 0 auto;
-    padding: 0 10px 0 10px;
+    max-width: 70%;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 0;
     background-color: white;
+}
+
+#main-content h1 {
+    margin: 0;
 }
 
 .success-msg {
@@ -19,7 +23,6 @@ body {
     padding: 5px;
     margin-bottom: 10px;
 }
-
 .error-msg {
     border: 1px solid red;
     background: rgba(255,0,0,0.3);
@@ -27,42 +30,46 @@ body {
     margin-bottom: 10px;
 }
 
-table, tr, th, td {
-    border: 1px solid gray;
-    border-collapse: collapse;
-    padding: 5px;
+
+.pagination {
+    margin-top: 15px;
+}
+.pagination a {
+    height: 30px;
+    padding: 5px 9px;
+    margin: 5px 0;
+    border: 1px solid black;
+    color: black;
+    text-decoration: none;
+}
+.pagination .current, .pagination a:hover {
+    background-color: rgb(220,220,220);
 }
 
-#main-menu .selected, .pagination .current {
-    font-weight: bold;
-}
 
-#categories {
-    float: right;
-    margin: 10px;
-    margin-top: 0;
-    padding: 10px;
-    padding-top: 0;
-    border-left: 1px solid grey;
+input[type=submit].button {
+    cursor: pointer;
+    border: 0;
 }
-
-/*
 .button {
+    margin: 0;
     padding: 10px;
-    border: 1px solid grey;
+    border-top: 1px solid #bbbbbb;
+    border-left: 1px solid #bbbbbb;
+    box-shadow: 2px 2px grey;
     border-radius: 5px;
     background-color: rgb(128, 153, 255);
     text-decoration: none;
     color: white;
 }
-
-.button:hover, .button.selected {
-    background-color: rgb(107, 109, 198);
+.button:hover {
+    background-color: rgb(112, 114, 205);
+}
+.button:active {
+    background-color: rgb(79, 80, 155);
 }
 
-.button-edit {
-    background-color: rgb(255, 170, 82);
+form label {
+    display: block;
+    margin-bottom: 10px;
 }
-.button-edit:hover {
-    background-color: rgb(205, 131, 71);
-}*/

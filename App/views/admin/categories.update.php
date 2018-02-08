@@ -17,6 +17,6 @@ $form->open($router->getQueryString($str));
 $form->text("title", "title");
 $form->text("slug", "slug");
 
-$form->submit("", "$action category");
+$form->submit("", "$action category", ["class" => "button"]);
 $form->close();
 ?>

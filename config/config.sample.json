@@ -13,6 +13,7 @@
 
     "site_title": "My Site title",
     "recaptcha_secret": "",
+    "recaptcha_site_key": "",
     "use_nice_url": false,
     "allow_comments": true,
     "allow_registration": true,

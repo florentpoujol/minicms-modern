@@ -3,8 +3,6 @@
 
 {include messages.php}
 
-<div>
-    {include post-includes/list.php}
-</div>
+{include post-includes/list.php}
 
 {include pagination.php}

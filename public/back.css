@@ -1,0 +1,79 @@
+
+body {
+    padding-left: 0;
+}
+
+table, tr, th, td {
+    border: 1px solid gray;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+
+tr:nth-child(2) {
+    background-color: rgba(200,200,200,0.2);
+    border-top: 1px solid gray(0.1);
+    border-bottom: 1px solid gray(0.1);
+}
+
+tr, td {
+    border-top: 1px solid gray(80%, 0.1);
+    border-bottom: 1px solid gray(80%, 0.1);
+}
+
+
+#main-menu {
+    float: left;
+    min-width: 15%;
+    max-width: 30%;
+    height: 100%;
+    background-color: rgb(240,240,240);
+    margin-right: 10px;
+    border-right: 1px solid grey;
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+#main-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#main-menu li {
+    border-bottom: 1px solid grey;
+    padding: 10px;
+}
+#main-menu li.selected, #main-menu li:hover {
+    background-color: lightgrey;
+}
+
+
+#main-content {
+    margin-left: 17%;
+}
+#main-content h1 {
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+
+
+
+.button-edit {
+    background-color: rgb(255, 170, 82);
+}
+.button-edit:hover {
+    background-color: rgb(205, 131, 71);
+}
+.button-edit:active {
+    background-color: rgb(155, 96, 57);
+}
+
+.button-delete {
+    background-color: rgb(255, 60, 63);
+}
+.button-delete:hover {
+    background-color: rgb(205, 45, 47);
+}
+.button-delete:active {
+    background-color: rgb(155, 38, 38);
+}

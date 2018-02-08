@@ -3,7 +3,7 @@
 
 {include messages.php}
 
-<a href="{queryString admin/categories/create}">{lang categories.createlink}</a> <br>
+<a href="{queryString admin/categories/create}" class="button">{lang categories.createlink}</a> <br>
 <br>
 
 <table>
@@ -24,14 +24,14 @@
         <td>{$row->slug}</td>
         <td>{$row->title}</td>
         <td><?= $row->countPosts(); ?></td>
-        <td><a href="{queryString admin/categories/update/$row->id}">Edit</a></td>
+        <td><a href="{queryString admin/categories/update/$row->id}" class="button button-edit">Edit</a></td>
 
         @if ($user->isAdmin())
         <td>
         <?php
         $form->setup("categorydelete$row->id");
         $form->open($router->getQueryString("admin/categories/delete/$row->id"));
-        $form->submit("", "Delete");
+        $form->submit("", "Delete", ["class" => "button button-delete"]);
         $form->close();
         ?>
         </td>

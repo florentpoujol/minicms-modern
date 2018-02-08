@@ -162,7 +162,7 @@ class Menu extends Entity
             }
 
             if (isset($item["children"]) && count($item["children"]) > 0) {
-                $html .= $this->buildStructure($item["children"]);
+                $html .= " &#9663;" . $this->buildStructure($item["children"]);
             }
 
             $html .= "</li>";

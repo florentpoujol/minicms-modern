@@ -15,7 +15,8 @@ $form->text("site_title", "config.sitetitle");
 $form->checkbox("use_nice_url", false, "config.useniceurl");
 $form->checkbox("allow_comments", false, "config.allowcomments");
 $form->checkbox("allow_registration", false, "config.allowregistration");
-$form->text("recaptcha_secret", "config.recaptcha");
+$form->text("recaptcha_secret", "config.recaptcha_secret");
+$form->text("recaptcha_site_key", "config.recaptcha_site_key");
 $form->number("items_per_page", "config.iemsperpage");
 
 ?>
@@ -29,7 +30,7 @@ $form->password("smtp_password", "config.smtppassword");
 $form->number("smtp_port", "config.smtpport");
 echo "<br>";
 $form->email("test_email", "config.testemail");
-$form->submit("test_email_submit", "config.testemailsubmit");
+$form->submit("test_email_submit", "config.testemailsubmit", ["class" => "button"]);
 
 ?>
 <h2>Database</h2>
@@ -46,6 +47,6 @@ $form->submit("test_email_submit", "config.testemailsubmit");
 //$form->text("db_user", "config.dbuser");
 //$form->password("db_password", "config.dbpassword");
 
-$form->submit("", "Update configuration");
+$form->submit("", "Update configuration", ["class" => "button button-edit"]);
 $form->close();
 ?>
