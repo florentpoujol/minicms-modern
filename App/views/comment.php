@@ -11,9 +11,9 @@ if ($allowComments && $entity->allowComments()) {
                 $commentPost ?? []
         );
         $form->open($queryString); // set in post and page views
-        $form->textarea("content", ["rows" => 5]);
+        $form->textarea("content", ["rows" => 7, "cols" => 50]);
 
-        $form->submit("", $lang->get("comment.submit"));
+        $form->submit("", $lang->get("comment.submit"), ["class" => "button"]);
         $form->close();
     } else {
 ?>

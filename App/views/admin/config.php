@@ -30,7 +30,7 @@ $form->password("smtp_password", "config.smtppassword");
 $form->number("smtp_port", "config.smtpport");
 echo "<br>";
 $form->email("test_email", "config.testemail");
-$form->submit("test_email_submit", "config.testemailsubmit");
+$form->submit("test_email_submit", "config.testemailsubmit", ["class" => "button"]);
 
 ?>
 <h2>Database</h2>
@@ -46,6 +46,6 @@ $form->text("db_name", "config.dbname");
 $form->text("db_user", "config.dbuser");
 $form->password("db_password", "config.dbpassword");
 
-$form->submit("", "Update configuration");
+$form->submit("", "Update configuration", ["class" => "button button-edit"]);
 $form->close();
 ?>

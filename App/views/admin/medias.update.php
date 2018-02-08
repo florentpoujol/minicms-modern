@@ -50,6 +50,6 @@ if ($action === "create") {
     echo "Creation date: " . $post["creation_datetime"]->format("Y-m-d") . "<br>";
     $form->hidden("id", $post["id"]);
 }
-$form->submit("", "$action media");
+$form->submit("", "$action media", ["class" => "button"]);
 $form->close();
 ?>

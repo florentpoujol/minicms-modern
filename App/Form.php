@@ -195,9 +195,10 @@ class Form
         $this->input("hidden", $name, ["value" => $value]);
     }
 
-    public function submit(string $name = "", string $value = "")
+    public function submit(string $name = "", string $value = "", array $attributes = [])
     {
-        $this->input("submit", $name, ["value" => $value, "class" => "button-submit"]);
+        $attributes["value"] = $value;
+        $this->input("submit", $name, $attributes);
     }
 
     /**
@@ -311,7 +312,7 @@ class Form
         }
 
         if (isset($attributes["label"])) {
-            $label = $attributes["label"];
+            $label = $attributes["label"] . "<br>";
             unset($attributes["label"]);
         }
 

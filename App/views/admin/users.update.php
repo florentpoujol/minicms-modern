@@ -39,6 +39,6 @@ if ($user->isAdmin()) {
     echo "Role: " . ucfirst($post["role"]) . "<br>";
 }
 
-$form->submit("", "$action user");
+$form->submit("", "$action user", ["class" => "button"]);
 $form->close();
 ?>

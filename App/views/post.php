@@ -1,5 +1,5 @@
 
-<article>
+<article class="post post-single">
     <h1>{$post->title}</h1>
 
     {include post-includes/header.php}

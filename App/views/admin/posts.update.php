@@ -46,6 +46,6 @@ $form->checkbox("allow_comments", $config->get("allow_comments"), "allowcomments
 if ($action === "update") {
     echo "Creation date: " . $post["creation_datetime"]->format("Y-M-d") . "<br>";
 }
-$form->submit("", "$action post");
+$form->submit("", "$action post", ["class" => "button"]);
 $form->close();
 ?>

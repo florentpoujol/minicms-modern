@@ -10,6 +10,7 @@
 <body>
 
     <nav id="main-menu">
+        <section id="site-title"><p>{config site_title}</p></section>
         <?php
         if ($mainMenu instanceof \App\Entities\Menu) {
             echo $mainMenu->buildStructure();

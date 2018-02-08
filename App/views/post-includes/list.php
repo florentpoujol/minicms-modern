@@ -1,9 +1,7 @@
 <section id="posts-list">
-    <h2>{lang post.plural}</h2>
-
     @if (count($posts) > 0)
         @foreach ($posts as $post)
-            <article class="post">
+            <article class="post post-list">
                 <h3><?= $post->getLink() ?></h3>
 
                 {include post-includes/header.php}

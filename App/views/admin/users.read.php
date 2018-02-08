@@ -54,7 +54,7 @@
         <?php
         $form->setup("userdelete$row->id");
         $form->open($router->getQueryString("admin/users/delete/$row->id"));
-        $form->submit("", "Delete");
+        $form->submit("", "Delete", ["class" => "button button-delete"]);
         $form->close();
         ?>
         </td>
