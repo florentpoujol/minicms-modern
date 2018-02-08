@@ -2,6 +2,8 @@
 
 namespace App\Entities;
 
+use Michelf\Markdown;
+
 class BasePage extends Entity
 {
     public $slug = "";
@@ -11,12 +13,9 @@ class BasePage extends Entity
     public $allow_comments = -1;
     public $user_id = -1;
 
-    public function getExcerpt(int $characterCount = 500): string
+    public function transformMarkdown(): string
     {
-        if ($characterCount <= 0) {
-            $characterCount = 500;
-        }
-        return substr($this->content, 0, $characterCount);
+        return Markdown::defaultTransform($this->content);
     }
 
     public function isPublished(): bool

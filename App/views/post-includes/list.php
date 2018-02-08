@@ -9,7 +9,7 @@
                 {include post-includes/header.php}
 
                 <p>
-                    {$post->getExcerpt()}
+                    <?= $post->transformMarkdown(); ?>
                 </p>
             </article>
         @endforeach

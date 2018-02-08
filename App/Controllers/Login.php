@@ -69,15 +69,19 @@ class Login extends BaseController
             "login_password" => "string"
         ]);
 
-        if ($this->validator->csrf("login")) {
+        if (!$this->validator->csrf("login")) {
+            $this->session->addError("csrffail");
+        } elseif (!$this->validator->recaptcha()) {
+            $this->session->addError("recaptchafail");
+        } else {
             $formatOK = true;
 
-            if(! $this->validator->name($post["login_name"])) {
+            if (!$this->validator->name($post["login_name"])) {
                 $formatOK = false;
                 $this->session->addError("fieldvalidation.name");
             }
 
-            if(! $this->validator->password($post["login_password"])) {
+            if (!$this->validator->password($post["login_password"])) {
                 $formatOK = false;
                 $this->session->addError("fieldvalidation.password");
             }
@@ -85,27 +89,24 @@ class Login extends BaseController
             if ($formatOK) {
                 $user = $this->userRepo->get(["name" => $post["login_name"]]);
 
-                if (is_object($user)) {
-                    if ($user->email_token === "") {
-                        if (password_verify($post["login_password"], $user->password_hash)) {
-                            $this->session->set("minicms_modern_auth", $user->id);
-                            $this->session->addSuccess("user.loggedin", ["username" => $user->name]);
-                            $this->router->redirect("admin");
-                            return;
-                        } else {
-                            $this->session->addError("user.wrongpassword");
-                        }
-                    } else {
-                        $this->session->addError("user.notactivated");
-                        $this->router->redirect("register/resendconfirmationemail");
-                        return;
-                    }
-                } else {
+                if (!is_object($user)) {
                     $this->session->addError("user.unknown");
                 }
+                elseif ($user->email_token !== "") {
+                    $this->session->addError("user.notactivated");
+                    $this->router->redirect("register/resendconfirmationemail");
+                    return;
+                }
+                elseif (!password_verify($post["login_password"], $user->password_hash)) {
+                    $this->session->addError("user.wrongpassword");
+                }
+                else {
+                    $this->session->set("minicms_modern_auth", $user->id);
+                    $this->session->addSuccess("user.loggedin", ["username" => $user->name]);
+                    $this->router->redirect("admin");
+                    return;
+                }
             }
-        } else {
-            $this->session->addError("csrffail");
         }
 
         $this->render("login", ["post" => $post]);

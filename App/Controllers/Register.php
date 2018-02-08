@@ -71,31 +71,35 @@ class Register extends BaseController
         ]);
 
         if ($this->validator->csrf("register")) {
-            $user = [
-                "name" => $post["register_name"],
-                "email" => $post["register_email"],
-                "password" => $post["register_password"],
-                "password_confirmation" => $post["register_password_confirmation"],
-            ];
+            if ($this->validator->recaptcha()) {
+                $user = [
+                    "name" => $post["register_name"],
+                    "email" => $post["register_email"],
+                    "password" => $post["register_password"],
+                    "password_confirmation" => $post["register_password_confirmation"],
+                ];
 
-            if ($this->validator->user($user)) {
-                unset($post["password_confirm"]);
-                $user = $this->userRepo->create($user);
+                if ($this->validator->user($user)) {
+                    unset($post["password_confirm"]);
+                    $user = $this->userRepo->create($user);
 
-                if (is_object($user)) {
-                    $this->session->addSuccess("user.created");
+                    if (is_object($user)) {
+                        $this->session->addSuccess("user.created");
 
-                    if ($this->mailer->sendConfirmEmail($user)) {
-                        $this->session->addSuccess("email.confirmemail");
-                        $this->router->redirect("login");
-                        return;
+                        if ($this->mailer->sendConfirmEmail($user)) {
+                            $this->session->addSuccess("email.confirmemail");
+                            $this->router->redirect("login");
+                            return;
+                        } else {
+                            $this->router->redirect("register/resendconfirmationemail");
+                            return;
+                        }
                     } else {
-                        $this->router->redirect("register/resendconfirmationemail");
-                        return;
+                        $this->session->addError("db.createuser");
                     }
-                } else {
-                    $this->session->addError("db.createuser");
                 }
+            } else {
+                $this->session->addError("recaptchafail");
             }
         } else {
             $this->session->addError("csrffail");
@@ -148,26 +152,30 @@ class Register extends BaseController
         $post = $this->validator->sanitizePost(["confirm_email" => "string"]);
 
         if ($this->validator->csrf("resendconfirmationemail")) {
-            if ($this->validator->email($post["confirm_email"])) {
-                $user = $this->userRepo->get(["email" => $post["confirm_email"]]);
+            if ($this->validator->recaptcha()) {
+                if ($this->validator->email($post["confirm_email"])) {
+                    $user = $this->userRepo->get(["email" => $post["confirm_email"]]);
 
-                if (is_object($user)) {
-                    if ($user->email_token !== "") {
-                        if ($this->mailer->sendConfirmEmail($user)) {
-                            $this->session->addSuccess("email.confirmemail");
+                    if (is_object($user)) {
+                        if ($user->email_token !== "") {
+                            if ($this->mailer->sendConfirmEmail($user)) {
+                                $this->session->addSuccess("email.confirmemail");
+                                $this->router->redirect("login");
+                                return;
+                            }
+                        } else {
+                            $this->session->addError("user.alreadyactivated");
                             $this->router->redirect("login");
                             return;
                         }
                     } else {
-                        $this->session->addError("user.alreadyactivated");
-                        $this->router->redirect("login");
-                        return;
+                        $this->session->addError("user.unknown");
                     }
                 } else {
-                    $this->session->addError("user.unknown");
+                    $this->session->addError("fieldvalidation.email");
                 }
             } else {
-                $this->session->addError("fieldvalidation.email");
+                $this->session->addError("recaptchafail");
             }
         } else {
             $this->session->addError("csrffail");

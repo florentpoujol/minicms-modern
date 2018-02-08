@@ -10,24 +10,30 @@
 <body>
     <nav id="main-menu">
         <ul>
-            @if ($user->isAdmin())
-            <li><a href="{queryString admin/config}">{lang config.title}</a></li>
-            @endif
-            @if (! $user->isCommenter())
-            <li><a href="{queryString admin/menus}">{lang menu.title}</a></li>
-            <li><a href="{queryString admin/medias}">{lang media.title}</a></li>
+            <li><a href="{queryString blog}">{config site_title}</a></li>
+
+            @if ($user->isAdmin() || $user->isWriter())
             <li><a href="{queryString admin/categories}">{lang category.title}</a></li>
             <li><a href="{queryString admin/posts}">{lang post.title}</a></li>
             <li><a href="{queryString admin/pages}">{lang page.title}</a></li>
             @endif
+
             <li><a href="{queryString admin/comments}">{lang comment.title}</a></li>
             <li><a href="{queryString admin/users}">{lang user.title}</a></li>
+
+            @if ($user->isAdmin() || $user->isWriter())
+            <li><a href="{queryString admin/menus}">{lang menu.title}</a></li>
+            <li><a href="{queryString admin/medias}">{lang media.title}</a></li>
+            @endif
+
+            @if ($user->isAdmin())
+            <li><a href="{queryString admin/config}">{lang config.title}</a></li>
+            @endif
+
             <li><a href="{queryString logout}">{lang logout}</a></li>
         </ul>
     </nav>
 
-    <div id="main-content">
-        {viewContent}
-    </div>
+    {viewContent}
 </body>
 </html>

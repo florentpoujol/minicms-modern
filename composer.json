@@ -1,13 +1,16 @@
 {
     "require": {
-        "phpmailer/phpmailer": "5.2.*",
-        "florentpoujol/php-standard-components": "0.0.*"
+        "php": "^7.0",
+        "ext-curl": "*",
+        "phpmailer/phpmailer": "^5.0.0",
+        "florentpoujol/php-standard-components": "0.0.2",
+        "michelf/php-markdown": "^1.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "6.5.*",
-        "phpunit/dbunit": "3.0.*",
-        "symfony/yaml": "3.4.*",
-        "mikey179/vfsStream": "~1"
+        "ext-gd": "*",
+        "phpunit/phpunit": "^6.0.0",
+        "phpunit/dbunit": "^3.0.0",
+        "mikey179/vfsStream": "^1.0.0"
     },
     "autoload": {
         "psr-4": {

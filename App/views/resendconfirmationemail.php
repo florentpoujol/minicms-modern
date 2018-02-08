@@ -6,6 +6,7 @@
 $form->setup("resendconfirmationemail", $post);
 $form->open($router->getQueryString("register/resendconfirmationemail"));
     $form->email("confirm_email", "email");
+    $form->recaptcha();
     $form->submit("", "Resend email");
 $form->close();
 ?>

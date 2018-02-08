@@ -13,7 +13,6 @@
         <th>title</th>
         <th>Parent</th>
         <th>Editor</th>
-        <th>Excerpt</th>
         <th>Allow comments</th>
         <th>Nb comments</th>
         <th>Published</th>
@@ -40,7 +39,6 @@
         <td>{$row->title}</td>
         <td>{$parent}</td>
         <td>{$editor}</td>
-        <td>{$row->getExcerpt()}</td>
         <td>{$row->allow_comments}</td>
         <td><?= $row->countComments(); ?></td>
         <td>{$row->published}</td>

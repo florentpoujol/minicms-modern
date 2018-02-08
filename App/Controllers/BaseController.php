@@ -84,7 +84,11 @@ class BaseController
         $data["router"] = $this->router;
         $data["lang"] = $this->lang;
         $data["user"] = $this->user;
-        $data["mainMenu"] = App::$container->get(MenuRepo::class)->get(["in_use" => 1]);
+
+        $data["mainMenu"] = "install";
+        if ($this->session->get("current_query_string") !== "install") {
+            $data["mainMenu"] = App::$container->get(MenuRepo::class)->get(["in_use" => 1]);
+        }
 
         if (!isset($data["pageTitle"])) {
             $data["pageTitle"] = str_replace("/", ".", $view) . ".pagetitle";
